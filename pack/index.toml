@@ -5,8 +5,20 @@ file = "config/gtceu.yaml"
 hash = "3316b8ddb7b3c8ce0602eefb369445ebaca2879d24520547013c09d9d43af140"
 
 [[files]]
+file = "kubejs/client_scripts/hide_free_resources.js"
+hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
+
+[[files]]
+file = "kubejs/server_scripts/no_free_resources.js"
+hash = "b91e74aa9cf5c0eb55b520b3b82874f486822bf3427e22635433d7aa2322b1c4"
+
+[[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "d006ef4f2c14c4437c2c87c1d31ca35590798c940988074b958b6b5aff6948de"
+hash = "e9094f405c29ea9de2db7013267a2180b92ff92968fac77c91c836ebd2a323b2"
+
+[[files]]
+file = "kubejs/startup_scripts/free_resource_items.js"
+hash = "535a45ae40d03fc1605c39f4cc54c3882e102d5d1a7af556cc1bbaf07ef47ac1"
 
 [[files]]
 file = "mods/better-advanced-tooltips.pw.toml"
