@@ -1,0 +1,46 @@
+name: Smoke test
+
+# Boots the Pack on a headless NeoForge server and runs the KubeJS smoke-test
+# assertions (scripts/smoke-test.sh). Too slow for the PR check, so it runs on
+# demand and nightly only.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * *"
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SMOKE_CACHE_DIR: /tmp/smoke-cache
+      SMOKE_WORK_DIR: /tmp/smoke-server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache NeoForge server and installers
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SMOKE_CACHE_DIR }}
+          key: smoke-cache-${{ runner.os }}-${{ hashFiles('pack/pack.toml', 'scripts/smoke-test.sh') }}
+          restore-keys: smoke-cache-${{ runner.os }}-
+
+      - name: Run smoke test
+        run: scripts/smoke-test.sh
+
+      - name: Upload server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-logs
+          path: |
+            ${{ env.SMOKE_WORK_DIR }}/console.log
+            ${{ env.SMOKE_WORK_DIR }}/packwiz-installer.log
+            ${{ env.SMOKE_WORK_DIR }}/logs/
+            ${{ env.SMOKE_WORK_DIR }}/crash-reports/
+          if-no-files-found: ignore

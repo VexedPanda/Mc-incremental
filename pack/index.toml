@@ -1,6 +1,10 @@
 hash-format = "sha256"
 
 [[files]]
+file = "kubejs/server_scripts/smoke_test.js"
+hash = "0334472b0d0ef4cc12661d590150be028a59fd9c7e3f252908ea80707e07dd25"
+
+[[files]]
 file = "mods/better-advanced-tooltips.pw.toml"
 hash = "03084ff4f74cedc1b8ac6c85a98842f75956fb4fa811d285d8ca7caa8d54da5d"
 metafile = true
