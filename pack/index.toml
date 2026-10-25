@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "651ddc063be1fc5d75c97f0176fe706c8cabda24829c6bb1021d1933c135d311"
+hash = "990612215dc3708c17337a62a3f318e71d53ac5a14d2b03a813ea58f493d1ee1"
 
 [[files]]
 file = "config/ProjectE/server.toml"
@@ -22,11 +22,11 @@ hash = "07017e595e684e84136fda5c2f55f72a8f4085589ec84ca820ed4f2476b89eba"
 
 [[files]]
 file = "kubejs/server_scripts/no_free_resources.js"
-hash = "b91e74aa9cf5c0eb55b520b3b82874f486822bf3427e22635433d7aa2322b1c4"
+hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "de428e4cf1a334051b6c0080ea40de193081d0ed9435bb05741f7d570bf1726d"
+hash = "a6f3ccec9f79189fe79a5b9128d88fdc4c524b8950efe1c5630b2a8c3c87a7d2"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
