@@ -13,15 +13,26 @@
 #       SMOKE-TEST RESULT: PASS
 #       SMOKE-TEST RESULT: FAIL
 #
-# Exits 0 on PASS; non-zero on FAIL, a missing marker, a crash, or a timeout.
+# After the run it also scans the server log for ProjectE "EMC Exploit" warnings and
+# fails on any that creates EXPLOIT_THRESHOLD (100) EMC or more (ADR-0005's exploit
+# threshold). The known warnings are 9 GT tiny dusts -> 1 dust gaining 1-8 EMC (tiny
+# dust value rounds down); those are accepted (docs/pocs/poc-1.md, "Known small leaks").
+#
+# Exits 0 on PASS; non-zero on FAIL, a missing marker, a crash, an EMC exploit,
+# or a timeout.
+#
+# Requirements: bash, java 21, curl, python3 (picks a free port) and flock (util-linux;
+# serialises the shared download cache).
 #
 # Environment:
 #   SMOKE_CACHE_DIR  downloads + installed NeoForge server (default /tmp/mc-incremental-smoke-cache)
-#   SMOKE_WORK_DIR   server directory for this run; kept afterwards when set
-#                    (default: a fresh mktemp dir, deleted afterwards unless SMOKE_KEEP=1)
+#   SMOKE_WORK_DIR   server directory for this run; wiped first and kept afterwards when set
+#                    (refuses /, $HOME, the repo and their ancestors). Default: a fresh
+#                    mktemp dir, deleted afterwards unless SMOKE_KEEP=1. Set it only when
+#                    no other run uses the same dir (CI does: one job per fresh runner).
 #   SMOKE_TIMEOUT    seconds to wait for the server to finish (default 600)
 #   SMOKE_MEMORY     server max heap (default 3G)
-#   SMOKE_PORT       server port (default: random 30000-39999, to avoid clashing with other servers)
+#   SMOKE_PORT       server port (default: a free port assigned by the kernel, so parallel runs never clash)
 #   SMOKE_KEEP       1 keeps a mktemp work dir for inspection
 set -euo pipefail
 
@@ -38,13 +49,29 @@ PACKWIZ_BOOTSTRAP_VERSION="v0.0.3"
 PASS_MARKER="SMOKE-TEST RESULT: PASS"
 FAIL_MARKER="SMOKE-TEST RESULT: FAIL"
 
+EXPLOIT_THRESHOLD=100
+
 log() { echo "[smoke-test] $*" >&2; }
+
+for tool in java curl python3 flock; do
+  command -v "$tool" > /dev/null || { log "missing required tool: $tool"; exit 2; }
+done
 
 NEOFORGE_VERSION="$(sed -n 's/^neoforge *= *"\(.*\)"/\1/p' "$PACK_DIR/pack.toml")"
 [ -n "$NEOFORGE_VERSION" ] || { log "could not read neoforge version from pack/pack.toml"; exit 2; }
 
 if [ -n "${SMOKE_WORK_DIR:-}" ]; then
-  WORK_DIR="$SMOKE_WORK_DIR"
+  # Normalise, then refuse anything whose wipe would destroy more than a scratch dir.
+  WORK_DIR="$(realpath -m "$SMOKE_WORK_DIR")"
+  for protected in / "$HOME" "$REPO_ROOT" "$PACK_DIR" "$(realpath -m "$CACHE_DIR")"; do
+    protected="$(realpath -m "$protected")"
+    case "$protected/" in
+      "$WORK_DIR"/*) log "refusing SMOKE_WORK_DIR=$SMOKE_WORK_DIR: it is or contains $protected"; exit 2 ;;
+    esac
+  done
+  case "$WORK_DIR/" in
+    "$REPO_ROOT"/*) log "refusing SMOKE_WORK_DIR=$SMOKE_WORK_DIR: it is inside the repo"; exit 2 ;;
+  esac
   rm -rf "$WORK_DIR"
   mkdir -p "$WORK_DIR"
 else
@@ -149,4 +176,14 @@ fi
 if ! grep -qF "$PASS_MARKER" "$WORK_DIR/console.log"; then
   fail "no '$PASS_MARKER' marker in the server log"
 fi
+# ProjectE logs "EMC Exploit: ingredients (...) cost X but output value is Y" for every
+# recipe whose output is worth more than its inputs. Fail on any gain >= EXPLOIT_THRESHOLD.
+exploits="$(grep -F 'EMC Exploit:' "$WORK_DIR/console.log" \
+  | sed -n 's/.*cost \([0-9]*\) but output value is \([0-9]*\).*/\2 \1 &/p' \
+  | awk -v t="$EXPLOIT_THRESHOLD" '$1 - $2 >= t { $1 = ""; $2 = ""; print }')" || true
+if [ -n "$exploits" ]; then
+  echo "$exploits" >&2
+  fail "ProjectE reports EMC exploits creating >= $EXPLOIT_THRESHOLD EMC (see above)"
+fi
+log "EMC exploit warnings: $(grep -cF 'EMC Exploit:' "$WORK_DIR/console.log" || true), none >= $EXPLOIT_THRESHOLD EMC"
 log "PASS"

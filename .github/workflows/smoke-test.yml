@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 30
     env:
       SMOKE_CACHE_DIR: /tmp/smoke-cache
+      # A fixed work dir (so the logs can be uploaded) is safe here: each job gets its own
+      # fresh runner, so no other run shares it. Local runs leave it unset (mktemp dir).
       SMOKE_WORK_DIR: /tmp/smoke-server
     steps:
       - uses: actions/checkout@v4

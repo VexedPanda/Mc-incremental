@@ -16,14 +16,13 @@
 // - No mod in the Pack adds a chunk loader. The smoke test fails if one appears.
 
 ServerEvents.recipes(event => {
-  // GT Fluid Drilling Rig (MV/HV/EV): pulls oil, gas and lava from bedrock fluid veins.
-  event.remove({ id: /fluid_drilling_rig/ })
-  // GT Bedrock Ore Miner: guard in case a recipe for it appears.
-  event.remove({ id: /bedrock_ore_miner/ })
-  // GT centrifuge: stone dust -> metal mixture etc. (cobble into titanium, chrome ...).
-  event.remove({ id: 'gtceu:centrifuge/stone_dust_separation' })
-  // ProjectE Energy Collectors MK1-3: EMC from sunlight.
-  event.remove({ id: /^projecte:collector_mk[123]$/ })
-
+  // Every recipe that outputs a free-resource machine (startup_scripts/free_resource_items.js):
+  // GT Fluid Drilling Rig (MV/HV/EV, oil/gas/lava from bedrock fluid veins), GT Bedrock Ore
+  // Miner (guard in case a recipe for it appears) and ProjectE Energy Collectors MK1-3 (EMC
+  // from sunlight). Removing by output catches every recipe type, so no id match is needed.
   global.FREE_RESOURCE_ITEMS.forEach(item => event.remove({ output: item }))
+
+  // GT centrifuge: stone dust -> metal mixture etc. (cobble into titanium, chrome ...).
+  // Not a machine, so it is removed by recipe id.
+  event.remove({ id: 'gtceu:centrifuge/stone_dust_separation' })
 })

@@ -16,13 +16,57 @@
 // Each is { name, check(server) } where check returns true, or returns false /
 // throws to fail.
 
-// Helpers for EMC assertions. getValue/getSellValue are overloaded, so Rhino needs the
-// explicit method signature.
+// Paths (relative to the server directory) and classes used below.
+const SMOKE_EMC_FILE = 'config/ProjectE/custom_emc.json'
+const SMOKE_FLUID_EMC_FILE = 'kubejs/data/mcincremental_prestige/fluid_emc/fluids.json'
+const SMOKE_GT_CONFIG = Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
+const smokeGTRecipe = Java.loadClass('com.gregtechceu.gtceu.api.recipe.GTRecipe')
+const smokeGTItemCap = Java.loadClass('com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability').CAP
 const smokeEmcProxy = Java.loadClass('moze_intel.projecte.api.proxy.IEMCProxy')
 const smokeItemInfo = Java.loadClass('moze_intel.projecte.api.ItemInfo')
 const smokeRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
 const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
+
+// Thresholds.
+// The EMC data file has ~80 entries; far fewer means it was truncated or mis-parsed.
+const SMOKE_MIN_EMC_ENTRIES = 40
+// Diesel is a refined GT fuel; below one iron ingot (256) it would be near-free to bank.
+const SMOKE_MIN_DIESEL_EMC = 256
+// Lava plus at least one GT fuel must resolve to a bucket, so the check can't pass vacuously.
+const SMOKE_MIN_BUCKETS_CHECKED = 2
+// How long to wait for ProjectE's EMC map after /reload before failing.
+const SMOKE_EMC_WAIT_SECONDS = 60
+
+// EMC helpers. getValue/getSellValue are overloaded, so Rhino needs the explicit method signature.
 const smokeEmc = id => smokeEmcProxy.INSTANCE['getValue(moze_intel.projecte.api.ItemInfo)'](smokeItemInfo.fromStack(Item.of(id)))
+const smokeSellEmc = id => smokeEmcProxy.INSTANCE['getSellValue(moze_intel.projecte.api.ItemInfo)'](smokeItemInfo.fromStack(Item.of(id)))
+
+// Item ids a recipe outputs. GT machine recipes keep outputs in their own maps
+// (getResultItem is empty for them); every other recipe type uses getResultItem.
+const smokeRecipeOutputIds = (server, holder) => {
+  var recipe = holder.value()
+  var ids = []
+  var addStack = stack => {
+    if (!stack.isEmpty()) ids.push(String(smokeRegistries.ITEM.getKey(stack.getItem())))
+  }
+  if (recipe instanceof smokeGTRecipe) {
+    [recipe.outputs, recipe.tickOutputs].forEach(map => {
+      var contents = map.get(smokeGTItemCap)
+      if (contents == null) return
+      for (var i = 0; i < contents.size(); i++) {
+        var stacks = contents.get(i).content().getItems()
+        for (var j = 0; j < stacks.length; j++) addStack(stacks[j])
+      }
+    })
+  } else {
+    addStack(recipe.getResultItem(server.registryAccess()))
+  }
+  return ids
+}
+const smokeEachRecipe = (server, fn) => {
+  var it = server.recipeManager.getRecipes().iterator()
+  while (it.hasNext()) fn(it.next())
+}
 
 const SMOKE_TEST_ASSERTIONS = [
   {
@@ -31,13 +75,11 @@ const SMOKE_TEST_ASSERTIONS = [
   },
   {
     name: 'GT keeps vanilla ore gen (thin baseline): removeVanillaOreGen=false',
-    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
-      .INSTANCE.worldgen.oreVeins.removeVanillaOreGen === false
+    check: () => SMOKE_GT_CONFIG.INSTANCE.worldgen.oreVeins.removeVanillaOreGen === false
   },
   {
     name: 'GT bedrock ore veins off: doBedrockOres=false',
-    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
-      .INSTANCE.machines.doBedrockOres === false
+    check: () => SMOKE_GT_CONFIG.INSTANCE.machines.doBedrockOres === false
   },
 
   // --- #40: no free resource generation (ADR-0005) ---
@@ -57,6 +99,44 @@ const SMOKE_TEST_ASSERTIONS = [
   {
     name: '#40 no ProjectE Energy Collector recipe',
     check: server => !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('collector_mk'))
+  },
+  {
+    name: '#40 no recipe of any type outputs a free-resource item (FREE_RESOURCE_ITEMS)',
+    check: server => {
+      // Guard against a vacuous pass: the output reader must see a vanilla and a GT output.
+      var probe = (id, item) => {
+        var holder = server.recipeManager.byKey(id)
+        if (!holder.isPresent() || smokeRecipeOutputIds(server, holder.get()).indexOf(item) < 0) throw 'cannot read outputs of ' + id
+      }
+      probe('minecraft:crafting_table', 'minecraft:crafting_table')
+      probe('gtceu:rock_breaker/cobblestone', 'minecraft:cobblestone')
+      var banned = global.FREE_RESOURCE_ITEMS.map(id => String(id))
+      var found = []
+      smokeEachRecipe(server, holder => {
+        smokeRecipeOutputIds(server, holder).forEach(id => {
+          if (banned.indexOf(id) >= 0) found.push(String(holder.id()) + ' -> ' + id)
+        })
+      })
+      if (found.length > 0) throw found.join(', ')
+      return true
+    }
+  },
+  {
+    name: '#40 GT Rock Breaker outputs stone variants only (no ore, raw ore, crushed ore or dust)',
+    check: server => {
+      var checked = 0
+      var bad = []
+      smokeEachRecipe(server, holder => {
+        if (String(holder.id()).indexOf('gtceu:rock_breaker/') !== 0) return
+        checked++
+        smokeRecipeOutputIds(server, holder).forEach(id => {
+          if (/(^|[:_])(ore|ores|raw|crushed|purified|impure)(_|$)|dust/.test(id)) bad.push(String(holder.id()) + ' -> ' + id)
+        })
+      })
+      if (checked === 0) throw 'no rock_breaker recipes found'
+      if (bad.length > 0) throw bad.join(', ')
+      return true
+    }
   },
   {
     name: '#40 no chunk loader or power flower items registered',
@@ -83,10 +163,10 @@ const SMOKE_TEST_ASSERTIONS = [
   {
     name: 'EMC: every item in the EMC data file is registered and has exactly its listed value',
     check: server => {
-      const file = JsonIO.read('config/ProjectE/custom_emc.json')
+      const file = JsonIO.read(SMOKE_EMC_FILE)
       if (file == null) throw 'EMC data file missing'
       const entries = file.entries
-      if (entries.length < 40) throw 'only ' + entries.length + ' entries'
+      if (entries.length < SMOKE_MIN_EMC_ENTRIES) throw 'only ' + entries.length + ' entries'
       entries.forEach(e => {
         // (no let/const in this block: Rhino reports them as redeclared on the next entry)
         if (e.tag) {
@@ -106,8 +186,7 @@ const SMOKE_TEST_ASSERTIONS = [
     name: 'EMC: sell value equals EMC value (lossless)',
     check: server => {
       ['gtceu:steel_ingot', 'gtceu:lv_electric_motor', 'minecraft:diamond'].forEach(id => {
-        const info = smokeItemInfo.fromStack(Item.of(id))
-        const sell = smokeEmcProxy.INSTANCE['getSellValue(moze_intel.projecte.api.ItemInfo)'](info)
+        const sell = smokeSellEmc(id)
         if (smokeEmc(id) <= 0 || sell != smokeEmc(id)) throw id + ' sells for ' + sell + ', EMC ' + smokeEmc(id)
       })
       return true
@@ -116,7 +195,7 @@ const SMOKE_TEST_ASSERTIONS = [
   {
     name: 'Fluid EMC: file parses, ids are registered fluids, water is free',
     check: server => {
-      const file = JsonIO.read('kubejs/data/mcincremental_prestige/fluid_emc/fluids.json')
+      const file = JsonIO.read(SMOKE_FLUID_EMC_FILE)
       if (file == null) throw 'fluid EMC file missing'
       const values = file.emc_per_1000_mb
       Object.keys(values).forEach(id => {
@@ -124,14 +203,14 @@ const SMOKE_TEST_ASSERTIONS = [
         if (!(values[id] >= 0)) throw id + ' has bad value ' + values[id]
       })
       if (values['minecraft:water'] !== 0) throw 'water is ' + values['minecraft:water']
-      if (!(values['gtceu:diesel'] >= 256)) throw 'diesel is ' + values['gtceu:diesel']
+      if (!(values['gtceu:diesel'] >= SMOKE_MIN_DIESEL_EMC)) throw 'diesel is ' + values['gtceu:diesel']
       return true
     }
   },
   {
     name: 'Fluid EMC: each filled bucket is worth an empty bucket plus its fluid value',
     check: server => {
-      const values = JsonIO.read('kubejs/data/mcincremental_prestige/fluid_emc/fluids.json').emc_per_1000_mb
+      const values = JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb
       const empty = smokeEmc('minecraft:bucket')
       let checked = 0
       Object.keys(values).forEach(id => {
@@ -143,7 +222,7 @@ const SMOKE_TEST_ASSERTIONS = [
           throw bucketId + ' EMC is ' + smokeEmc(bucketId) + ', expected ' + empty + ' + ' + values[id]
         }
       })
-      if (checked < 2) throw 'only ' + checked + ' buckets checked'
+      if (checked < SMOKE_MIN_BUCKETS_CHECKED) throw 'only ' + checked + ' buckets checked'
       return true
     }
   },
@@ -179,7 +258,7 @@ const SMOKE_TEST_ASSERTIONS = [
       // GT's recipes for these need tools or machines ProjectE can't value, so they are pinned at ProjectE's defaults.
       const allowed = ['minecraft:bucket', 'minecraft:lava_bucket', 'minecraft:iron_block', 'minecraft:gold_block',
         'minecraft:copper_block']
-      JsonIO.read('config/ProjectE/custom_emc.json').entries.forEach(e => {
+      JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
         if (e.tag) throw 'tag pinned: ' + e.tag
         if (String(e.id).indexOf('minecraft:') === 0 && allowed.indexOf(String(e.id)) < 0) throw 'vanilla item pinned: ' + e.id
       })
@@ -221,7 +300,7 @@ const SMOKE_TEST_ASSERTIONS = [
     name: '#47 Fluid EMC: lava equals ProjectE default lava bucket (832) minus empty bucket (768)',
     check: server => {
       // ProjectE defaults: bucket = 3 iron ingots; lava bucket = bucket + redstone (conversions/redstone_to_lava).
-      const lava = JsonIO.read('kubejs/data/mcincremental_prestige/fluid_emc/fluids.json').emc_per_1000_mb['minecraft:lava']
+      const lava = JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb['minecraft:lava']
       const bucket = smokeEmc('minecraft:bucket')
       const lavaBucket = smokeEmc('minecraft:lava_bucket')
       if (bucket != 3 * smokeEmc('minecraft:iron_ingot') || lavaBucket != bucket + smokeEmc('minecraft:redstone')) {
@@ -232,8 +311,10 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47 ProjectE Philosopher\'s Stone conversions exist (e.g. 4 gold -> diamond)',
+    name: '#47 ProjectE Philosopher\'s Stone conversions exist: the 8 restored by #47, plus coal_to_charcoal',
     check: server => {
+      // #41 removed 8 conversions and #47 restored them; coal_to_charcoal was never removed
+      // and is checked as a canary that the conversions datapack loaded at all.
       ;['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot',
         'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'diamond_to_emerald',
         'emerald_to_diamond', 'redstone_to_lava', 'coal_to_charcoal'].forEach(id => {
@@ -263,9 +344,16 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#45 water stays free: Evertide Amulet and its recipe exist',
+    name: '#47 water stays free: Evertide Amulet and its recipe exist',
     check: server => Item.exists('projecte:evertide_amulet') &&
       server.recipeManager.byKey('projecte:evertide_amulet').isPresent()
+  },
+  {
+    name: 'Transmutation Tablet is worth 0 EMC (the prestige mod hands it out for free)',
+    check: server => {
+      if (smokeEmc('projecte:transmutation_tablet') != 0) throw 'EMC is ' + smokeEmc('projecte:transmutation_tablet')
+      return true
+    }
   },
   // --- end #47 ---
 
@@ -331,14 +419,20 @@ if (JsonIO.read('smoke-test.json') != null) {
         ' (' + (SMOKE_TEST_ASSERTIONS.length - failures) + '/' + SMOKE_TEST_ASSERTIONS.length + ' assertions passed)')
     }
     // ProjectE only builds its EMC map on player join or /reload, so reload first and
-    // wait (bounded) until cobblestone has EMC before asserting anything.
+    // wait (bounded) until cobblestone has EMC before asserting anything. If it never
+    // gets EMC, fail once with a clear reason instead of every EMC assertion failing.
     let attempts = 0
     const waitForEmc = () => {
       let done = true
       try {
-        if (smokeEmc('minecraft:cobblestone') == 0 && ++attempts < 60) {
-          done = false
-          server.scheduleInTicks(20, waitForEmc)
+        if (smokeEmc('minecraft:cobblestone') == 0) {
+          if (++attempts < SMOKE_EMC_WAIT_SECONDS) {
+            done = false
+            server.scheduleInTicks(20, waitForEmc)
+            return
+          }
+          console.info('SMOKE-TEST FAILED: EMC map not built (cobblestone EMC still 0 after ' + SMOKE_EMC_WAIT_SECONDS + 's)')
+          console.info('SMOKE-TEST RESULT: FAIL (EMC map not built)')
           return
         }
         runAssertions()
