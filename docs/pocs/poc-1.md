@@ -11,8 +11,14 @@ Status: being defined. Decisions here are cheap to change; hard-to-reverse ones 
 - **Prestige trigger:** a craftable item, cheap enough to make from a single dirt, sand or cobblestone, that runs a KubeJS script: pick a far-away new area (re-pick if ocean), move the border, teleport, clear the inventory.
 - **Prestige availability:** always available (no minimum achievement).
 
+- **Content mod and version:** GregTech CEu Modern 8.0 snapshot (pinned) on 1.21.1 NeoForge, with ProjectE PE1.1.0 and KubeJS 2101 (ADR-0006).
+- **Ore layout:** GT places one vein per layer on a 3-chunk grid, so each 3×3 Run area holds exactly one stone-layer and one deepslate-layer vein (e.g. iron ~1 in 7 Runs, diamond ~1 in 8.5). That per-Run lottery is the hook. The Prestige script centres each Run area on a GT grid point (chunk x and z both multiples of 3) so the veins sit inside the border. A thin baseline of scattered vanilla ores stays on (`removeVanillaOreGen=false`) so no Run soft-locks the steam age.
+- **Allowed low-value inputs:** air, water, cobblestone (GT chemistry needs oxygen; plastics come from plant ethanol).
+- **Removed free generation (ADR-0005):** GT Fluid Drilling Rig, Bedrock Ore Miner (`doBedrockOres=false`), the `stone_dust_separation` recipe (cobble to titanium/chrome trickle), ProjectE Energy Collectors and power flowers. Chunk loaders are banned.
+- **Raw ore has 0 EMC** (ProjectE default): ore must be processed before it can be banked. Processed outputs have EMC, so this doesn't add grind.
+- **Prestige sweep:** on Prestige, everything in the Run area that doesn't match the original worldgen (placed blocks, machines, container contents, placed fluids, dropped items) is converted to EMC and removed, so nothing valuable is left behind and nothing keeps generating EMC.
+- **EMC values for GT:** ProjectE ignores GT machine recipes, so GT parts and materials need a hand-made EMC value set.
+
 ## Open
 
-- **Content mod:** a GregTech-style tech mod (GTCEu / Monifactory-like) or similar, under evaluation.
-- **Minecraft version/loader:** follows the Content mod; prefer the newest version the mods support.
-- **Resources missing from the Run area** (e.g. no diamonds): issue #12.
+- **Resources missing from the Run area** (e.g. no diamonds): issue #12. Villager trades and EMC from earlier Runs are the current answers.
