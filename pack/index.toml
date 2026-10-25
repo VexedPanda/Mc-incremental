@@ -30,7 +30,7 @@ hash = "198d6aa437312700e967bacec3d6273c2645abec9d9b8a18c1ecd117295e4b7e"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "9805e78910a7d55fcd6867cf744c32bc0da4ce909b954d0f8f5e8548dca8b076"
+hash = "663b0e5cbe7a44d34ef1b89f2e4b66590b4e55f456ee079a66f8b1b5477a6de3"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
@@ -70,3 +70,13 @@ metafile = true
 file = "mods/rhino.pw.toml"
 hash = "e55ca32b338a0e0540f4fec5170675d860566255ae0f45692a00cb4ebf2eb535"
 metafile = true
+
+[[files]]
+file = "options.txt"
+hash = "499f58cc1f9c6a5ede0fbc00636a29470e5c350d72c20db04a56d8c84f4aab0a"
+preserve = true
+
+[[files]]
+file = "server.properties"
+hash = "5be70dc879f2b983f0dcb4c39aece206197a669cd68d836d54b4f91483bdf955"
+preserve = true

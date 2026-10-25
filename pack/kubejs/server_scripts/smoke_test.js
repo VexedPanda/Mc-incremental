@@ -214,8 +214,30 @@ const SMOKE_TEST_ASSERTIONS = [
     name: '#45 water stays free: Evertide Amulet and its recipe exist',
     check: server => Item.exists('projecte:evertide_amulet') &&
       server.recipeManager.byKey('projecte:evertide_amulet').isPresent()
-  }
+  },
   // --- end #45 ---
+
+  // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
+  // Values come from the Pack's shipped server.properties (the smoke script keeps them).
+  // Simulation distance has no server-side clamp; 2 is the lowest value that keeps the
+  // whole 3x3 Run area entity-ticking from any chunk inside it.
+  {
+    name: '#46 server view distance is 2',
+    check: server => {
+      if (server.playerList.getViewDistance() != 2) throw 'playerList view distance ' + server.playerList.getViewDistance()
+      if (server.getProperties().viewDistance != 2) throw 'server.properties view-distance ' + server.getProperties().viewDistance
+      return true
+    }
+  },
+  {
+    name: '#46 server simulation distance is 2',
+    check: server => {
+      if (server.playerList.getSimulationDistance() != 2) throw 'playerList simulation distance ' + server.playerList.getSimulationDistance()
+      if (server.getProperties().simulationDistance != 2) throw 'server.properties simulation-distance ' + server.getProperties().simulationDistance
+      return true
+    }
+  }
+  // --- end #46 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {
