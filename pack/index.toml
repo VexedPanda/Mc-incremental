@@ -30,7 +30,7 @@ hash = "198d6aa437312700e967bacec3d6273c2645abec9d9b8a18c1ecd117295e4b7e"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "663b0e5cbe7a44d34ef1b89f2e4b66590b4e55f456ee079a66f8b1b5477a6de3"
+hash = "928b8618097ce8296ff682efdc9716a49f6ec379fdf0fb354d276aba9be8958b"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
@@ -59,6 +59,11 @@ metafile = true
 [[files]]
 file = "mods/kubejs.pw.toml"
 hash = "7e0eca275f27b6543f06c36dec433851a956960cbedd2be57d19e159d636bfc1"
+metafile = true
+
+[[files]]
+file = "mods/mcincremental-prestige.pw.toml"
+hash = "74a32ded2d7b7b7b6c9d2c8cb051b9e2e1d8e2690554f00ec139b03719d1b747"
 metafile = true
 
 [[files]]

@@ -236,8 +236,27 @@ const SMOKE_TEST_ASSERTIONS = [
       if (server.getProperties().simulationDistance != 2) throw 'server.properties simulation-distance ' + server.getProperties().simulationDistance
       return true
     }
-  }
+  },
   // --- end #46 ---
+
+  // --- #42: prestige mod (mcincremental_prestige v0.1.0) ---
+  {
+    name: '#42 Prestige item is registered and its recipe exists',
+    check: server => {
+      if (!smokeRegistries.ITEM.containsKey(smokeRL.parse('mcincremental_prestige:prestige'))) throw 'item not registered'
+      if (!server.recipeManager.byKey('mcincremental_prestige:prestige').isPresent()) throw 'recipe missing'
+      return true
+    }
+  },
+  {
+    name: '#42 EMC barrel block is registered and its recipe exists',
+    check: server => {
+      if (!smokeRegistries.BLOCK.containsKey(smokeRL.parse('mcincremental_prestige:emc_barrel'))) throw 'block not registered'
+      if (!server.recipeManager.byKey('mcincremental_prestige:emc_barrel').isPresent()) throw 'recipe missing'
+      return true
+    }
+  }
+  // --- end #42 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {
