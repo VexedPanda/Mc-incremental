@@ -5,10 +5,15 @@ Some resources only generate in the Nether or End (e.g. GregTech's tungsten and 
 ## Considered Options
 
 - **Linked areas per Run:** every Run has an area in each dimension, joined by portals. More content per Run, but the snapshot, sweep and border must span dimensions at once.
+- **Prospecting (buying a sample of an unlearned resource with EMC):** reliable, but skips exploration. Rejected; reconsider per resource only if playtesting shows one is unreachable.
 - **No other dimensions:** their resources only enter through trades, loot or Meta progression purchases. Simplest, but drops exploration as the way to discover them.
 
 ## Consequences
 
 - The Prestige mod needs per-dimension placement and safe-spawn rules (Nether lava and ceiling, End void), and the border must confine the Run in whichever dimension it lies in.
-- Choosing where to Prestige becomes the loop's central decision; Candidate areas show each area's dimension and vein types.
+- Choosing where to Prestige becomes the loop's central decision; Candidate areas show each area's dimension, vein types and structures.
+- Structure-bound resources (blaze rods behind the End gate, wither skulls, shulker shells, echo shards) rarely fit in a 3×3 area, so Candidate areas are biased: while a resource that a Dimension gate needs is undiscovered, at least one candidate contains its source.
+- End Run areas lie only on the outer islands and must hold enough land (as overworld candidates skip oceans); the dragon's island is excluded (whether it is ever reachable is the endgame question, #6).
+- A Run stays in its dimension: portals do nothing during a Run, and the dimension only changes at Prestige.
+- No dimension-specific starting items: a world past a gate has already learned the basics (logs, water) and buys them with EMC.
 - Resources normally mined in other dimensions are priced in EMC by rarity, consistent with overworld ores, not by dimension.
