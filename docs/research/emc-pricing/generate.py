@@ -2,31 +2,33 @@
 pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json.
 
 Usage:
-  python3 generate.py SERVER_LOG PROJECTE_JAR [--write]
+  python3 generate.py [DUMP [PROJECTE_DEFAULTS]] [--write]
 
-SERVER_LOG is the console of a smoke-test server run with dump.js added (see README.md); PROJECTE_JAR is the ProjectE
-jar from that server's mods/ (its default values). Without --write it only prints the report.
+DUMP is a server log with the dump.js lines, or the committed dump.txt.xz (the default); PROJECTE_DEFAULTS is
+ProjectE's jar or the committed projecte_defaults/ (the default). Without --write it only prints the report.
+README.md says how to take a new dump.
 
-What it does, in order (emcmodel.py replays ProjectE and the Prestige mod's GT recipe mapper offline):
- 1. Fixed values: ProjectE's defaults, plus hand_values.json (steam-age pins, vanilla items GT hides from ProjectE,
-    obtainable items no recipe makes, the fuels and the free fluids).
- 2. Byproduct-only materials (a dust or gem that only turns up as a chanced byproduct of ore processing, which the
-    mapper never values) get their rarity price (rarity.json) on their dust or gem.
- 3. Every ore block and raw ore is worth what fully processing it yields (ore_yields.json): its crushed ores' unit
+What it does (emcmodel.py replays ProjectE and the Prestige mod's GT recipe mapper offline):
+ 1. Fixed values: ProjectE's defaults and hand_values.json. Fluids GT makes from water and air alone are a nominal 1.
+ 2. Every ore block and raw ore is worth what fully processing it yields (ore_yields.json): its crushed ores' unit
     plus the expected byproducts. A material's unit is the value its dust or gem already has, at least what smelting
-    it gives (goethite dust smelts to an iron ingot); a material with neither is priced by rarity.
+    it gives (goethite dust smelts to an iron ingot); a material with neither is priced by rarity (rarity.json).
+ 3. Byproduct-only materials (a dust only met as a chanced byproduct of ore processing, which the mapper never
+    values) and materials nothing makes get their rarity price on their dust.
  4. Items still at 0 that a recipe makes, but that ProjectE can't map (crafting with a GT tool, which only loses
-    durability, or making one), are pinned at that recipe's ingredient cost, one recipe step at a time, so that
-    everything made from them is still derived. A cost below 1 EMC is pinned at 1 (ProjectE has no fractions).
- 5. Every fluid is listed at the value the mapper derives for it; a filled bucket is pinned at the empty bucket plus
-    its fluid.
+    durability; GT tools; outputs with data components; decompositions, recycling, byproducts), are pinned at that
+    recipe's ingredient cost, one step at a time, so that everything made from them is still derived. Pins the game
+    can derive by itself are dropped. Items the game would floor to 0 (below 1 EMC) are pinned at 1.
+ 5. Every other fluid is listed at the value the mapper derives for it; listing changes how the mapper treats
+    byproducts, so the items are priced again and fluids a recipe now makes for less are lowered, until none is.
+    A filled bucket is pinned at the empty bucket plus its fluid.
 """
 import json, math, os, re, sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from emcmodel import Model, load_dump  # noqa: E402
+from emcmodel import Model, load_dump, _lines  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 CUSTOM_EMC = os.path.join(REPO, 'pack', 'config', 'ProjectE', 'custom_emc.json')
@@ -220,7 +222,7 @@ class Generator:
         run() caps the fluid at its dumped value times that ratio, and game_caps.json keeps the cap."""
         ratios = {}
         pat = re.compile(r'=> \d+\*NSSFake: mcincremental_prestige:gt_recipes/fluid (\S+)\) cost (\d+) but output value is (\d+)')
-        for line in open(log, encoding='utf-8', errors='replace'):
+        for line in _lines(log):
             m = pat.search(line)
             if m and int(m.group(3)) - int(m.group(2)) >= LOWER_MARGIN:
                 f, r = m.group(1), int(m.group(2)) / int(m.group(3))
@@ -451,9 +453,11 @@ def write(g):
 
 
 def main(argv):
-    if len(argv) < 2:
+    args = [a for a in argv if not a.startswith('--')]
+    if len(args) > 2:
         sys.exit(__doc__)
-    g = Generator(argv[0], argv[1])
+    g = Generator(args[0] if args else os.path.join(HERE, 'dump.txt.xz'),
+                  args[1] if len(args) > 1 else os.path.join(HERE, 'projecte_defaults'))
     val = g.run()
     for l in g.log:
         print(l)

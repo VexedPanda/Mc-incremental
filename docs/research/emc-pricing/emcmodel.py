@@ -15,7 +15,7 @@ Two modes:
   1000 mB; chanced outputs at their expected amount). These are fallbacks, never cheaper routes: an equal split isn't a
   real cost, and splitting what another recipe composes would loop values down to nothing.
 """
-import json, math, re, zipfile
+import json, math, os, re, zipfile
 from collections import defaultdict
 
 TOOL_TAG_PREFIX = 'gtceu:crafting_tools/'
@@ -25,10 +25,18 @@ VANILLA_TYPES = ('minecraft:crafting', 'minecraft:smelting', 'minecraft:blasting
                  'minecraft:campfire_cooking', 'minecraft:stonecutting', 'minecraft:smithing')
 
 
+def _lines(path):
+    """A server log, or the committed dump.txt.xz."""
+    if path.endswith('.xz'):
+        import lzma
+        return lzma.open(path, 'rt', encoding='utf-8', errors='replace')
+    return open(path, encoding='utf-8', errors='replace')
+
+
 def load_dump(path):
     """(items {id: in-game EMC}, fluids {id: (source id, listed value, bucket item)}, tags {tag: [ids]}, recipes [dict])."""
     items, fluids, tags, recipes = {}, {}, {}, []
-    for line in open(path, encoding='utf-8', errors='replace'):
+    for line in _lines(path):
         i = line.find('EMCDUMP ')
         if i >= 0 and 'EMCDUMP-' not in line:
             _, k, v = line[i:].split()
@@ -96,10 +104,14 @@ class Model:
             return self.tags.get(spec['tag'], [])
         return [spec['id']] if 'id' in spec else []
 
-    def _load_pe_defaults(self, jar):
-        with zipfile.ZipFile(jar) as z:
-            names = sorted(n for n in z.namelist() if n.startswith('data/projecte/pe_custom_conversions/'))
-            files = [json.loads(z.read(n)) for n in names if n.endswith('.json')]
+    def _load_pe_defaults(self, src):
+        """ProjectE's pe_custom_conversions: from its jar, or a directory of the extracted JSON files."""
+        if os.path.isdir(src):
+            files = [json.load(open(os.path.join(src, n))) for n in sorted(os.listdir(src)) if n.endswith('.json')]
+        else:
+            with zipfile.ZipFile(src) as z:
+                names = sorted(n for n in z.namelist() if n.startswith('data/projecte/pe_custom_conversions/'))
+                files = [json.loads(z.read(n)) for n in names if n.endswith('.json')]
         for d in files:
             for e in d.get('values', {}).get('before', []):
                 for m in self.members(e):
