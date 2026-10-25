@@ -19,6 +19,16 @@ const SMOKE_TEST_ASSERTIONS = [
   {
     name: 'vanilla crafting table recipe exists',
     check: server => server.recipeManager.byKey('minecraft:crafting_table').isPresent()
+  },
+  {
+    name: 'GT keeps vanilla ore gen (thin baseline): removeVanillaOreGen=false',
+    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
+      .INSTANCE.worldgen.oreVeins.removeVanillaOreGen === false
+  },
+  {
+    name: 'GT bedrock ore veins off: doBedrockOres=false',
+    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
+      .INSTANCE.machines.doBedrockOres === false
   }
 ]
 
