@@ -20,6 +20,10 @@ _Avoid_: Addon (reserved for mods that extend a specific other mod)
 The ordered path a player takes from a fresh world to the Pack's end goal, gated by effort and complexity rather than waiting.
 _Avoid_: Grind, incremental (until incremental mechanics are designed)
 
+**Prestige**:
+Deliberately abandoning the current world for a freshly generated one, keeping only what is designed to carry over. The Pack's core loop is resource exhaustion followed by Prestige.
+_Avoid_: Reset, rebirth, ascension, new game+
+
 **Progression layer**:
 The Pack's own additions on top of its mods (questbook, recipe changes, staged unlocks) that tie them into one Progression.
 _Avoid_: Integration, glue
