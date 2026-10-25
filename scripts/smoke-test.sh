@@ -94,14 +94,23 @@ log "installing the Pack (server side) from $PACK_DIR"
   || { tail -n 30 "$WORK_DIR/packwiz-installer.log" >&2; log "FAIL: packwiz-installer failed"; exit 1; }
 
 echo "eula=true" > "$WORK_DIR/eula.txt"
-cat > "$WORK_DIR/server.properties" <<EOF
-online-mode=false
-level-seed=mc-incremental-smoke
-spawn-protection=0
-server-port=$PORT
-enable-rcon=false
-enable-query=false
-EOF
+# Start from the Pack's shipped server.properties defaults (view/simulation distance, ...)
+# and only override the keys this test needs.
+[ -f "$WORK_DIR/server.properties" ] \
+  || { log "FAIL: the Pack did not install server.properties defaults"; exit 1; }
+set_prop() { # key value: replace the key in place, or append it
+  if grep -q "^$1=" "$WORK_DIR/server.properties"; then
+    sed -i "s|^$1=.*|$1=$2|" "$WORK_DIR/server.properties"
+  else
+    echo "$1=$2" >> "$WORK_DIR/server.properties"
+  fi
+}
+set_prop online-mode false
+set_prop level-seed mc-incremental-smoke
+set_prop spawn-protection 0
+set_prop server-port "$PORT"
+set_prop enable-rcon false
+set_prop enable-query false
 echo '{"enabled": true}' > "$WORK_DIR/smoke-test.json"
 
 log "booting server on port $PORT (timeout ${TIMEOUT}s)"
