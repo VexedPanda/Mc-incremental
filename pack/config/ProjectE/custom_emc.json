@@ -1,477 +1,325 @@
 {
-  "comment": "Mc-incremental first-pass EMC values (#41): GT materials (ingot = dust = plate), parts, casings and steam-age machines, low values for renewables (ADR-0005), and filled buckets = empty bucket + the fluid's value in kubejs/data/mcincremental_prestige/fluid_emc/fluids.json (the smoke test checks they agree). ProjectE applies this file after its datapack defaults, so these values win.",
+  "comment": "Mc-incremental hand-set EMC values (#41, re-based in #47) for GT items ProjectE can't value: GT dusts, plates and blocks (dust = plate = ingot, block = 9 ingots), GT ingots with no ProjectE default metal value, parts, casings and steam-age machines, and GT fluid buckets (empty bucket + the fluid's value in kubejs/data/mcincremental_prestige/fluid_emc/fluids.json). Metal values derive from ProjectE's defaults (iron 256, copper 128, ...). Vanilla items and tags are not pinned, so ProjectE defaults apply, except a few that GT's recipe changes leave ProjectE unable to value (0 EMC): the empty and lava bucket and the iron, gold and copper blocks, pinned at ProjectE's own default values (bucket 3 iron = 768, lava bucket 832, block = 9 ingots). This file wins over ProjectE's datapack defaults.",
   "entries": [
     {
-      "tag": "c:ingots/iron",
-      "emc": 64
-    },
-    {
-      "tag": "c:ingots/gold",
-      "emc": 128
-    },
-    {
-      "tag": "c:ingots/copper",
-      "emc": 64
-    },
-    {
-      "tag": "c:ingots/tin",
-      "emc": 128
-    },
-    {
-      "tag": "c:ingots/bronze",
-      "emc": 80
-    },
-    {
-      "tag": "c:ingots/wrought_iron",
-      "emc": 64
-    },
-    {
-      "tag": "c:ingots/steel",
-      "emc": 128
-    },
-    {
-      "tag": "c:ingots/lead",
-      "emc": 128
-    },
-    {
-      "tag": "c:ingots/silver",
+      "id": "gtceu:wrought_iron_ingot",
       "emc": 256
     },
     {
-      "tag": "c:ingots/nickel",
-      "emc": 192
+      "id": "gtceu:steel_ingot",
+      "emc": 512
     },
     {
-      "tag": "c:ingots/zinc",
-      "emc": 128
+      "id": "gtceu:zinc_ingot",
+      "emc": 512
     },
     {
-      "tag": "c:ingots/brass",
-      "emc": 80
+      "id": "gtceu:brass_ingot",
+      "emc": 224
     },
     {
-      "tag": "c:ingots/aluminium",
-      "emc": 256
+      "id": "gtceu:aluminium_ingot",
+      "emc": 1024
     },
     {
-      "tag": "c:ingots/red_alloy",
-      "emc": 320
-    },
-    {
-      "tag": "c:crops/wheat",
-      "emc": 8
-    },
-    {
-      "tag": "c:crops/carrot",
-      "emc": 8
-    },
-    {
-      "tag": "c:crops/potato",
-      "emc": 8
-    },
-    {
-      "tag": "c:seeds/wheat",
-      "emc": 2
-    },
-    {
-      "id": "minecraft:iron_ingot",
-      "emc": 64
-    },
-    {
-      "id": "minecraft:gold_ingot",
-      "emc": 128
-    },
-    {
-      "id": "minecraft:copper_ingot",
-      "emc": 64
-    },
-    {
-      "id": "minecraft:wheat",
-      "emc": 8
-    },
-    {
-      "id": "minecraft:carrot",
-      "emc": 8
-    },
-    {
-      "id": "minecraft:potato",
-      "emc": 8
-    },
-    {
-      "id": "minecraft:sugar_cane",
-      "emc": 8
-    },
-    {
-      "id": "minecraft:rotten_flesh",
-      "emc": 4
-    },
-    {
-      "id": "minecraft:bone",
-      "emc": 16
-    },
-    {
-      "id": "minecraft:string",
-      "emc": 12
-    },
-    {
-      "id": "minecraft:spider_eye",
-      "emc": 8
-    },
-    {
-      "id": "minecraft:gunpowder",
-      "emc": 32
-    },
-    {
-      "id": "minecraft:slime_ball",
-      "emc": 16
-    },
-    {
-      "id": "minecraft:leather",
-      "emc": 16
-    },
-    {
-      "id": "minecraft:ender_pearl",
-      "emc": 256
+      "id": "gtceu:red_alloy_ingot",
+      "emc": 384
     },
     {
       "id": "gtceu:iron_dust",
-      "emc": 64
+      "emc": 256
     },
     {
       "id": "gtceu:iron_plate",
-      "emc": 64
-    },
-    {
-      "id": "minecraft:iron_block",
-      "emc": 576
+      "emc": 256
     },
     {
       "id": "gtceu:gold_dust",
-      "emc": 128
+      "emc": 2048
     },
     {
       "id": "gtceu:gold_plate",
-      "emc": 128
-    },
-    {
-      "id": "minecraft:gold_block",
-      "emc": 1152
+      "emc": 2048
     },
     {
       "id": "gtceu:copper_dust",
-      "emc": 64
+      "emc": 128
     },
     {
       "id": "gtceu:copper_plate",
-      "emc": 64
-    },
-    {
-      "id": "minecraft:copper_block",
-      "emc": 576
-    },
-    {
-      "id": "gtceu:tin_ingot",
       "emc": 128
     },
     {
       "id": "gtceu:tin_dust",
-      "emc": 128
+      "emc": 256
     },
     {
       "id": "gtceu:tin_plate",
-      "emc": 128
+      "emc": 256
     },
     {
       "id": "gtceu:tin_block",
-      "emc": 1152
-    },
-    {
-      "id": "gtceu:bronze_ingot",
-      "emc": 80
+      "emc": 2304
     },
     {
       "id": "gtceu:bronze_dust",
-      "emc": 80
+      "emc": 160
     },
     {
       "id": "gtceu:bronze_plate",
-      "emc": 80
+      "emc": 160
     },
     {
       "id": "gtceu:bronze_block",
-      "emc": 720
-    },
-    {
-      "id": "gtceu:wrought_iron_ingot",
-      "emc": 64
-    },
-    {
-      "id": "gtceu:wrought_iron_dust",
-      "emc": 64
-    },
-    {
-      "id": "gtceu:wrought_iron_plate",
-      "emc": 64
-    },
-    {
-      "id": "gtceu:wrought_iron_block",
-      "emc": 576
-    },
-    {
-      "id": "gtceu:steel_ingot",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:steel_dust",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:steel_plate",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:steel_block",
-      "emc": 1152
-    },
-    {
-      "id": "gtceu:lead_ingot",
-      "emc": 128
+      "emc": 1440
     },
     {
       "id": "gtceu:lead_dust",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:lead_plate",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:lead_block",
-      "emc": 1152
-    },
-    {
-      "id": "gtceu:silver_ingot",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:silver_dust",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:silver_plate",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:silver_block",
-      "emc": 2304
-    },
-    {
-      "id": "gtceu:nickel_ingot",
-      "emc": 192
-    },
-    {
-      "id": "gtceu:nickel_dust",
-      "emc": 192
-    },
-    {
-      "id": "gtceu:nickel_plate",
-      "emc": 192
-    },
-    {
-      "id": "gtceu:nickel_block",
-      "emc": 1728
-    },
-    {
-      "id": "gtceu:zinc_ingot",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:zinc_dust",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:zinc_plate",
-      "emc": 128
-    },
-    {
-      "id": "gtceu:zinc_block",
-      "emc": 1152
-    },
-    {
-      "id": "gtceu:brass_ingot",
-      "emc": 80
-    },
-    {
-      "id": "gtceu:brass_dust",
-      "emc": 80
-    },
-    {
-      "id": "gtceu:brass_plate",
-      "emc": 80
-    },
-    {
-      "id": "gtceu:brass_block",
-      "emc": 720
-    },
-    {
-      "id": "gtceu:aluminium_ingot",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:aluminium_dust",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:aluminium_plate",
-      "emc": 256
-    },
-    {
-      "id": "gtceu:aluminium_block",
-      "emc": 2304
-    },
-    {
-      "id": "gtceu:red_alloy_ingot",
-      "emc": 320
-    },
-    {
-      "id": "gtceu:red_alloy_dust",
-      "emc": 320
-    },
-    {
-      "id": "gtceu:red_alloy_plate",
-      "emc": 320
-    },
-    {
-      "id": "gtceu:red_alloy_block",
-      "emc": 2880
-    },
-    {
-      "id": "gtceu:resistor",
-      "emc": 32
-    },
-    {
-      "id": "gtceu:vacuum_tube",
-      "emc": 96
-    },
-    {
-      "id": "gtceu:basic_electronic_circuit",
       "emc": 512
     },
     {
-      "id": "gtceu:good_electronic_circuit",
-      "emc": 2048
+      "id": "gtceu:lead_plate",
+      "emc": 512
     },
     {
-      "id": "gtceu:lv_electric_motor",
-      "emc": 384
+      "id": "gtceu:lead_block",
+      "emc": 4608
     },
     {
-      "id": "gtceu:lv_electric_pump",
-      "emc": 768
+      "id": "gtceu:silver_dust",
+      "emc": 512
     },
     {
-      "id": "gtceu:lv_electric_piston",
-      "emc": 768
+      "id": "gtceu:silver_plate",
+      "emc": 512
     },
     {
-      "id": "gtceu:lv_conveyor_module",
+      "id": "gtceu:silver_block",
+      "emc": 4608
+    },
+    {
+      "id": "gtceu:nickel_dust",
       "emc": 1024
     },
     {
-      "id": "gtceu:lv_robot_arm",
-      "emc": 2048
-    },
-    {
-      "id": "gtceu:bronze_machine_casing",
-      "emc": 640
-    },
-    {
-      "id": "gtceu:bronze_brick_casing",
-      "emc": 384
-    },
-    {
-      "id": "gtceu:steam_machine_casing",
-      "emc": 448
-    },
-    {
-      "id": "gtceu:steel_brick_casing",
-      "emc": 768
-    },
-    {
-      "id": "gtceu:solid_machine_casing",
+      "id": "gtceu:nickel_plate",
       "emc": 1024
     },
     {
-      "id": "gtceu:lv_machine_casing",
-      "emc": 1024
+      "id": "gtceu:nickel_block",
+      "emc": 9216
     },
     {
-      "id": "gtceu:lv_machine_hull",
-      "emc": 1280
-    },
-    {
-      "id": "gtceu:lp_steam_solid_boiler",
-      "emc": 1024
-    },
-    {
-      "id": "gtceu:hp_steam_solid_boiler",
-      "emc": 2048
-    },
-    {
-      "id": "gtceu:lp_steam_furnace",
-      "emc": 1536
-    },
-    {
-      "id": "gtceu:lp_steam_alloy_smelter",
-      "emc": 1536
-    },
-    {
-      "id": "gtceu:lp_steam_extractor",
-      "emc": 1536
-    },
-    {
-      "id": "gtceu:lp_steam_macerator",
-      "emc": 10240
-    },
-    {
-      "id": "minecraft:bucket",
-      "emc": 192
-    },
-    {
-      "id": "minecraft:lava_bucket",
-      "emc": 704
-    },
-    {
-      "id": "gtceu:steam_bucket",
-      "emc": 192
-    },
-    {
-      "id": "gtceu:creosote_bucket",
-      "emc": 224
-    },
-    {
-      "id": "gtceu:seed_oil_bucket",
-      "emc": 208
-    },
-    {
-      "id": "gtceu:ethanol_bucket",
+      "id": "gtceu:wrought_iron_dust",
       "emc": 256
     },
     {
+      "id": "gtceu:wrought_iron_plate",
+      "emc": 256
+    },
+    {
+      "id": "gtceu:wrought_iron_block",
+      "emc": 2304
+    },
+    {
+      "id": "gtceu:steel_dust",
+      "emc": 512
+    },
+    {
+      "id": "gtceu:steel_plate",
+      "emc": 512
+    },
+    {
+      "id": "gtceu:steel_block",
+      "emc": 4608
+    },
+    {
+      "id": "gtceu:zinc_dust",
+      "emc": 512
+    },
+    {
+      "id": "gtceu:zinc_plate",
+      "emc": 512
+    },
+    {
+      "id": "gtceu:zinc_block",
+      "emc": 4608
+    },
+    {
+      "id": "gtceu:brass_dust",
+      "emc": 224
+    },
+    {
+      "id": "gtceu:brass_plate",
+      "emc": 224
+    },
+    {
+      "id": "gtceu:brass_block",
+      "emc": 2016
+    },
+    {
+      "id": "gtceu:aluminium_dust",
+      "emc": 1024
+    },
+    {
+      "id": "gtceu:aluminium_plate",
+      "emc": 1024
+    },
+    {
+      "id": "gtceu:aluminium_block",
+      "emc": 9216
+    },
+    {
+      "id": "gtceu:red_alloy_dust",
+      "emc": 384
+    },
+    {
+      "id": "gtceu:red_alloy_plate",
+      "emc": 384
+    },
+    {
+      "id": "gtceu:red_alloy_block",
+      "emc": 3456
+    },
+    {
+      "id": "gtceu:resistor",
+      "emc": 128
+    },
+    {
+      "id": "gtceu:vacuum_tube",
+      "emc": 384
+    },
+    {
+      "id": "gtceu:basic_electronic_circuit",
+      "emc": 2048
+    },
+    {
+      "id": "gtceu:good_electronic_circuit",
+      "emc": 8192
+    },
+    {
+      "id": "gtceu:lv_electric_motor",
+      "emc": 1536
+    },
+    {
+      "id": "gtceu:lv_electric_pump",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:lv_electric_piston",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:lv_conveyor_module",
+      "emc": 4096
+    },
+    {
+      "id": "gtceu:lv_robot_arm",
+      "emc": 8192
+    },
+    {
+      "id": "gtceu:bronze_machine_casing",
+      "emc": 1280
+    },
+    {
+      "id": "gtceu:bronze_brick_casing",
+      "emc": 768
+    },
+    {
+      "id": "gtceu:steam_machine_casing",
+      "emc": 896
+    },
+    {
+      "id": "gtceu:steel_brick_casing",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:solid_machine_casing",
+      "emc": 4096
+    },
+    {
+      "id": "gtceu:lv_machine_casing",
+      "emc": 4096
+    },
+    {
+      "id": "gtceu:lv_machine_hull",
+      "emc": 5120
+    },
+    {
+      "id": "gtceu:lp_steam_solid_boiler",
+      "emc": 2048
+    },
+    {
+      "id": "gtceu:hp_steam_solid_boiler",
+      "emc": 8192
+    },
+    {
+      "id": "gtceu:lp_steam_furnace",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:lp_steam_alloy_smelter",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:lp_steam_extractor",
+      "emc": 3072
+    },
+    {
+      "id": "gtceu:lp_steam_macerator",
+      "emc": 12288
+    },
+    {
+      "id": "minecraft:bucket",
+      "emc": 768
+    },
+    {
+      "id": "minecraft:copper_block",
+      "emc": 1152
+    },
+    {
+      "id": "minecraft:gold_block",
+      "emc": 18432
+    },
+    {
+      "id": "minecraft:iron_block",
+      "emc": 2304
+    },
+    {
+      "id": "minecraft:lava_bucket",
+      "emc": 832
+    },
+    {
+      "id": "gtceu:steam_bucket",
+      "emc": 768
+    },
+    {
+      "id": "gtceu:creosote_bucket",
+      "emc": 800
+    },
+    {
+      "id": "gtceu:seed_oil_bucket",
+      "emc": 784
+    },
+    {
+      "id": "gtceu:ethanol_bucket",
+      "emc": 832
+    },
+    {
       "id": "gtceu:oil_bucket",
-      "emc": 448
+      "emc": 1024
     },
     {
       "id": "gtceu:natural_gas_bucket",
-      "emc": 448
+      "emc": 1024
     },
     {
       "id": "gtceu:diesel_bucket",
-      "emc": 960
+      "emc": 1536
     },
     {
       "id": "gtceu:gasoline_bucket",
-      "emc": 1216
+      "emc": 1792
     }
   ]
 }

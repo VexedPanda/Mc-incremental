@@ -81,26 +81,6 @@ const SMOKE_TEST_ASSERTIONS = [
   // --- #41 EMC values (pack/config/ProjectE/custom_emc.json)
   //     and fluid EMC (pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json) ---
   {
-    name: 'EMC: key GT and renewable item values are set',
-    check: server => {
-      const expected = {
-        'minecraft:iron_ingot': 64,
-        'gtceu:steel_ingot': 128,
-        'gtceu:steel_plate': 128,
-        'gtceu:bronze_ingot': 80,
-        'gtceu:basic_electronic_circuit': 512,
-        'gtceu:lv_electric_motor': 384,
-        'gtceu:lv_machine_casing': 1024,
-        'gtceu:lp_steam_solid_boiler': 1024,
-        'minecraft:rotten_flesh': 4
-      }
-      Object.keys(expected).forEach(id => {
-        if (smokeEmc(id) != expected[id]) throw id + ' EMC is ' + smokeEmc(id) + ', expected ' + expected[id]
-      })
-      return true
-    }
-  },
-  {
     name: 'EMC: every item in the EMC data file is registered and has exactly its listed value',
     check: server => {
       const file = JsonIO.read('config/ProjectE/custom_emc.json')
@@ -123,17 +103,6 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: 'EMC: items crafted from metal tags use the Pack values, not ProjectE defaults (block = 9 ingots)',
-    check: server => {
-      ['iron', 'gold', 'copper'].forEach(m => {
-        const block = smokeEmc('minecraft:' + m + '_block')
-        const ingot = smokeEmc('minecraft:' + m + '_ingot')
-        if (block != 9 * ingot) throw m + '_block EMC is ' + block + ', ingot ' + ingot
-      })
-      return true
-    }
-  },
-  {
     name: 'EMC: sell value equals EMC value (lossless)',
     check: server => {
       ['gtceu:steel_ingot', 'gtceu:lv_electric_motor', 'minecraft:diamond'].forEach(id => {
@@ -145,7 +114,7 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: 'Fluid EMC: file parses, ids are registered fluids, water is free, lava is scarce',
+    name: 'Fluid EMC: file parses, ids are registered fluids, water is free',
     check: server => {
       const file = JsonIO.read('kubejs/data/mcincremental_prestige/fluid_emc/fluids.json')
       if (file == null) throw 'fluid EMC file missing'
@@ -155,7 +124,6 @@ const SMOKE_TEST_ASSERTIONS = [
         if (!(values[id] >= 0)) throw id + ' has bad value ' + values[id]
       })
       if (values['minecraft:water'] !== 0) throw 'water is ' + values['minecraft:water']
-      if (!(values['minecraft:lava'] >= 256)) throw 'lava is ' + values['minecraft:lava']
       if (!(values['gtceu:diesel'] >= 256)) throw 'diesel is ' + values['gtceu:diesel']
       return true
     }
@@ -179,35 +147,119 @@ const SMOKE_TEST_ASSERTIONS = [
       return true
     }
   },
+  // --- end #41 ---
+
+  // --- #47 ProjectE default EMC values; conversions and Volcanite Amulet restored ---
   {
-    name: 'EMC: ProjectE fixed-ratio conversions that bypass EMC values are gone (e.g. 4 gold -> diamond)',
+    name: '#47 EMC: vanilla items have ProjectE default values (block = 9 ingots)',
     check: server => {
-      const ids = ['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot',
-        'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'diamond_to_emerald',
-        'emerald_to_diamond', 'redstone_to_lava']
-      if (!server.recipeManager.byKey('projecte:conversions/coal_to_charcoal').isPresent()) throw 'id format changed'
-      ids.forEach(id => {
-        if (server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' still exists'
+      const expected = {
+        'minecraft:iron_ingot': 256,
+        'minecraft:gold_ingot': 2048,
+        'minecraft:copper_ingot': 128,
+        'minecraft:diamond': 8192,
+        'minecraft:ender_pearl': 1024,
+        'minecraft:redstone': 64,
+        'minecraft:bucket': 768
+      }
+      Object.keys(expected).forEach(id => {
+        if (smokeEmc(id) != expected[id]) throw id + ' EMC is ' + smokeEmc(id) + ', expected ' + expected[id]
+      })
+      ;['iron', 'gold', 'copper'].forEach(m => {
+        const block = smokeEmc('minecraft:' + m + '_block')
+        const ingot = smokeEmc('minecraft:' + m + '_ingot')
+        if (block != 9 * ingot) throw m + '_block EMC is ' + block + ', ingot ' + ingot
       })
       return true
     }
   },
-  // --- end #41 ---
-
-  // --- #45: no free lava from ProjectE amulets (ADR-0005) ---
   {
-    name: '#45 no recipe crafts the Volcanite Amulet (free lava)',
+    name: '#47 EMC data file pins no tags and no vanilla items but those GT hides from ProjectE',
     check: server => {
-      if (!Item.exists('projecte:volcanite_amulet')) throw 'item id changed'
-      return !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('volcanite_amulet')) &&
-        !server.recipeManager.getRecipes().stream().anyMatch(holder => {
-          try {
-            const out = holder.value().getResultItem(server.registryAccess()).getItem()
-            return String(smokeRegistries.ITEM.getKey(out)) === 'projecte:volcanite_amulet'
-          } catch (e) {
-            return false // some modded recipe types have no single result item
-          }
+      // GT's recipes for these need tools or machines ProjectE can't value, so they are pinned at ProjectE's defaults.
+      const allowed = ['minecraft:bucket', 'minecraft:lava_bucket', 'minecraft:iron_block', 'minecraft:gold_block',
+        'minecraft:copper_block']
+      JsonIO.read('config/ProjectE/custom_emc.json').entries.forEach(e => {
+        if (e.tag) throw 'tag pinned: ' + e.tag
+        if (String(e.id).indexOf('minecraft:') === 0 && allowed.indexOf(String(e.id)) < 0) throw 'vanilla item pinned: ' + e.id
+      })
+      return true
+    }
+  },
+  {
+    name: '#47 EMC: GT metals match ProjectE default metal values; GT key parts have EMC',
+    check: server => {
+      const expected = {
+        'gtceu:tin_ingot': 256,
+        'gtceu:bronze_ingot': 160,
+        'gtceu:lead_ingot': 512,
+        'gtceu:silver_ingot': 512,
+        'gtceu:nickel_ingot': 1024,
+        'gtceu:iron_dust': 256,
+        'gtceu:iron_plate': 256,
+        'gtceu:gold_plate': 2048,
+        'gtceu:copper_plate': 128
+      }
+      Object.keys(expected).forEach(id => {
+        if (smokeEmc(id) != expected[id]) throw id + ' EMC is ' + smokeEmc(id) + ', expected ' + expected[id]
+      })
+      ;['steel', 'bronze', 'wrought_iron', 'aluminium'].forEach(m => {
+        const ingot = smokeEmc('gtceu:' + m + '_ingot')
+        if (!(ingot > 0) || smokeEmc('gtceu:' + m + '_dust') != ingot || smokeEmc('gtceu:' + m + '_plate') != ingot) {
+          throw m + ' ingot/dust/plate EMC ' + ingot + '/' + smokeEmc('gtceu:' + m + '_dust') + '/' + smokeEmc('gtceu:' + m + '_plate')
+        }
+      })
+      if (!(smokeEmc('gtceu:steel_ingot') > smokeEmc('minecraft:iron_ingot'))) throw 'steel is not worth more than iron'
+      ;['gtceu:basic_electronic_circuit', 'gtceu:lv_electric_motor', 'gtceu:lv_machine_casing',
+        'gtceu:lv_machine_hull', 'gtceu:lp_steam_solid_boiler'].forEach(id => {
+        if (!(smokeEmc(id) > 0)) throw id + ' has no EMC'
+      })
+      return true
+    }
+  },
+  {
+    name: '#47 Fluid EMC: lava equals ProjectE default lava bucket (832) minus empty bucket (768)',
+    check: server => {
+      // ProjectE defaults: bucket = 3 iron ingots; lava bucket = bucket + redstone (conversions/redstone_to_lava).
+      const lava = JsonIO.read('kubejs/data/mcincremental_prestige/fluid_emc/fluids.json').emc_per_1000_mb['minecraft:lava']
+      const bucket = smokeEmc('minecraft:bucket')
+      const lavaBucket = smokeEmc('minecraft:lava_bucket')
+      if (bucket != 3 * smokeEmc('minecraft:iron_ingot') || lavaBucket != bucket + smokeEmc('minecraft:redstone')) {
+        throw 'bucket ' + bucket + ', lava bucket ' + lavaBucket
+      }
+      if (lava != 64 || lava != lavaBucket - bucket) throw 'lava is ' + lava + ', expected ' + lavaBucket + ' - ' + bucket
+      return true
+    }
+  },
+  {
+    name: '#47 ProjectE Philosopher\'s Stone conversions exist (e.g. 4 gold -> diamond)',
+    check: server => {
+      ;['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot',
+        'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'diamond_to_emerald',
+        'emerald_to_diamond', 'redstone_to_lava', 'coal_to_charcoal'].forEach(id => {
+        if (!server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' missing'
+      })
+      return true
+    }
+  },
+  {
+    name: '#47 Volcanite Amulet and Gem Chestplate are craftable',
+    check: server => {
+      // ProjectE ships the Gem Chestplate under one of two ids, depending on its full_klein_stars config.
+      const outputs = {
+        'projecte:volcanite_amulet': ['projecte:volcanite_amulet'],
+        'projecte:gem_chestplate': ['projecte:gem_chestplate', 'projecte:full_star_gem_chestplate']
+      }
+      Object.keys(outputs).forEach(item => {
+        const found = outputs[item].some(id => {
+          const holder = server.recipeManager.byKey(id)
+          if (!holder.isPresent()) return false
+          const out = holder.get().value().getResultItem(server.registryAccess()).getItem()
+          return String(smokeRegistries.ITEM.getKey(out)) === item
         })
+        if (!found) throw 'no recipe crafts ' + item
+      })
+      return true
     }
   },
   {
@@ -215,7 +267,7 @@ const SMOKE_TEST_ASSERTIONS = [
     check: server => Item.exists('projecte:evertide_amulet') &&
       server.recipeManager.byKey('projecte:evertide_amulet').isPresent()
   }
-  // --- end #45 ---
+  // --- end #47 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {
