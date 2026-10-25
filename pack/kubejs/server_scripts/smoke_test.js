@@ -34,6 +34,10 @@ const SMOKE_MIN_EMC_ENTRIES = 40
 const SMOKE_MIN_DIESEL_EMC = 256
 // Lava plus at least one GT fuel must resolve to a bucket, so the check can't pass vacuously.
 const SMOKE_MIN_BUCKETS_CHECKED = 2
+// #53: villagers buy an emerald for items worth 0 EMC in this Pack (24 paper, 4 books,
+// 2 book and quill, 9 glass bottles), so one trade gains the emerald's whole value. ADR-0005's
+// exploit threshold is 100 EMC per loop, so the emerald must stay below it.
+const SMOKE_MAX_EMERALD_EMC = 99
 // How long to wait for ProjectE's EMC map after /reload before failing.
 const SMOKE_EMC_WAIT_SECONDS = 60
 
@@ -253,13 +257,19 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47 EMC data file pins no tags and no vanilla items but those GT hides from ProjectE',
+    name: '#47 EMC data file pins no tags but the emerald (#53) and no vanilla items but those GT hides from ProjectE',
     check: server => {
       // GT's recipes for these need tools or machines ProjectE can't value, so they are pinned at ProjectE's defaults.
       const allowed = ['minecraft:bucket', 'minecraft:lava_bucket', 'minecraft:iron_block', 'minecraft:gold_block',
         'minecraft:copper_block']
+      // The one deliberate exception: #53 lowers the emerald so villager trades can't mint EMC. It is pinned by
+      // tag because ProjectE's default value sits on the tag; pinning only the item leaves the tag at 16,384.
+      const allowedTags = ['c:gems/emerald']
       JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
-        if (e.tag) throw 'tag pinned: ' + e.tag
+        if (e.tag) {
+          if (allowedTags.indexOf(String(e.tag)) < 0) throw 'tag pinned: ' + e.tag
+          return
+        }
         if (String(e.id).indexOf('minecraft:') === 0 && allowed.indexOf(String(e.id)) < 0) throw 'vanilla item pinned: ' + e.id
       })
       return true
@@ -311,13 +321,12 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47 ProjectE Philosopher\'s Stone conversions exist: the 8 restored by #47, plus coal_to_charcoal',
+    name: '#47 ProjectE Philosopher\'s Stone conversions exist: 6 of the 8 restored by #47, plus coal_to_charcoal',
     check: server => {
-      // #41 removed 8 conversions and #47 restored them; coal_to_charcoal was never removed
-      // and is checked as a canary that the conversions datapack loaded at all.
+      // #41 removed 8 conversions and #47 restored them; #53 removed the two emerald ones again.
+      // coal_to_charcoal was never removed and is checked as a canary that the conversions datapack loaded at all.
       ;['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot',
-        'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'diamond_to_emerald',
-        'emerald_to_diamond', 'redstone_to_lava', 'coal_to_charcoal'].forEach(id => {
+        'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'redstone_to_lava', 'coal_to_charcoal'].forEach(id => {
         if (!server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' missing'
       })
       return true
@@ -356,6 +365,27 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   // --- end #47 ---
+
+  // --- #53: villager trades must not mint EMC from emeralds ---
+  {
+    name: '#53 emerald EMC is at most ' + SMOKE_MAX_EMERALD_EMC + ' (a trade that buys an emerald gains < 100 EMC)',
+    check: server => {
+      const emerald = smokeEmc('minecraft:emerald')
+      if (!(emerald > 0) || emerald > SMOKE_MAX_EMERALD_EMC) throw 'emerald EMC is ' + emerald
+      return true
+    }
+  },
+  {
+    name: '#53 no Philosopher\'s Stone emerald conversion (1 cheap emerald -> 2 diamonds would mint 16k EMC)',
+    check: server => {
+      if (!server.recipeManager.byKey('projecte:conversions/coal_to_charcoal').isPresent()) throw 'id format changed'
+      ;['emerald_to_diamond', 'diamond_to_emerald'].forEach(id => {
+        if (server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' still exists'
+      })
+      return true
+    }
+  },
+  // --- end #53 ---
 
   // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
   // Values come from the Pack's shipped server.properties (the smoke script keeps them).

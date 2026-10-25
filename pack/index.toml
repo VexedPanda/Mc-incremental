@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "990612215dc3708c17337a62a3f318e71d53ac5a14d2b03a813ea58f493d1ee1"
+hash = "644c1409cb2fe3b2a659999fb4d68bdc3f87ba97a04463782ef1729997e9143f"
 
 [[files]]
 file = "config/ProjectE/server.toml"
@@ -21,12 +21,16 @@ file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
 hash = "07017e595e684e84136fda5c2f55f72a8f4085589ec84ca820ed4f2476b89eba"
 
 [[files]]
+file = "kubejs/server_scripts/emerald_emc.js"
+hash = "63d31a3a9a9f2341885c5e9f8724819710a79744dc10a79b430b26d6a9919187"
+
+[[files]]
 file = "kubejs/server_scripts/no_free_resources.js"
 hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "a6f3ccec9f79189fe79a5b9128d88fdc4c524b8950efe1c5630b2a8c3c87a7d2"
+hash = "69a3b1b9bf990da727cff7f1bb2b5b2c4eeb905c4ae5b47648519891abf8c407"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
