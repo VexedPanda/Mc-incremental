@@ -32,10 +32,6 @@ _Avoid_: Integration, glue
 The span of play between two Prestiges, confined to one Run area and limited by the resources it holds.
 _Avoid_: Cycle, life, loop, playthrough
 
-**Team**:
-All players in a world, as one automatic group that owns the Run, the EMC balance, Knowledge and EMC barrels. There is exactly one per world and no way to join or leave it.
-_Avoid_: Party, guild, faction, owner (when you mean the Team)
-
 **Run area**:
 The small, fixed patch of an ordinarily generated world that a Run is confined to.
 _Avoid_: Plot, island, claim, chunk (a Run area is made of chunks)
@@ -49,11 +45,11 @@ The step of a Prestige that converts everything the player added to the Run area
 _Avoid_: Cleanup, refund, salvage
 
 **Knowledge**:
-The set of resources the Team has learned and can recreate from EMC; it survives Prestige.
+The set of resources learned in this world, shared by every player, that can be recreated from EMC; it survives Prestige.
 _Avoid_: Unlocks, research, memory
 
 **EMC barrel**:
-A placed block linked to the Team's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
+A placed block linked to the world's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
 _Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
 
 **Progression**:
