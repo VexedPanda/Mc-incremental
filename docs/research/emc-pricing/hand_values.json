@@ -1,0 +1,140 @@
+{
+ "comment": "Hand-set EMC values. generate.py copies 'items' into pack/config/ProjectE/custom_emc.json and 'fluids' (EMC per 1000 mB) into fluid_emc/fluids.json, then adds what it generates. Everything else is derived by ProjectE and the Prestige mod's GT recipe mapper.",
+ "groups": [
+  {
+   "why": "ProjectE's own default values for vanilla items GT's recipe changes leave ProjectE unable to value (its bucket and metal-block recipes need tools or machines): bucket = 3 iron, lava bucket = bucket + redstone, block = 9 ingots.",
+   "items": {
+    "minecraft:bucket": 768,
+    "minecraft:copper_block": 1152,
+    "minecraft:gold_block": 18432,
+    "minecraft:iron_block": 2304,
+    "minecraft:lava_bucket": 832
+   }
+  },
+  {
+   "why": "The Transmutation Tablet is free: the Prestige mod hands it out, so burning or sweeping it must yield nothing.",
+   "items": {
+    "projecte:transmutation_tablet": 0
+   }
+  },
+  {
+   "why": "GT ingots, dusts, plates and blocks valued from ProjectE's default metals (#41, re-based in #47): dust = plate = ingot, block = 9 ingots; steel 288 (#55: the primitive blast furnace makes it from an iron ingot and nearly free coke dust (257 EMC) or a block from an iron block and 2 charcoal blocks (2,646), so at 512 every ingot gained 255 EMC; 288 keeps both routes under the 100 EMC threshold), wrought iron 256, zinc 512, brass 224, aluminium 1024, red alloy 384.",
+   "items": {
+    "gtceu:wrought_iron_ingot": 256,
+    "gtceu:steel_ingot": 288,
+    "gtceu:zinc_ingot": 512,
+    "gtceu:brass_ingot": 224,
+    "gtceu:aluminium_ingot": 1024,
+    "gtceu:red_alloy_ingot": 384,
+    "gtceu:iron_dust": 256,
+    "gtceu:iron_plate": 256,
+    "gtceu:gold_dust": 2048,
+    "gtceu:gold_plate": 2048,
+    "gtceu:copper_dust": 128,
+    "gtceu:copper_plate": 128,
+    "gtceu:tin_dust": 256,
+    "gtceu:tin_plate": 256,
+    "gtceu:tin_block": 2304,
+    "gtceu:bronze_dust": 160,
+    "gtceu:bronze_plate": 160,
+    "gtceu:bronze_block": 1440,
+    "gtceu:lead_dust": 512,
+    "gtceu:lead_plate": 512,
+    "gtceu:lead_block": 4608,
+    "gtceu:silver_dust": 512,
+    "gtceu:silver_plate": 512,
+    "gtceu:silver_block": 4608,
+    "gtceu:nickel_dust": 1024,
+    "gtceu:nickel_plate": 1024,
+    "gtceu:nickel_block": 9216,
+    "gtceu:wrought_iron_dust": 256,
+    "gtceu:wrought_iron_plate": 256,
+    "gtceu:wrought_iron_block": 2304,
+    "gtceu:steel_dust": 288,
+    "gtceu:steel_plate": 288,
+    "gtceu:steel_block": 2592,
+    "gtceu:zinc_dust": 512,
+    "gtceu:zinc_plate": 512,
+    "gtceu:zinc_block": 4608,
+    "gtceu:brass_dust": 224,
+    "gtceu:brass_plate": 224,
+    "gtceu:brass_block": 2016,
+    "gtceu:aluminium_dust": 1024,
+    "gtceu:aluminium_plate": 1024,
+    "gtceu:aluminium_block": 9216,
+    "gtceu:red_alloy_dust": 384,
+    "gtceu:red_alloy_plate": 384,
+    "gtceu:red_alloy_block": 3456
+   }
+  },
+  {
+   "why": "GT's own stones, which generate in the world and come out of the Rock Breaker: marble and red granite at ProjectE's value for vanilla granite, diorite and andesite (16), cobblestone forms included (a forge hammer and a furnace turn one into the other). GT's concrete blocks set from concrete fluid (made from water and stone dust) at a nominal 1.",
+   "items": {
+    "gtceu:marble": 16,
+    "gtceu:marble_cobblestone": 16,
+    "gtceu:red_granite": 16,
+    "gtceu:red_granite_cobblestone": 16,
+    "gtceu:light_concrete": 1,
+    "gtceu:light_concrete_cobblestone": 1,
+    "gtceu:dark_concrete": 1,
+    "gtceu:dark_concrete_cobblestone": 1
+   }
+  },
+  {
+   "why": "Vanilla items you can obtain but no recipe makes (mob drops, loot, silk-touched blocks), so ProjectE has no value for them. Priced like ProjectE prices their neighbours, and kept under the 100 EMC exploit threshold where a farm can make them (totems from raid farms, trial keys from trial spawners, wither skeleton skulls). Owner decisions, listed in the #55 report.",
+   "items": {
+    "minecraft:wither_skeleton_skull": 64,
+    "minecraft:totem_of_undying": 64,
+    "minecraft:trial_key": 64,
+    "minecraft:ominous_trial_key": 64,
+    "minecraft:experience_bottle": 64,
+    "minecraft:elytra": 8192,
+    "minecraft:dragon_head": 4096,
+    "minecraft:amethyst_cluster": 128,
+    "minecraft:large_amethyst_bud": 32,
+    "minecraft:medium_amethyst_bud": 32,
+    "minecraft:small_amethyst_bud": 32,
+    "minecraft:red_mushroom_block": 32,
+    "minecraft:brown_mushroom_block": 32,
+    "minecraft:mushroom_stem": 32,
+    "minecraft:bee_nest": 45,
+    "minecraft:gilded_blackstone": 908,
+    "minecraft:axolotl_bucket": 832,
+    "minecraft:tadpole_bucket": 800,
+    "minecraft:goat_horn": 192
+   }
+  },
+  {
+   "why": "GT blocks made in the world rather than by a recipe: construction foam sprayed from a can (made from water and stone dust) and what it hardens into, at a nominal 1; brittle charcoal from a charcoal pile, below the charcoal it drops.",
+   "items": {
+    "gtceu:foam": 1,
+    "gtceu:petrified_foam": 1,
+    "gtceu:reinforced_foam": 1,
+    "gtceu:reinforced_stone": 1,
+    "gtceu:brittle_charcoal": 16
+   }
+  }
+ ],
+ "fluids_comment": "Water is the one free fluid (ADR-0005). Lava is ProjectE's default lava bucket (832) minus the empty bucket (768). Steam is nominal (boilers make it from water; no recipe values it). GT fuels are hand-set (#41). Milk is ProjectE's milk bucket (784) minus the empty bucket. Every other fluid is generated.",
+ "fluids": {
+  "minecraft:water": 0,
+  "minecraft:lava": 64,
+  "gtceu:steam": 1,
+  "gtceu:creosote": 32,
+  "gtceu:seed_oil": 16,
+  "gtceu:ethanol": 64,
+  "gtceu:oil": 256,
+  "gtceu:natural_gas": 256,
+  "gtceu:diesel": 768,
+  "gtceu:gasoline": 1024,
+  "minecraft:milk": 16
+ },
+ "pin_at_derived_value": {
+  "why": "Items the game can't derive although this model can, pinned at the value the model derives. A recipe cycle that subtracts a byproduct fluid on every pass (5 magnesite -> 2 magnesia + CO2, 2 magnesia + CO2 -> 5 magnesite): ProjectE floors on every pass, so in the game their value sinks to 1-2 EMC, and magnesia then electrolyses into 512-EMC magnesium. The facade cover: GT crafts it with a special recipe class that ProjectE skips.",
+  "items": [
+   "gtceu:magnesite_dust",
+   "gtceu:magnesia_dust",
+   "gtceu:facade_cover"
+  ]
+ }
+}
