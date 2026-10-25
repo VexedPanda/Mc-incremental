@@ -8,6 +8,7 @@ Status: being defined. Decisions here are cheap to change; hard-to-reverse ones 
 - **Wiped on Prestige:** the inventory, and the world as far as the player is concerned: they move to a fresh Run area and never return to the old one (ADR-0001).
 - **Run area:** 3×3 chunks, kept as a tunable setting for play-testing.
 - **Confinement:** the vanilla world border, re-centred on each new Run area.
+- **Portals do nothing during a Run (#56):** a Run stays in its dimension, which only changes at Prestige (ADR-0008), since the snapshot and the Prestige sweep only cover the Run area. While the world has a Run, lighting a Nether portal frame fails and no portal (Nether, End, End gateway) moves players, mobs or items. Prestige's own teleport still works from any dimension; teleports that aren't portal trips (`/tp`, `/execute in`) are unaffected. See the mod's `docs/run-dimension.md`.
 - **Prestige trigger:** a craftable item, cheap enough to make from a single dirt, sand or cobblestone, that runs a KubeJS script: pick a far-away new area (re-pick if ocean), move the border, teleport, clear the inventory.
 - **Prestige availability:** always available (no minimum achievement).
 
