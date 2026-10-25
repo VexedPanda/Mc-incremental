@@ -21,3 +21,5 @@ This is a vibe-coded project: merge PRs yourself as soon as they're pushed, with
 ## Pack layout
 
 The packwiz pack lives in `pack/` (only its contents ship to players; docs, CI and agent files stay at the root). Work on it from inside `pack/`: `packwiz modrinth add <slug>`, `packwiz url add <name> <url>` for GitHub-hosted jars (e.g. the GTCEu snapshot and `mc-incremental-prestige` releases), then `packwiz refresh`. CI fails if the index isn't refreshed, and exports a `.mrpack` artifact on every PR.
+
+`scripts/smoke-test.sh` boots the Pack on a headless NeoForge server (about a minute) and fails unless the KubeJS assertions in `pack/kubejs/server_scripts/smoke_test.js` log `SMOKE-TEST RESULT: PASS`. Add an assertion there for each configuration change, then `packwiz refresh`. The `Smoke test` workflow runs it on demand and nightly, not on PRs.
