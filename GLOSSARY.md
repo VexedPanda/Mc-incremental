@@ -48,6 +48,10 @@ _Avoid_: Cleanup, refund, salvage
 The set of resources a player has learned and can recreate from EMC; it belongs to the player, not the world, so it survives Prestige.
 _Avoid_: Unlocks, research, memory
 
+**EMC barrel**:
+A placed block linked to its owner's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
+_Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
+
 **Progression**:
 The path a player takes through the Content mod within a Run, gated by effort, complexity and the resources available rather than by waiting.
 _Avoid_: Grind
