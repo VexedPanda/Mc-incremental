@@ -1,8 +1,12 @@
 hash-format = "sha256"
 
 [[files]]
+file = "config/gtceu.yaml"
+hash = "3316b8ddb7b3c8ce0602eefb369445ebaca2879d24520547013c09d9d43af140"
+
+[[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "0334472b0d0ef4cc12661d590150be028a59fd9c7e3f252908ea80707e07dd25"
+hash = "d006ef4f2c14c4437c2c87c1d31ca35590798c940988074b958b6b5aff6948de"
 
 [[files]]
 file = "mods/better-advanced-tooltips.pw.toml"
