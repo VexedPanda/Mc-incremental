@@ -40,6 +40,10 @@ _Avoid_: Plot, island, claim, chunk (a Run area is made of chunks)
 Deliberately ending the current Run and starting a new one in a fresh, never-visited Run area, keeping only Knowledge (and whatever else is designed to carry over).
 _Avoid_: Reset, rebirth, ascension, new game+
 
+**Prestige sweep**:
+The step of a Prestige that converts everything the player added to the Run area (anything not matching the original worldgen) into EMC and removes it, so nothing valuable stays behind.
+_Avoid_: Cleanup, refund, salvage
+
 **Knowledge**:
 The set of resources a player has learned and can recreate from EMC; it belongs to the player, not the world, so it survives Prestige.
 _Avoid_: Unlocks, research, memory
