@@ -26,6 +26,7 @@ const smokeEmcProxy = Java.loadClass('moze_intel.projecte.api.proxy.IEMCProxy')
 const smokeItemInfo = Java.loadClass('moze_intel.projecte.api.ItemInfo')
 const smokeRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
 const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
+const smokeFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
 
 // Thresholds.
 // The EMC data file has ~80 entries; far fewer means it was truncated or mis-parsed.
@@ -34,10 +35,31 @@ const SMOKE_MIN_EMC_ENTRIES = 40
 const SMOKE_MIN_DIESEL_EMC = 256
 // Lava plus at least one GT fuel must resolve to a bucket, so the check can't pass vacuously.
 const SMOKE_MIN_BUCKETS_CHECKED = 2
-// #53: villagers buy an emerald for items worth 0 EMC in this Pack (24 paper, 4 books,
-// 2 book and quill, 9 glass bottles), so one trade gains the emerald's whole value. ADR-0005's
-// exploit threshold is 100 EMC per loop, so the emerald must stay below it.
-const SMOKE_MAX_EMERALD_EMC = 99
+// #55: ProjectE's default emerald value (on the c:gems/emerald tag), back in force now nothing pins it.
+const SMOKE_DEFAULT_EMERALD_EMC = 16384
+// #55: at least this many GT ore blocks and raw ores must be compared with their material, so the
+// ore-vs-ingot check can't pass vacuously (GT registers about 1,800).
+const SMOKE_MIN_ORES_CHECKED = 1000
+// #55: what may stay at 0 EMC. Every other registered item and fluid must have a value.
+// Items no survival player can obtain, or that ProjectE values only through data components:
+const SMOKE_ZERO_EMC_ITEMS = [
+  /^minecraft:air$/,
+  /_spawn_egg$/,                                                     // creative only
+  /^minecraft:(command_block|chain_command_block|repeating_command_block|command_block_minecart|structure_block|structure_void|jigsaw|barrier|light|debug_stick|knowledge_book)$/, // creative/technical
+  /^gtceu:(creative_.*|test_mui|gui_module|portable_debug_scanner|(overworld|the_nether|the_end)_marker)$/, // GT creative/technical
+  /^minecraft:(bedrock|end_portal_frame|spawner|trial_spawner|vault|budding_amethyst|reinforced_deepslate|farmland|frogspawn|petrified_oak_slab|player_head|bundle|infested_.*)$/, // no survival way to pick up (bundle: experimental)
+  /^minecraft:(potion|splash_potion|lingering_potion|tipped_arrow|ominous_bottle)$/, // valued per potion content (data components), not as a bare item
+  /^gtceu:.*_(energy_converter|solar_panel|item_passthrough_hatch|fluid_passthrough_hatch)$/, // GT ships no recipe for these
+  /^gtceu:(uev|uiv|uxv|opv|max)_machine_casing$/,                    // GT ships no recipe beyond UHV
+  /^gtceu:(atomic_casing|industrial_steam_casing|zero_point_module|compressed_clay|treated_wood_hanging_sign|sus_record|purple_drink)$/, // no recipe or loot
+  /^gtceu:.*_(fluid_drilling_rig|bedrock_ore_miner)$/,               // recipes removed (#40, ADR-0005)
+  /^projecte:(collector_mk[123]|tome)$/,                             // recipes removed (#40) / disabled
+  /^projecte:transmutation_tablet$/,                                 // 0 on purpose: the Prestige mod hands it out
+  /^gtceu:(bromine|mc_guffium_239|uu_matter|raw_oil|light_oil)_bucket$/ // buckets of the fluids below
+]
+// Fluids nothing in this Pack makes (no ore, no recipe; oil only came from the removed Fluid Drilling Rig):
+const SMOKE_ZERO_EMC_FLUIDS = ['minecraft:empty', 'minecraft:water', 'gtceu:bromine', 'gtceu:mc_guffium_239',
+  'gtceu:uu_matter', 'gtceu:raw_oil', 'gtceu:light_oil', 'gtceu:potion']
 // How long to wait for ProjectE's EMC map after /reload before failing.
 const SMOKE_EMC_WAIT_SECONDS = 60
 
@@ -257,20 +279,10 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47 EMC data file pins no tags but the emerald (#53) and no vanilla items but those GT hides from ProjectE',
+    name: '#55 EMC data file pins no tags, so ProjectE\'s tag defaults (emerald, ingots, gems) apply',
     check: server => {
-      // GT's recipes for these need tools or machines ProjectE can't value, so they are pinned at ProjectE's defaults.
-      const allowed = ['minecraft:bucket', 'minecraft:lava_bucket', 'minecraft:iron_block', 'minecraft:gold_block',
-        'minecraft:copper_block']
-      // The one deliberate exception: #53 lowers the emerald so villager trades can't mint EMC. It is pinned by
-      // tag because ProjectE's default value sits on the tag; pinning only the item leaves the tag at 16,384.
-      const allowedTags = ['c:gems/emerald']
       JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
-        if (e.tag) {
-          if (allowedTags.indexOf(String(e.tag)) < 0) throw 'tag pinned: ' + e.tag
-          return
-        }
-        if (String(e.id).indexOf('minecraft:') === 0 && allowed.indexOf(String(e.id)) < 0) throw 'vanilla item pinned: ' + e.id
+        if (e.tag) throw 'tag pinned: ' + e.tag
       })
       return true
     }
@@ -321,12 +333,13 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47 ProjectE Philosopher\'s Stone conversions exist: 6 of the 8 restored by #47, plus coal_to_charcoal',
+    name: '#47/#55 ProjectE Philosopher\'s Stone conversions exist: the 8 restored by #47, plus coal_to_charcoal',
     check: server => {
-      // #41 removed 8 conversions and #47 restored them; #53 removed the two emerald ones again.
+      // #41 removed 8 conversions and #47 restored them; #53 removed the two emerald ones and #55 restored them.
       // coal_to_charcoal was never removed and is checked as a canary that the conversions datapack loaded at all.
-      ;['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot',
-        'gold_ingot_to_iron_ingot', 'iron_ingot_to_ender_pearl', 'redstone_to_lava', 'coal_to_charcoal'].forEach(id => {
+      ;['gold_ingot_to_diamond', 'diamond_to_gold_ingot', 'iron_ingot_to_gold_ingot', 'gold_ingot_to_iron_ingot',
+        'iron_ingot_to_ender_pearl', 'redstone_to_lava', 'emerald_to_diamond', 'diamond_to_emerald',
+        'coal_to_charcoal'].forEach(id => {
         if (!server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' missing'
       })
       return true
@@ -366,26 +379,102 @@ const SMOKE_TEST_ASSERTIONS = [
   },
   // --- end #47 ---
 
-  // --- #53: villager trades must not mint EMC from emeralds ---
+  // --- #55: every obtainable item and fluid has EMC; ores in line with their ingots; GT values derived (#52) ---
   {
-    name: '#53 emerald EMC is at most ' + SMOKE_MAX_EMERALD_EMC + ' (a trade that buys an emerald gains < 100 EMC)',
+    name: '#55 emerald has ProjectE\'s default value (' + SMOKE_DEFAULT_EMERALD_EMC + ')',
     check: server => {
-      const emerald = smokeEmc('minecraft:emerald')
-      if (!(emerald > 0) || emerald > SMOKE_MAX_EMERALD_EMC) throw 'emerald EMC is ' + emerald
+      if (smokeEmc('minecraft:emerald') != SMOKE_DEFAULT_EMERALD_EMC) throw 'emerald EMC is ' + smokeEmc('minecraft:emerald')
       return true
     }
   },
   {
-    name: '#53 no Philosopher\'s Stone emerald conversion (1 cheap emerald -> 2 diamonds would mint 16k EMC)',
+    name: '#55 every registered item has EMC > 0, except the allow-list (SMOKE_ZERO_EMC_ITEMS)',
     check: server => {
-      if (!server.recipeManager.byKey('projecte:conversions/coal_to_charcoal').isPresent()) throw 'id format changed'
-      ;['emerald_to_diamond', 'diamond_to_emerald'].forEach(id => {
-        if (server.recipeManager.byKey('projecte:conversions/' + id).isPresent()) throw id + ' still exists'
+      const zero = []
+      smokeRegistries.ITEM.keySet().forEach(rl => {
+        const id = String(rl)
+        if (SMOKE_ZERO_EMC_ITEMS.some(re => re.test(id))) return
+        if (!(smokeEmc(id) > 0)) zero.push(id)
       })
+      if (zero.length > 0) throw zero.length + ' items at 0: ' + zero.slice(0, 60).join(', ')
       return true
     }
   },
-  // --- end #53 ---
+  {
+    name: '#55 every fluid has EMC > 0 at runtime (fluid_emc), except water and SMOKE_ZERO_EMC_FLUIDS',
+    check: server => {
+      const zero = []
+      smokeRegistries.FLUID.keySet().forEach(rl => {
+        const f = smokeRegistries.FLUID.get(rl)
+        const id = String(smokeRegistries.FLUID.getKey(smokeFluidEmc.source(f)))
+        if (SMOKE_ZERO_EMC_FLUIDS.indexOf(id) >= 0) return
+        if (!(smokeFluidEmc.valuePerBucket(f) > 0)) zero.push(String(rl))
+      })
+      if (zero.length > 0) throw zero.length + ' fluids at 0: ' + zero.slice(0, 60).join(', ')
+      return true
+    }
+  },
+  {
+    name: '#55 each GT ore block and raw ore is worth at least its material\'s ingot (or gem, or dust)',
+    check: server => {
+      // Material forms by tag: c:ores/<m> and c:raw_materials/<m> against c:ingots/<m>, c:gems/<m>, else c:dusts/<m>.
+      let checked = 0
+      const bad = []
+      const best = m => {
+        let v = 0
+        ;['c:ingots/', 'c:gems/'].forEach(t => {
+          if (!String(Ingredient.of('#' + t + m).itemIds).includes('minecraft:barrier')) {
+            Ingredient.of('#' + t + m).itemIds.forEach(id => { v = Math.max(v, smokeEmc(id)) })
+          }
+        })
+        if (v == 0 && !String(Ingredient.of('#c:dusts/' + m).itemIds).includes('minecraft:barrier')) {
+          Ingredient.of('#c:dusts/' + m).itemIds.forEach(id => { v = Math.max(v, smokeEmc(id)) })
+        }
+        return v
+      }
+      smokeRegistries.ITEM.getTags().forEach(pair => {
+        const tag = String(pair.getFirst().location())
+        const match = /^c:(ores|raw_materials)\/(.+)$/.exec(tag)
+        if (!match) return
+        const unit = best(match[2])
+        if (unit == 0) return
+        pair.getSecond().forEach(h => {
+          const id = String(h.unwrapKey().get().location())
+          if (!id.startsWith('gtceu:')) return
+          checked++
+          if (!(smokeEmc(id) >= unit)) bad.push(id + ' ' + smokeEmc(id) + ' < ' + unit)
+        })
+      })
+      if (checked < SMOKE_MIN_ORES_CHECKED) throw 'only ' + checked + ' ores checked'
+      if (bad.length > 0) throw bad.length + ' ores below their ingot: ' + bad.slice(0, 40).join(', ')
+      return true
+    }
+  },
+  {
+    name: '#52/#55 GT machines and circuits are valued from their recipes: MV macerator > LV macerator > 0, good integrated circuit > 0',
+    check: server => {
+      const lv = smokeEmc('gtceu:lv_macerator')
+      const mv = smokeEmc('gtceu:mv_macerator')
+      if (!(lv > 0 && mv > lv)) throw 'lv_macerator ' + lv + ', mv_macerator ' + mv
+      if (!(smokeEmc('gtceu:good_integrated_circuit') > 0)) throw 'good_integrated_circuit has no EMC'
+      return true
+    }
+  },
+  {
+    name: '#55 the EMC data file no longer pins what the GT recipe mapper derives (circuits, LV parts, LV casing and hull)',
+    check: server => {
+      const derived = ['gtceu:vacuum_tube', 'gtceu:resistor', 'gtceu:basic_electronic_circuit',
+        'gtceu:good_electronic_circuit', 'gtceu:good_integrated_circuit', 'gtceu:lv_electric_motor',
+        'gtceu:lv_electric_pump', 'gtceu:lv_electric_piston', 'gtceu:lv_conveyor_module', 'gtceu:lv_robot_arm',
+        'gtceu:lv_machine_casing', 'gtceu:lv_machine_hull', 'gtceu:lv_macerator', 'gtceu:mv_macerator']
+      JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
+        if (derived.indexOf(String(e.id)) >= 0) throw 'pinned: ' + e.id
+      })
+      derived.forEach(id => { if (!(smokeEmc(id) > 0)) throw id + ' has no EMC' })
+      return true
+    }
+  },
+  // --- end #55 ---
 
   // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
   // Values come from the Pack's shipped server.properties (the smoke script keeps them).
