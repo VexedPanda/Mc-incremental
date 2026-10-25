@@ -1,0 +1,36 @@
+name: Mirror GTCEu snapshot
+
+# GTCEu 1.21 snapshots are published under a rolling tag whose jar is replaced
+# on every build, so the pack can't pin it by URL. This copies the current
+# snapshot jar into an immutable release in this repo (ADR-0006).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download current snapshot
+        run: |
+          gh release download latest-1.21 --repo GregTechCEu/GregTech-Modern --pattern '*.jar' --dir dl
+          ls -l dl
+          jar=$(ls dl/*.jar | grep -viE 'sources|javadoc|dev|api|slim' | head -1)
+          test -n "$jar" || { echo "::error::No mod jar found"; exit 1; }
+          echo "JAR=$jar" >> "$GITHUB_ENV"
+
+      - name: Publish immutable release
+        run: |
+          name=$(basename "$JAR" .jar)
+          tag="gtceu-${name#gtceu-}-$(date -u +%Y%m%d%H%M)"
+          tag=$(echo "$tag" | tr -c 'A-Za-z0-9._+\n-' '-')
+          gh release create "$tag" "$JAR" --repo "$GITHUB_REPOSITORY" \
+            --title "GTCEu snapshot mirror: $name" \
+            --notes "Copy of the GregTechCEu/GregTech-Modern latest-1.21 snapshot as of $(date -u), pinned for the pack (ADR-0006)." \
+            --prerelease
+          echo "Mirrored to tag $tag" >> "$GITHUB_STEP_SUMMARY"
