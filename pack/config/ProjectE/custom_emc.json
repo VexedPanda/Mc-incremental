@@ -1,5 +1,5 @@
 {
-  "comment": "Mc-incremental hand-set EMC values (#41, re-based in #47) for GT items ProjectE can't value: GT dusts, plates and blocks (dust = plate = ingot, block = 9 ingots), GT ingots with no ProjectE default metal value, parts, casings and steam-age machines, and GT fluid buckets (empty bucket + the fluid's value in kubejs/data/mcincremental_prestige/fluid_emc/fluids.json). Metal values derive from ProjectE's defaults (iron 256, copper 128, ...). Vanilla items and tags are not pinned, so ProjectE defaults apply, except a few that GT's recipe changes leave ProjectE unable to value (0 EMC): the empty and lava bucket and the iron, gold and copper blocks, pinned at ProjectE's own default values (bucket 3 iron = 768, lava bucket 832, block = 9 ingots). The Transmutation Tablet is pinned at 0 because the prestige mod gives it to players for free, so burning or sweeping it must yield nothing. This file wins over ProjectE's datapack defaults.",
+  "comment": "Mc-incremental hand-set EMC values (#41, re-based in #47) for GT items ProjectE can't value: GT dusts, plates and blocks (dust = plate = ingot, block = 9 ingots), GT ingots with no ProjectE default metal value, parts, casings and steam-age machines, and GT fluid buckets (empty bucket + the fluid's value in kubejs/data/mcincremental_prestige/fluid_emc/fluids.json). Metal values derive from ProjectE's defaults (iron 256, copper 128, ...). Vanilla items and tags are not pinned, so ProjectE defaults apply, except a few that GT's recipe changes leave ProjectE unable to value (0 EMC): the empty and lava bucket and the iron, gold and copper blocks, pinned at ProjectE's own default values (bucket 3 iron = 768, lava bucket 832, block = 9 ingots). The Transmutation Tablet is pinned at 0 because the prestige mod gives it to players for free, so burning or sweeping it must yield nothing. The emerald (tag c:gems/emerald, the only pinned tag, because ProjectE's default value sits on the tag) is pinned at 64 instead of 16,384 (#53): villagers buy an emerald for items worth 0 EMC here (24 paper, 4 books, 9 glass bottles), so a trade gains the emerald's whole value, which must stay under the 100 EMC exploit threshold. This file wins over ProjectE's datapack defaults.",
   "entries": [
     {
       "id": "gtceu:wrought_iron_ingot",
@@ -320,6 +320,10 @@
     {
       "id": "gtceu:gasoline_bucket",
       "emc": 1792
+    },
+    {
+      "tag": "c:gems/emerald",
+      "emc": 64
     },
     {
       "id": "projecte:transmutation_tablet",
