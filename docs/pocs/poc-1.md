@@ -42,14 +42,14 @@ Status: being defined. Decisions here are cheap to change; hard-to-reverse ones 
   - Dedicated server: `pack/server.properties` sets `view-distance=2` and `simulation-distance=2`. Vanilla clamps view distance to 2..32, so 2 is its floor. Simulation distance has no server-side clamp (0 or even negatives are accepted), but entities only tick within that many chunks of a player, so 2 is the lowest value that keeps the whole Run area ticking when the player stands in a corner chunk.
   - Both files are marked `preserve = true` in `pack/index.toml` (set by hand; `packwiz refresh` keeps it), so packwiz-installer writes them on first install and never overwrites later changes. Both ship to clients and servers alike (index entries have no side); the unused one is harmless.
   - `scripts/smoke-test.sh` starts from the shipped `server.properties` and only overrides test keys (port, seed, online-mode, ...); the smoke test asserts the running server's view and simulation distance are 2.
-  - **Singleplayer:** the integrated server takes its simulation distance from the client option, whose slider can't go below 5, so singleplayer simulates radius 5 unless code changes it. If that matters for performance, the prestige mod can clamp it (follow-up, not filed yet).
+  - **Singleplayer:** the integrated server copies the client's simulation distance option, whose slider can't go below 5. The Prestige mod lowers it every tick to `2 × radiusChunks` of the current Run area (2 for the default 3×3, matching the dedicated server); see the mod's `docs/simulation-distance.md` (#50). `options.txt`'s `simulationDistance:5` is just the slider minimum. Render distance stays the player's choice.
 
 ## Owner decisions (code review of #24)
 
 The review flagged these as possible mismatches; the owner kept them as they are:
 
 - **EMC values stay in two files:** items in `pack/config/ProjectE/custom_emc.json`, fluids in `pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json`, because ProjectE can't hold fluid values.
-- **Server `simulation-distance` stays 2:** the smallest value that keeps the whole 3×3 Run area ticking from a corner chunk.
+- **Server `simulation-distance` stays 2:** the smallest value that keeps the whole 3×3 Run area ticking from a corner chunk. Singleplayer matches it via the Prestige mod's cap (#50); a larger configured Run area raises that cap automatically, but dedicated-server owners must raise `simulation-distance` themselves.
 - **The vanilla pins stay:** `minecraft:bucket`, `minecraft:lava_bucket` and the iron/gold/copper blocks are pinned in `custom_emc.json`. They equal ProjectE's defaults; GT's recipes would otherwise leave them at 0.
 
 ## Open
