@@ -1,8 +1,20 @@
 hash-format = "sha256"
 
 [[files]]
+file = "kubejs/client_scripts/hide_free_resources.js"
+hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
+
+[[files]]
+file = "kubejs/server_scripts/no_free_resources.js"
+hash = "b91e74aa9cf5c0eb55b520b3b82874f486822bf3427e22635433d7aa2322b1c4"
+
+[[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "0334472b0d0ef4cc12661d590150be028a59fd9c7e3f252908ea80707e07dd25"
+hash = "fab0aff0f86e47a8845c766f6679224e73a62860f7672b48d067120c66404bc4"
+
+[[files]]
+file = "kubejs/startup_scripts/free_resource_items.js"
+hash = "535a45ae40d03fc1605c39f4cc54c3882e102d5d1a7af556cc1bbaf07ef47ac1"
 
 [[files]]
 file = "mods/better-advanced-tooltips.pw.toml"

@@ -19,7 +19,45 @@ const SMOKE_TEST_ASSERTIONS = [
   {
     name: 'vanilla crafting table recipe exists',
     check: server => server.recipeManager.byKey('minecraft:crafting_table').isPresent()
+  },
+
+  // --- #40: no free resource generation (ADR-0005) ---
+  // Removals match recipe ids by substring, so a wrong id format can't pass vacuously.
+  {
+    name: '#40 no Fluid Drilling Rig recipe',
+    check: server => !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('fluid_drilling_rig'))
+  },
+  {
+    name: '#40 no Bedrock Ore Miner recipe (GT ships none; guard)',
+    check: server => !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('bedrock_ore_miner'))
+  },
+  {
+    name: '#40 no stone_dust_separation recipe',
+    check: server => !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('stone_dust_separation'))
+  },
+  {
+    name: '#40 no ProjectE Energy Collector recipe',
+    check: server => !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('collector_mk'))
+  },
+  {
+    name: '#40 no chunk loader or power flower items registered',
+    check: server => !Item.getTypeList().some(id => /chunk_?load|power_?flower/.test(String(id)))
+  },
+  {
+    name: '#40 air: GT Gas Collector and its air recipe exist',
+    check: server => Item.exists('gtceu:lv_gas_collector') &&
+      server.recipeManager.byKey('gtceu:gas_collector/air').isPresent()
+  },
+  {
+    name: '#40 water: GT pump machine and infinite water cover exist',
+    check: server => Item.exists('gtceu:lv_pump') && Item.exists('gtceu:infinite_water_cover')
+  },
+  {
+    name: '#40 cobble: GT Rock Breaker and its cobblestone recipe exist',
+    check: server => Item.exists('gtceu:lv_rock_crusher') &&
+      server.recipeManager.byKey('gtceu:rock_breaker/cobblestone').isPresent()
   }
+  // --- end #40 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {
