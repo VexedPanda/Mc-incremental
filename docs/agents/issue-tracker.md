@@ -14,7 +14,7 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 Infer the repo from `git remote -v`; `gh` does this automatically when run inside a clone. The repo is `VexedPanda/Mc-incremental`.
 
-In Claude Code cloud sessions, where `gh` isn't available, use the GitHub MCP tools (`mcp__github__*`) for the same operations.
+In Claude Code cloud sessions, GitHub's GraphQL API is blocked, so `gh issue …`, `gh label list` and similar subcommands fail. Use the REST API through `gh api` instead (e.g. `gh api repos/VexedPanda/Mc-incremental/issues -f title=... -f body=...`), or the GitHub MCP tools (`mcp__github__*`).
 
 ## Pull requests as a triage surface
 
