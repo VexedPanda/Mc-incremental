@@ -1,2 +1,36 @@
 hash-format = "sha256"
-files = []
+
+[[files]]
+file = "mods/better-advanced-tooltips.pw.toml"
+hash = "03084ff4f74cedc1b8ac6c85a98842f75956fb4fa811d285d8ca7caa8d54da5d"
+metafile = true
+
+[[files]]
+file = "mods/configuration.pw.toml"
+hash = "1a3eaa6747c1467a235ee17c29c5e0b264ecb3ac1108d2f794d803b95be92660"
+metafile = true
+
+[[files]]
+file = "mods/emi.pw.toml"
+hash = "67bb77eae0b644960be3b1074178ceb5d54facbb42f326981b9d94625238a54a"
+metafile = true
+
+[[files]]
+file = "mods/jade.pw.toml"
+hash = "4de3e4a1a49e332c1ad313283e0403c4273b628d634c17a9ff0c9da3d6b67f9a"
+metafile = true
+
+[[files]]
+file = "mods/kubejs.pw.toml"
+hash = "7e0eca275f27b6543f06c36dec433851a956960cbedd2be57d19e159d636bfc1"
+metafile = true
+
+[[files]]
+file = "mods/projecte.pw.toml"
+hash = "bdca798ffe4124bf43ea13f1fa5f0593a7539762240edb56c47b1976b413ebc4"
+metafile = true
+
+[[files]]
+file = "mods/rhino.pw.toml"
+hash = "e55ca32b338a0e0540f4fec5170675d860566255ae0f45692a00cb4ebf2eb535"
+metafile = true
