@@ -1,6 +1,6 @@
 # Mc-incremental
 
-A Minecraft modpack played as an incremental game: each Run is starved of resources, and the player Prestiges to start a fresh Run while keeping their Knowledge.
+A Minecraft modpack played as an incremental game: each Run is starved of resources, and players Prestige to start a fresh Run while the world keeps its Knowledge.
 
 ## Language
 
