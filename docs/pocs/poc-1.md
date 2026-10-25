@@ -18,6 +18,9 @@ Status: being defined. Decisions here are cheap to change; hard-to-reverse ones 
 - **Raw ore has 0 EMC** (ProjectE default): ore must be processed before it can be banked. Processed outputs have EMC, so this doesn't add grind.
 - **Prestige sweep:** on Prestige, everything in the Run area that doesn't match the original worldgen (placed blocks, machines and the contents of every machine and storage inventory and tank, placed fluids, dropped items) is converted to EMC at **full value** and removed, so nothing valuable is left behind and nothing keeps generating EMC. Untouched natural blocks (unmined ore, terrain) are left alone and abandoned. The sweep diffs the area against a snapshot taken at Run start (ADR-0007).
 - **Custom mod:** the Prestige controller (change tracking, sweep, new Run area, border, teleport, inventory wipe) and the EMC barrel (issue #10) live together in one repo, `mc-incremental-prestige` (ADR-0003); they can be split later.
+- **EMC is lossless and reversible:** converting a resource to EMC and back nets zero (sell value equals EMC value).
+- **Fluid EMC is explicit:** each fluid has its own EMC value per 1000 mB in the Pack's EMC data; it is never derived from buckets. Unmapped fluids are worth 0.
+- **Power generation:** open question, issue #25.
 - **EMC values for GT:** ProjectE ignores GT machine recipes, so GT parts and materials need a hand-made EMC value set.
 
 ## Open
