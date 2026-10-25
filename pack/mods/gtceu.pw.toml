@@ -1,0 +1,8 @@
+name = "GregTech CEu Modern"
+filename = "gtceu-1.21.1-8.0.0-SNAPSHOT+20261025-071601-8602baa.jar"
+side = "both"
+
+[download]
+url = "https://github.com/VexedPanda/Mc-incremental/releases/download/gtceu-1.21.1-8.0.0-SNAPSHOT%2B20261025-071601-8602baa-202610251526/gtceu-1.21.1-8.0.0-SNAPSHOT%2B20261025-071601-8602baa.jar"
+hash-format = "sha256"
+hash = "32c9e5f294a8f9adf80d9768ce5b485b613f6149b06134d1e5e157cceb83ce16"
