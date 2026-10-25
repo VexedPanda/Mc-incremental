@@ -1,8 +1,13 @@
-# No free resource generation
+# No free resource generation beyond low-EMC renewables
 
-Resources must come from the Run area itself. Nothing in the Pack may create resources from nothing, apart from very low-value renewables (vanilla cobblestone generators, growing plants). Resource scarcity is what forces a Prestige, and any free source would remove it. So ProjectE's Energy Collectors and power flowers are disabled, Monifactory-style resource creation is out, and each Content mod's generators are reviewed and disabled via config or KubeJS. EMC is still allowed because it converts resources the player already gathered; it never creates them.
+Resources must come from the Run area itself. Resource scarcity is what forces a Prestige, so nothing in the Pack may create meaningful value from nothing. The line is drawn by **EMC yield, not by resource type**: because EMC converts anything into anything, a farm of iron is no different from a farm of wheat if both yield the same EMC. Ordinary game mechanics stay (infinite water, crops, animal breeding, tree farms, mob drops, villager trades, loot chests) as long as what they produce has low EMC value. Large farms are also self-limiting: a Prestige leaves them behind.
+
+So ProjectE's Energy Collectors and power flowers are disabled, Monifactory-style resource creation (microverses, void miners) is out, and EMC values are the balancing tool: renewable outputs such as iron and gold get low EMC so farming them can't fund a Run.
 
 ## Consequences
 
-- Every new mod needs an audit for free generation (void miners, infinite fluid wells, rock breakers, mob/ore generators).
+- Every new mod needs an audit for high-value free generation (void miners, infinite fluid wells, rock breakers yielding ores, ore-producing generators).
+- EMC values are a core balance surface, not a detail: a renewable output with a high EMC value breaks the loop.
+- Lava and other fluids that are real fuels or resources stay scarce; water is free.
+- Villager trades are welcome as a way to discover resources missing from the Run area (issue #12); an exploitable trade gets fixed individually.
 - Monifactory remains a reference for recipe and progression design only.
