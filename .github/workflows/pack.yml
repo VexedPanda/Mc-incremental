@@ -1,0 +1,43 @@
+name: Pack
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: pack
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Cache packwiz
+        uses: actions/cache@v4
+        with:
+          path: ~/go/bin/packwiz
+          key: packwiz-${{ runner.os }}-v1
+
+      - name: Install packwiz
+        run: test -x ~/go/bin/packwiz || go install github.com/packwiz/packwiz@latest
+
+      - name: Check index is up to date
+        run: |
+          ~/go/bin/packwiz refresh
+          git diff --exit-code -- . || { echo "::error::Run 'packwiz refresh' in pack/ and commit the result"; exit 1; }
+
+      - name: Export .mrpack
+        run: ~/go/bin/packwiz modrinth export -o ../mc-incremental.mrpack
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mrpack
+          path: mc-incremental.mrpack
