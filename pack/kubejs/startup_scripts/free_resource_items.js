@@ -10,5 +10,7 @@ global.FREE_RESOURCE_ITEMS = [
   'gtceu:ev_bedrock_ore_miner',
   'projecte:collector_mk1',
   'projecte:collector_mk2',
-  'projecte:collector_mk3'
+  'projecte:collector_mk3',
+  // #45: places lava from nothing. The Evertide Amulet (water) stays.
+  'projecte:volcanite_amulet'
 ]

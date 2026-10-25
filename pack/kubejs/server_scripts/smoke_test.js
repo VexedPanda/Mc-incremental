@@ -191,8 +191,31 @@ const SMOKE_TEST_ASSERTIONS = [
       })
       return true
     }
-  }
+  },
   // --- end #41 ---
+
+  // --- #45: no free lava from ProjectE amulets (ADR-0005) ---
+  {
+    name: '#45 no recipe crafts the Volcanite Amulet (free lava)',
+    check: server => {
+      if (!Item.exists('projecte:volcanite_amulet')) throw 'item id changed'
+      return !server.recipeManager.getRecipeIds().anyMatch(id => String(id).includes('volcanite_amulet')) &&
+        !server.recipeManager.getRecipes().stream().anyMatch(holder => {
+          try {
+            const out = holder.value().getResultItem(server.registryAccess()).getItem()
+            return String(smokeRegistries.ITEM.getKey(out)) === 'projecte:volcanite_amulet'
+          } catch (e) {
+            return false // some modded recipe types have no single result item
+          }
+        })
+    }
+  },
+  {
+    name: '#45 water stays free: Evertide Amulet and its recipe exist',
+    check: server => Item.exists('projecte:evertide_amulet') &&
+      server.recipeManager.byKey('projecte:evertide_amulet').isPresent()
+  }
+  // --- end #45 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {
