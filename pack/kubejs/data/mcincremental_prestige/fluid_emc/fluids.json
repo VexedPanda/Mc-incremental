@@ -1,0 +1,15 @@
+{
+  "comment": "EMC per 1000 mB of each fluid, for the prestige mod (ProjectE cannot hold fluid values at runtime). Unlisted fluids are worth 0. A filled bucket's EMC in config/ProjectE/custom_emc.json must equal the empty bucket plus this value.",
+  "emc_per_1000_mb": {
+    "minecraft:water": 0,
+    "minecraft:lava": 512,
+    "gtceu:steam": 0,
+    "gtceu:creosote": 32,
+    "gtceu:seed_oil": 16,
+    "gtceu:ethanol": 64,
+    "gtceu:oil": 256,
+    "gtceu:natural_gas": 256,
+    "gtceu:diesel": 768,
+    "gtceu:gasoline": 1024
+  }
+}
