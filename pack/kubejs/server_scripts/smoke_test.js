@@ -29,8 +29,8 @@ const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const smokeFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
 
 // Thresholds.
-// The EMC data file has ~80 entries; far fewer means it was truncated or mis-parsed.
-const SMOKE_MIN_EMC_ENTRIES = 40
+// The EMC data file has ~3,900 generated entries (#55); far fewer means it was truncated or mis-parsed.
+const SMOKE_MIN_EMC_ENTRIES = 2000
 // Diesel is a refined GT fuel; below one iron ingot (256) it would be near-free to bank.
 const SMOKE_MIN_DIESEL_EMC = 256
 // Lava plus at least one GT fuel must resolve to a bucket, so the check can't pass vacuously.

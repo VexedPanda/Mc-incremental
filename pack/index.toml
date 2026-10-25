@@ -30,7 +30,7 @@ hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "da4d3cc1d0c013b9be5d3f728935e50c336b0359a639ecaae6ae3f04b99b0dca"
+hash = "51de77bbdae48824ce4cf2e6755d18abe7826bd9f5d7690c1b8e0402086725ff"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
