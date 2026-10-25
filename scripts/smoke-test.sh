@@ -30,7 +30,8 @@ PACK_DIR="$REPO_ROOT/pack"
 CACHE_DIR="${SMOKE_CACHE_DIR:-/tmp/mc-incremental-smoke-cache}"
 TIMEOUT="${SMOKE_TIMEOUT:-600}"
 MEMORY="${SMOKE_MEMORY:-3G}"
-PORT="${SMOKE_PORT:-$(( 30000 + RANDOM % 10000 ))}"
+# Ask the kernel for a free port so parallel runs (other worktrees/agents) never collide.
+PORT="${SMOKE_PORT:-$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')}"
 
 PACKWIZ_INSTALLER_VERSION="v0.5.14"
 PACKWIZ_BOOTSTRAP_VERSION="v0.0.3"
@@ -63,6 +64,9 @@ fetch() { # url dest
 }
 
 mkdir -p "$CACHE_DIR"
+# Serialise cache downloads and the one-time server install across parallel runs.
+exec 9>"$CACHE_DIR/.lock"
+flock 9
 fetch "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEOFORGE_VERSION/neoforge-$NEOFORGE_VERSION-installer.jar" \
   "$CACHE_DIR/neoforge-$NEOFORGE_VERSION-installer.jar"
 fetch "https://github.com/packwiz/packwiz-installer/releases/download/$PACKWIZ_INSTALLER_VERSION/packwiz-installer.jar" \
@@ -81,6 +85,7 @@ if [ ! -f "$SERVER_BASE/.installed" ]; then
   touch "$SERVER_BASE/.installed"
 fi
 cp -a "$SERVER_BASE/libraries" "$WORK_DIR/"
+flock -u 9
 
 log "installing the Pack (server side) from $PACK_DIR"
 (cd "$WORK_DIR" && java -jar "$CACHE_DIR/packwiz-installer-bootstrap-$PACKWIZ_BOOTSTRAP_VERSION.jar" \
@@ -94,6 +99,8 @@ online-mode=false
 level-seed=mc-incremental-smoke
 spawn-protection=0
 server-port=$PORT
+enable-rcon=false
+enable-query=false
 EOF
 echo '{"enabled": true}' > "$WORK_DIR/smoke-test.json"
 
@@ -101,8 +108,10 @@ log "booting server on port $PORT (timeout ${TIMEOUT}s)"
 start=$(date +%s)
 set +e
 # java directly (not run.sh) so the timeout signals the JVM itself, not a wrapper shell.
+# The -D marker tags this JVM with its own work dir: to find or stop *your* server, match on it
+# (pgrep -f "mcincremental.smoke.workdir=$WORK_DIR"); never kill other java processes.
 (cd "$WORK_DIR" && timeout --kill-after=30 "$TIMEOUT" \
-  java "-Xmx$MEMORY" @libraries/net/neoforged/neoforge/"$NEOFORGE_VERSION"/unix_args.txt nogui \
+  java "-Xmx$MEMORY" "-Dmcincremental.smoke.workdir=$WORK_DIR" @libraries/net/neoforged/neoforge/"$NEOFORGE_VERSION"/unix_args.txt nogui \
   < /dev/null > console.log 2>&1)
 status=$?
 set -e
