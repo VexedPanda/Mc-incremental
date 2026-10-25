@@ -10,7 +10,7 @@ global.FREE_RESOURCE_ITEMS = [
   'gtceu:ev_bedrock_ore_miner',
   'projecte:collector_mk1',
   'projecte:collector_mk2',
-  'projecte:collector_mk3',
-  // #45: places lava from nothing. The Evertide Amulet (water) stays.
-  'projecte:volcanite_amulet'
+  'projecte:collector_mk3'
+  // The Volcanite Amulet (lava from nothing) stays (#47, undoing #45): lava is worth
+  // only 64 EMC per bucket at ProjectE's defaults, below the 100+ EMC exploit threshold.
 ]

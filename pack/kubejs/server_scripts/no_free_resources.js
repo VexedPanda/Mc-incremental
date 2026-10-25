@@ -24,9 +24,6 @@ ServerEvents.recipes(event => {
   event.remove({ id: 'gtceu:centrifuge/stone_dust_separation' })
   // ProjectE Energy Collectors MK1-3: EMC from sunlight.
   event.remove({ id: /^projecte:collector_mk[123]$/ })
-  // ProjectE Volcanite Amulet: places lava from nothing (#45). Its use as an
-  // ingredient (Gem Chestplate, Iron Band alternative) goes with it.
-  event.remove({ id: 'projecte:volcanite_amulet' })
 
   global.FREE_RESOURCE_ITEMS.forEach(item => event.remove({ output: item }))
 })

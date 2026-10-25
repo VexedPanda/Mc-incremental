@@ -1,8 +1,8 @@
 {
-  "comment": "EMC per 1000 mB of each fluid, for the prestige mod (ProjectE cannot hold fluid values at runtime). Unlisted fluids are worth 0. A filled bucket's EMC in config/ProjectE/custom_emc.json must equal the empty bucket plus this value.",
+  "comment": "EMC per 1000 mB of each fluid, for the prestige mod (ProjectE cannot hold fluid values at runtime). Unlisted fluids are worth 0. A filled bucket's EMC must equal the empty bucket plus this value: vanilla buckets use ProjectE's defaults (lava = default lava bucket 832 - empty bucket 768), GT buckets are set in config/ProjectE/custom_emc.json.",
   "emc_per_1000_mb": {
     "minecraft:water": 0,
-    "minecraft:lava": 512,
+    "minecraft:lava": 64,
     "gtceu:steam": 0,
     "gtceu:creosote": 32,
     "gtceu:seed_oil": 16,
