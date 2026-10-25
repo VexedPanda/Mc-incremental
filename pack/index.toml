@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "f1748229fd3b1aa56bcc6c16db12d540f0cdab70b84e2aaf2036852a3efbca83"
+hash = "2b87df3059b78954b14260a8740bbc068219ef0d1af88e0340a4e33c56c1e8a5"
 
 [[files]]
 file = "config/ProjectE/mapping.toml"
@@ -22,7 +22,7 @@ hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
 
 [[files]]
 file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
-hash = "6edc777752aa7d7fe9ab221fb92cf11b3cc297f55f537647c8ff7e9f128bec76"
+hash = "eaee9e30500b5f47169e01220414bdcafd5410e26dad136c2a96dc347d33221a"
 
 [[files]]
 file = "kubejs/server_scripts/no_free_resources.js"
