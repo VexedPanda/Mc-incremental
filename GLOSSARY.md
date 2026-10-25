@@ -49,7 +49,7 @@ The set of resources a player has learned and can recreate from EMC; it belongs 
 _Avoid_: Unlocks, research, memory
 
 **EMC barrel**:
-A placed block set to one learned resource (item or fluid) that hands it out on demand, paid for from its owner's EMC balance.
+A placed block linked to its owner's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
 _Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
 
 **Progression**:
