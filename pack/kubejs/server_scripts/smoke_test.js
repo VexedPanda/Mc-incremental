@@ -266,8 +266,49 @@ const SMOKE_TEST_ASSERTIONS = [
     name: '#45 water stays free: Evertide Amulet and its recipe exist',
     check: server => Item.exists('projecte:evertide_amulet') &&
       server.recipeManager.byKey('projecte:evertide_amulet').isPresent()
-  }
+  },
   // --- end #47 ---
+
+  // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
+  // Values come from the Pack's shipped server.properties (the smoke script keeps them).
+  // Simulation distance has no server-side clamp; 2 is the lowest value that keeps the
+  // whole 3x3 Run area entity-ticking from any chunk inside it.
+  {
+    name: '#46 server view distance is 2',
+    check: server => {
+      if (server.playerList.getViewDistance() != 2) throw 'playerList view distance ' + server.playerList.getViewDistance()
+      if (server.getProperties().viewDistance != 2) throw 'server.properties view-distance ' + server.getProperties().viewDistance
+      return true
+    }
+  },
+  {
+    name: '#46 server simulation distance is 2',
+    check: server => {
+      if (server.playerList.getSimulationDistance() != 2) throw 'playerList simulation distance ' + server.playerList.getSimulationDistance()
+      if (server.getProperties().simulationDistance != 2) throw 'server.properties simulation-distance ' + server.getProperties().simulationDistance
+      return true
+    }
+  },
+  // --- end #46 ---
+
+  // --- #42: prestige mod (mcincremental_prestige v0.1.0) ---
+  {
+    name: '#42 Prestige item is registered and its recipe exists',
+    check: server => {
+      if (!smokeRegistries.ITEM.containsKey(smokeRL.parse('mcincremental_prestige:prestige'))) throw 'item not registered'
+      if (!server.recipeManager.byKey('mcincremental_prestige:prestige').isPresent()) throw 'recipe missing'
+      return true
+    }
+  },
+  {
+    name: '#42 EMC barrel block is registered and its recipe exists',
+    check: server => {
+      if (!smokeRegistries.BLOCK.containsKey(smokeRL.parse('mcincremental_prestige:emc_barrel'))) throw 'block not registered'
+      if (!server.recipeManager.byKey('mcincremental_prestige:emc_barrel').isPresent()) throw 'recipe missing'
+      return true
+    }
+  }
+  // --- end #42 ---
 ]
 
 if (JsonIO.read('smoke-test.json') != null) {

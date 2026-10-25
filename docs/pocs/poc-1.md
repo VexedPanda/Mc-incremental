@@ -29,6 +29,12 @@ Status: being defined. Decisions here are cheap to change; hard-to-reverse ones 
   - Filled buckets equal the empty bucket plus the fluid's value, so bucketing a fluid neither gains nor loses EMC. The smoke test checks every listed fluid's bucket against the fluid file.
   - `covalenceLoss = 1.0` is pinned in `pack/config/ProjectE/server.toml`, so sell value equals EMC value.
   - Known small leaks (below the threshold, left as-is): crafting 9 GT tiny dusts into a dust gains up to 8 EMC (tiny dust value rounds down), as ProjectE's "EMC Exploit" log warnings list.
+- **Default view distances (#46):** for performance, the Pack's defaults cover the 3×3 Run area plus one surrounding chunk (radius 2, 5×5 chunks), matching the Prestige sweep margin. They are defaults only; players and server owners can raise them.
+  - Client: `pack/options.txt` sets `renderDistance:2`, `simulationDistance:5` and `entityDistanceScaling:0.5` (the slider minimum); Minecraft fills in every other option.
+  - Dedicated server: `pack/server.properties` sets `view-distance=2` and `simulation-distance=2`. Vanilla clamps view distance to 2..32, so 2 is its floor. Simulation distance has no server-side clamp (0 or even negatives are accepted), but entities only tick within that many chunks of a player, so 2 is the lowest value that keeps the whole Run area ticking when the player stands in a corner chunk.
+  - Both files are marked `preserve = true` in `pack/index.toml` (set by hand; `packwiz refresh` keeps it), so packwiz-installer writes them on first install and never overwrites later changes. Both ship to clients and servers alike (index entries have no side); the unused one is harmless.
+  - `scripts/smoke-test.sh` starts from the shipped `server.properties` and only overrides test keys (port, seed, online-mode, ...); the smoke test asserts the running server's view and simulation distance are 2.
+  - **Singleplayer:** the integrated server takes its simulation distance from the client option, whose slider can't go below 5, so singleplayer simulates radius 5 unless code changes it. If that matters for performance, the prestige mod can clamp it (follow-up, not filed yet).
 
 ## Open
 

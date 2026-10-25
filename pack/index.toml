@@ -26,7 +26,7 @@ hash = "b91e74aa9cf5c0eb55b520b3b82874f486822bf3427e22635433d7aa2322b1c4"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "cb8255097fe863ba622a1dfaa0204eb8953ba46de054762cb8f075900899d890"
+hash = "de428e4cf1a334051b6c0080ea40de193081d0ed9435bb05741f7d570bf1726d"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
@@ -58,6 +58,11 @@ hash = "7e0eca275f27b6543f06c36dec433851a956960cbedd2be57d19e159d636bfc1"
 metafile = true
 
 [[files]]
+file = "mods/mcincremental-prestige.pw.toml"
+hash = "74a32ded2d7b7b7b6c9d2c8cb051b9e2e1d8e2690554f00ec139b03719d1b747"
+metafile = true
+
+[[files]]
 file = "mods/projecte.pw.toml"
 hash = "bdca798ffe4124bf43ea13f1fa5f0593a7539762240edb56c47b1976b413ebc4"
 metafile = true
@@ -66,3 +71,13 @@ metafile = true
 file = "mods/rhino.pw.toml"
 hash = "e55ca32b338a0e0540f4fec5170675d860566255ae0f45692a00cb4ebf2eb535"
 metafile = true
+
+[[files]]
+file = "options.txt"
+hash = "499f58cc1f9c6a5ede0fbc00636a29470e5c350d72c20db04a56d8c84f4aab0a"
+preserve = true
+
+[[files]]
+file = "server.properties"
+hash = "5be70dc879f2b983f0dcb4c39aece206197a669cd68d836d54b4f91483bdf955"
+preserve = true
