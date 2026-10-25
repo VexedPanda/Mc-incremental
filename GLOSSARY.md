@@ -45,11 +45,11 @@ The step of a Prestige that converts everything the player added to the Run area
 _Avoid_: Cleanup, refund, salvage
 
 **Knowledge**:
-The set of resources a player has learned and can recreate from EMC; it belongs to the player, not the world, so it survives Prestige.
+The set of resources learned in this world, shared by every player, that can be recreated from EMC; it survives Prestige.
 _Avoid_: Unlocks, research, memory
 
 **EMC barrel**:
-A placed block linked to its owner's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
+A placed block linked to the world's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
 _Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
 
 **Progression**:

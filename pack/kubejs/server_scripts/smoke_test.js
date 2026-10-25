@@ -20,6 +20,16 @@ const SMOKE_TEST_ASSERTIONS = [
     name: 'vanilla crafting table recipe exists',
     check: server => server.recipeManager.byKey('minecraft:crafting_table').isPresent()
   },
+  {
+    name: 'GT keeps vanilla ore gen (thin baseline): removeVanillaOreGen=false',
+    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
+      .INSTANCE.worldgen.oreVeins.removeVanillaOreGen === false
+  },
+  {
+    name: 'GT bedrock ore veins off: doBedrockOres=false',
+    check: () => Java.loadClass('com.gregtechceu.gtceu.config.ConfigHolder')
+      .INSTANCE.machines.doBedrockOres === false
+  },
 
   // --- #40: no free resource generation (ADR-0005) ---
   // Removals match recipe ids by substring, so a wrong id format can't pass vacuously.
