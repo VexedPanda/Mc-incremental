@@ -11,8 +11,8 @@ Some resources only generate in the Nether or End (e.g. GregTech's tungsten and 
 ## Consequences
 
 - The Prestige mod needs per-dimension placement and safe-spawn rules (Nether lava and ceiling, End void), and the border must confine the Run in whichever dimension it lies in.
-- Choosing where to Prestige becomes the loop's central decision; Candidate areas show each area's dimension, vein types and structures.
-- Structure-bound resources (blaze rods behind the End gate, wither skulls, shulker shells, echo shards) rarely fit in a 3×3 area, so Candidate areas are biased: while a resource that a Dimension gate needs is undiscovered, at least one candidate contains its source.
+- Choosing where to Prestige becomes the loop's central decision: each unlocked Run dimension offers exactly 3 Candidate areas, previewed with their vein types and structures.
+- Structure-bound resources (blaze rods behind the End gate, wither skulls, shulker shells, echo shards) rarely fit in a 3×3 area, so Candidate areas are biased: while a resource that a Dimension gate needs is undiscovered, at least one candidate contains its source. Bias only shapes those 3 candidates and never adds more, however many resources are missing.
 - End Run areas lie only on the outer islands and must hold enough land (as overworld candidates skip oceans); the dragon's island is excluded (whether it is ever reachable is the endgame question, #6).
 - A Run stays in its dimension: portals do nothing during a Run, and the dimension only changes at Prestige.
 - No dimension-specific starting items: a world past a gate has already learned the basics (logs, water) and buys them with EMC.
