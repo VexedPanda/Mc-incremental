@@ -6,7 +6,8 @@ it has one, else the cheapest conversion whose ingredients all have values (kept
 
 Two modes:
 - 'game' reproduces what the running Pack does (checked against the dumped in-game values): ProjectE doesn't map
-  crafting recipes that use a GT tool (hammer, file, wrench, ...) or that make one.
+  crafting recipes that use a GT tool (hammer, file, wrench, ...), nor recipes whose output carries data components
+  (it values that stack, not the plain item).
 - 'cost' adds the fallback routes generate.py uses for what 'game' leaves unvalued: a GT tool used in crafting comes
   back (it only loses durability), so it isn't counted, and crafting recipes that make tools count; GT's
   decomposition and recycling recipes (electrolysis, centrifuging, macerating or arc-smelting a part) and the
@@ -18,8 +19,6 @@ import json, math, re, zipfile
 from collections import defaultdict
 
 TOOL_TAG_PREFIX = 'gtceu:crafting_tools/'
-TOOL_ITEM_TAGS = ('c:tools', 'minecraft:pickaxes', 'minecraft:axes', 'minecraft:shovels', 'minecraft:hoes',
-                  'minecraft:swords')
 BASIC_FORM = re.compile(r'(_ingot|_gem|_dust)$|^minecraft:(iron|gold|copper|netherite)_ingot$'
                         r'|^minecraft:(diamond|emerald|lapis_lazuli|quartz|amethyst_shard|coal|charcoal|redstone)$')
 VANILLA_TYPES = ('minecraft:crafting', 'minecraft:smelting', 'minecraft:blasting', 'minecraft:smoking',
@@ -62,8 +61,6 @@ class Model:
         self.conv = []
         self.groups = {}
         self.tools = {i for t, ids in self.tags.items() if t.startswith(TOOL_TAG_PREFIX) for i in ids}
-        self.tool_items = set(self.tools) | {i for t in TOOL_ITEM_TAGS for i in self.tags.get(t, ())
-                                             if i.startswith('gtceu:')}
         self.skipped = defaultdict(int)
         self.fixed = {}
         if pe_jar:
@@ -146,8 +143,6 @@ class Model:
         if r['type'] not in VANILLA_TYPES or not r['o'] or not r['i']:
             return 'not mapped'
         out = r['o'][0]
-        if out['ids'][0] in self.tool_items and self.mode == 'game':
-            return 'makes a tool'
         if out.get('c') and self.mode == 'game':
             return 'makes a stack with data components'  # ProjectE values that stack, not the plain item
         ing = defaultdict(float)
@@ -255,7 +250,8 @@ class Model:
                 return None
         amounts = dict(inp)
         for node, n in out.items():
-            if node != prim and node.startswith('f:') and node[2:] in self.listed:
+            # the mapper subtracts byproduct fluids with an explicit value; an ingredient cost ('cost') doesn't
+            if node != prim and node.startswith('f:') and node[2:] in self.listed and self.mode == 'game':
                 amounts[node] = amounts.get(node, 0) - n
         amounts = {k: v for k, v in amounts.items() if v}
         g = out[prim]

@@ -18,10 +18,10 @@
    }
   },
   {
-   "why": "GT ingots, dusts, plates and blocks valued from ProjectE's default metals (#41, re-based in #47): dust = plate = ingot, block = 9 ingots; steel 512, wrought iron 256, zinc 512, brass 224, aluminium 1024, red alloy 384.",
+   "why": "GT ingots, dusts, plates and blocks valued from ProjectE's default metals (#41, re-based in #47): dust = plate = ingot, block = 9 ingots; steel 288 (#55: the primitive blast furnace makes it from an iron ingot and nearly free coke dust (257 EMC) or a block from an iron block and 2 charcoal blocks (2,646), so at 512 every ingot gained 255 EMC; 288 keeps both routes under the 100 EMC threshold), wrought iron 256, zinc 512, brass 224, aluminium 1024, red alloy 384.",
    "items": {
     "gtceu:wrought_iron_ingot": 256,
-    "gtceu:steel_ingot": 512,
+    "gtceu:steel_ingot": 288,
     "gtceu:zinc_ingot": 512,
     "gtceu:brass_ingot": 224,
     "gtceu:aluminium_ingot": 1024,
@@ -50,9 +50,9 @@
     "gtceu:wrought_iron_dust": 256,
     "gtceu:wrought_iron_plate": 256,
     "gtceu:wrought_iron_block": 2304,
-    "gtceu:steel_dust": 512,
-    "gtceu:steel_plate": 512,
-    "gtceu:steel_block": 4608,
+    "gtceu:steel_dust": 288,
+    "gtceu:steel_plate": 288,
+    "gtceu:steel_block": 2592,
     "gtceu:zinc_dust": 512,
     "gtceu:zinc_plate": 512,
     "gtceu:zinc_block": 4608,
@@ -65,22 +65,6 @@
     "gtceu:red_alloy_dust": 384,
     "gtceu:red_alloy_plate": 384,
     "gtceu:red_alloy_block": 3456
-   }
-  },
-  {
-   "why": "Steam-age machines and casings no mapped recipe reaches (#41).",
-   "items": {
-    "gtceu:bronze_machine_casing": 1280,
-    "gtceu:bronze_brick_casing": 768,
-    "gtceu:steam_machine_casing": 896,
-    "gtceu:steel_brick_casing": 3072,
-    "gtceu:solid_machine_casing": 4096,
-    "gtceu:lp_steam_solid_boiler": 2048,
-    "gtceu:hp_steam_solid_boiler": 8192,
-    "gtceu:lp_steam_furnace": 3072,
-    "gtceu:lp_steam_alloy_smelter": 3072,
-    "gtceu:lp_steam_extractor": 3072,
-    "gtceu:lp_steam_macerator": 12288
    }
   },
   {

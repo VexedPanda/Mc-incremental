@@ -21,7 +21,7 @@ What it does, in order (emcmodel.py replays ProjectE and the Prestige mod's GT r
  5. Every fluid is listed at the value the mapper derives for it; a filled bucket is pinned at the empty bucket plus
     its fluid.
 """
-import json, math, os, sys
+import json, math, os, re, sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -36,6 +36,9 @@ VANILLA_UNITS = {'redstone': 'minecraft:redstone', 'diamond': 'minecraft:diamond
                  'amethyst': 'minecraft:amethyst_shard', 'flint': 'minecraft:flint',
                  'glowstone': 'minecraft:glowstone_dust'}
 BUCKET = 'minecraft:bucket'
+# A listed fluid a recipe makes for this much less is lowered (well under the 100 EMC exploit threshold; a smaller
+# margin chases rounding around recipe cycles without settling).
+LOWER_MARGIN = 50
 NOMINAL = 1  # EMC per 1000 mB of a fluid made from water and air alone
 
 
@@ -46,6 +49,9 @@ def unit_items(m):
 class Generator:
     def __init__(self, log, jar):
         self.dump = load_dump(log)
+        self.log_path = log
+        # what the dumped game had listed (FLUIDDUMP's value), to tell whether its exploit warnings still apply
+        self.listed_in_dump = {f: v[1] for f, v in self.dump[1].items() if f == v[0]}
         self.items, self.fluids, self.tags, self.recipes = self.dump
         self.jar = jar
         self.hand = json.load(open(os.path.join(HERE, 'hand_values.json')))
@@ -175,6 +181,7 @@ class Generator:
             for out, (cost, src) in new.items():
                 v = max(1, math.floor(cost + 1e-9))
                 if out.startswith('f:'):
+                    self.derived[out[2:]] = v
                     self.listed[out[2:]] = v
                     self.fluid_reasons[out[2:]] = 'ingredient cost of %s' % src
                 else:
@@ -190,20 +197,52 @@ class Generator:
         return sorted({v[0] for v in self.fluids.values()} - {'minecraft:empty'})
 
     def fluid_values(self, val):
-        """List every other fluid at the value the mapper derives for it, so the Prestige mod sees it at runtime."""
-        unvalued = []
+        """List every fluid that isn't hand-set or free at the value the mapper derives for it while it is unlisted
+        (or the fallback cost frontier() gave it), so the Prestige mod sees it at runtime."""
+        new, unvalued = {}, []
         for f in self.source_fluids():
-            if f in self.listed:
+            if f in self.base_listed:
                 continue
             v = val.get('f:' + f)
             if v is None:
                 unvalued.append(f)
                 continue
-            self.listed[f] = max(1, math.floor(v + 1e-9))
-            self.fluid_reasons[f] = 'derived by the mapper'
+            new[f] = max(1, math.floor(v + 1e-9))
+            self.fluid_reasons.setdefault(f, 'derived by the mapper')
         self.unvalued_fluids = unvalued
-        self.log.append('fluids listed at their derived value: %d; still unvalued: %s' % (
-            sum(1 for r in self.fluid_reasons.values() if r == 'derived by the mapper'), ' '.join(unvalued)))
+        return new
+
+    def game_exploit_ratios(self, log):
+        """ProjectE's own "EMC Exploit" warnings in the dump's log, for listed fluids: the game sometimes finds a
+        route slightly cheaper than this model. {fluid: cost / value} for each warning gaining LOWER_MARGIN or more."""
+        ratios = {}
+        pat = re.compile(r'=> \d+\*NSSFake: mcincremental_prestige:gt_recipes/fluid (\S+)\) cost (\d+) but output value is (\d+)')
+        for line in open(log, encoding='utf-8', errors='replace'):
+            m = pat.search(line)
+            if m and int(m.group(3)) - int(m.group(2)) >= LOWER_MARGIN:
+                f, r = m.group(1), int(m.group(2)) / int(m.group(3))
+                ratios[f] = min(r, ratios.get(f, 1))
+        return ratios
+
+    def lower_fluids(self):
+        """Once listed, a fluid is a fixed value, and the mapper subtracts it from recipes that make it as a byproduct,
+        which makes some routes cheaper. Lower any listed fluid that a recipe now makes for less (an exploit otherwise)."""
+        val = self.solve()
+        lowered = 0
+        for out, cnt, ing, src in self.game.conv:
+            f = out[2:]
+            if not out.startswith('f:') or f not in self.derived or not ing:
+                continue
+            try:
+                tot = sum(a * val[k] for k, a in ing.items())
+            except KeyError:
+                continue
+            cost = tot / cnt
+            if 1 <= cost < self.derived[f] - LOWER_MARGIN:
+                self.derived[f] = max(1, math.floor(cost))
+                lowered += 1
+        self.log.append('listed fluids lowered to a cheaper recipe: %d' % lowered)
+        return lowered
 
     def bucket_pins(self, val):
         empty = val.get('i:' + BUCKET)
@@ -308,30 +347,65 @@ class Generator:
         self.log.append('recipe-cycle items pinned at their derived value: %s' % ' '.join(
             self.hand.get('pin_at_derived_value', {}).get('items', [])))
 
-    def run(self):
-        self.free_fluids()
+    PRUNABLE = ('ingredient cost', 'unobtainable', 'rarity: byproduct', 'cheapest recipe')
+
+    def prune(self):
+        """Drop the pins of items the game can now derive by itself (at 2 EMC or more): a pin is only for what
+        nothing else values, and a stale pin above a cheaper route is an exploit."""
+        prunable = {k for k, (_, why) in self.pins.items() if why.startswith(self.PRUNABLE)}
+        fixed = {k: v for k, v in self.fixed().items() if not (k.startswith('i:') and k[2:] in prunable)}
+        val = self.game.solve(fixed)
+        dropped = [k for k in prunable if val.get('i:' + k, 0) >= 2]
+        for k in dropped:
+            del self.pins[k]
+        self.log.append('pins dropped because the game derives the item: %d' % len(dropped))
+
+    def one_pass(self):
+        self.pins = {}
         self.models()
-        val = self.solve()
-        self.byproduct_materials(val)
-        val = self.solve()
-        self.ore_units(val)
-        self.ore_pins(val)
-        self.frontier()
-        self.fluid_values(self.solve())
-        self.models()  # listed fluids change how the mapper treats byproducts
+        if not hasattr(self, 'units'):
+            # Ore units are fixed on the first pass, from ProjectE's and the hand values only: later passes list
+            # fluids derived from the ores themselves, which would feed an ore's value back into its own unit.
+            self.ore_units(self.solve())
+        self.ore_pins(self.solve())
+        self.byproduct_materials(self.solve())
+        self.ore_pins(self.solve())  # again, with the byproducts' values
         self.frontier()
         self.unobtainable_materials(self.solve())
         self.frontier()
-        self.fluid_values(self.solve())
-        self.models()
-        self.frontier()
         self.smelted_ores(self.solve())
         self.frontier()
+        self.prune()
+        self.ore_pins(self.solve())
         self.cycle_pins(self.solve())
         self.sub_unit()
-        val = self.solve()
-        self.bucket_pins(val)
+
+    def run(self, max_lowering=20):
+        """Pass 1 prices items with only the hand-set and free fluids listed, and lists every other fluid at the
+        value the mapper gives it while unlisted. Listing changes how the mapper treats recipes that make those
+        fluids as byproducts, so pass 2 prices the items again with every fluid listed, and listed fluids that a
+        recipe now makes for less are lowered (and the items re-priced) until none is."""
+        self.free_fluids()
+        self.base_listed = dict(self.listed)
+        self.derived = {}
+        self.one_pass()
+        self.derived = self.fluid_values(self.solve())
+        for f, r in self.game_exploit_ratios(self.log_path).items():
+            cap = math.floor(self.listed_in_dump.get(f, 0) * r)
+            if f in self.derived and 1 <= cap < self.derived[f]:
+                self.derived[f] = cap
+                self.log.append('lowered %s to the cheaper route ProjectE found in the dumped game' % f)
+        for _ in range(max_lowering):
+            self.listed = dict(self.base_listed, **self.derived)
+            self.one_pass()
+            if not self.lower_fluids():
+                break
+        self.listed = dict(self.base_listed, **self.derived)
+        self.models()
+        self.bucket_pins(self.solve())
+        self.log.append('fluids no recipe makes (allow-listed): %s' % ' '.join(self.unvalued_fluids))
         return self.solve()
+
 
 CUSTOM_EMC_COMMENT = (
     "Mc-incremental EMC values (#41, #47, #55). GENERATED by docs/research/emc-pricing/generate.py from "
