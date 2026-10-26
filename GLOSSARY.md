@@ -65,8 +65,12 @@ A resource entering the world's Knowledge, which happens automatically as soon a
 _Avoid_: Learning (ProjectE's manual step), research, unlocking
 
 **EMC barrel**:
-A placed block linked to the world's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
-_Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
+A placed block linked to the world's EMC balance that hands out one configured learned resource (item or fluid), paid for from the balance; it only outputs.
+_Avoid_: EMC tank (one block covers items and fluids), condenser (ProjectE's condenser works the other way), drawer
+
+**EMC intake**:
+A placed block that converts anything piped or put into it (items or fluids) into EMC for the world's balance; the only automated way into EMC.
+_Avoid_: Importer, sink, EMC barrel (which only outputs), collector (ProjectE's generates EMC)
 
 **Progression**:
 The path a player takes through the Content mod within a Run, gated by effort, complexity and the resources available rather than by waiting.
