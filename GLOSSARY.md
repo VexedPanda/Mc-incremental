@@ -1,6 +1,6 @@
 # Mc-incremental
 
-A Minecraft modpack played as an incremental game: each Run is starved of resources, and the player Prestiges to start a fresh Run while keeping their Knowledge.
+A Minecraft modpack played as an incremental game: each Run is starved of resources, and players Prestige to start a fresh Run while the world keeps its Knowledge.
 
 ## Language
 
@@ -33,8 +33,20 @@ The span of play between two Prestiges, confined to one Run area and limited by 
 _Avoid_: Cycle, life, loop, playthrough
 
 **Run area**:
-The small, fixed patch of an ordinarily generated world that a Run is confined to.
+The small, fixed patch of one ordinarily generated dimension that a Run is confined to.
 _Avoid_: Plot, island, claim, chunk (a Run area is made of chunks)
+
+**Run dimension**:
+The dimension (Overworld, Nether or End) a Run's area lies in, chosen at Prestige.
+_Avoid_: Expedition, realm
+
+**Candidate area**:
+One of the Run areas offered at a Prestige, previewed so the players can pick where the next Run goes.
+_Avoid_: Option, roll
+
+**Dimension gate**:
+The Knowledge a world must hold before its players can pick a Run dimension; it mirrors the progression normally needed to reach that dimension.
+_Avoid_: Unlock, key, tier lock
 
 **Prestige**:
 Deliberately ending the current Run and starting a new one in a fresh, never-visited Run area, keeping only Knowledge (and whatever else is designed to carry over).
@@ -45,11 +57,15 @@ The step of a Prestige that converts everything the player added to the Run area
 _Avoid_: Cleanup, refund, salvage
 
 **Knowledge**:
-The set of resources a player has learned and can recreate from EMC; it belongs to the player, not the world, so it survives Prestige.
+The set of resources learned in this world, shared by every player, that can be recreated from EMC; it survives Prestige.
 _Avoid_: Unlocks, research, memory
 
+**Discovery**:
+A resource entering the world's Knowledge, which happens automatically as soon as anything in the world produces it or a player holds it.
+_Avoid_: Learning (ProjectE's manual step), research, unlocking
+
 **EMC barrel**:
-A placed block linked to its owner's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
+A placed block linked to the world's EMC balance: it hands out one configured learned resource (item or fluid) paid for from the balance, and converts anything piped into it into EMC.
 _Avoid_: EMC tank, condenser (ProjectE's condenser works the other way), drawer
 
 **Progression**:

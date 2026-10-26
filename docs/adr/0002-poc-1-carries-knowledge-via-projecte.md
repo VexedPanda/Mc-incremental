@@ -1,6 +1,6 @@
 # PoC 1 carries Knowledge over Prestige with ProjectE's EMC
 
-For the first PoC, what survives a Prestige is Knowledge: the items (and later other resources) a player has learned, recreatable from EMC via ProjectE. We chose EMC over a separate skill tree or world-based recovery because it lets a player skip rebuilding production chains for anything already discovered, while still forcing a fresh start on blocks and tooling: as the Content mod's tooling gets more expensive, a starved Run area pushes the player to Prestige. ProjectE stores Knowledge on the player, so it survives ADR-0001's move to a new Run area.
+For the first PoC, what survives a Prestige is Knowledge: the items (and later other resources) learned in this world, recreatable from EMC via ProjectE. Knowledge is world-global and shared by every player (ADR-0004). We chose EMC over a separate skill tree or world-based recovery because it lets players skip rebuilding production chains for anything already discovered, while still forcing a fresh start on blocks and tooling: as the Content mod's tooling gets more expensive, a starved Run area pushes players to Prestige. ProjectE itself stores Knowledge per player; the prestige mod keeps the world's Knowledge in world data and mirrors it into every player's ProjectE data (ADR-0004), and since a Prestige stays in the same world (ADR-0001), Knowledge survives the move to a new Run area.
 
 ## Considered Options
 

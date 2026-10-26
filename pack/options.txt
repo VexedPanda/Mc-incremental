@@ -1,0 +1,4 @@
+version:3955
+renderDistance:2
+simulationDistance:5
+entityDistanceScaling:0.5

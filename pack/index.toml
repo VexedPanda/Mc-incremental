@@ -1,6 +1,42 @@
 hash-format = "sha256"
 
 [[files]]
+file = "config/ProjectE/custom_emc.json"
+hash = "2b87df3059b78954b14260a8740bbc068219ef0d1af88e0340a4e33c56c1e8a5"
+
+[[files]]
+file = "config/ProjectE/mapping.toml"
+hash = "99165b0af31f860a443e86caeaa408a9149c6ca1fe57338eb541fef9dd0ad169"
+
+[[files]]
+file = "config/ProjectE/server.toml"
+hash = "5b4f9802c51836656497f3335c52ebee061178a170d74933526edf8eb251260f"
+
+[[files]]
+file = "config/gtceu.yaml"
+hash = "3316b8ddb7b3c8ce0602eefb369445ebaca2879d24520547013c09d9d43af140"
+
+[[files]]
+file = "kubejs/client_scripts/hide_free_resources.js"
+hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
+
+[[files]]
+file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
+hash = "eaee9e30500b5f47169e01220414bdcafd5410e26dad136c2a96dc347d33221a"
+
+[[files]]
+file = "kubejs/server_scripts/no_free_resources.js"
+hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
+
+[[files]]
+file = "kubejs/server_scripts/smoke_test.js"
+hash = "51de77bbdae48824ce4cf2e6755d18abe7826bd9f5d7690c1b8e0402086725ff"
+
+[[files]]
+file = "kubejs/startup_scripts/free_resource_items.js"
+hash = "025167cb4161f2b679f5fc24dcb36fd36098c12ad164c3b1f4fed82867a7d637"
+
+[[files]]
 file = "mods/better-advanced-tooltips.pw.toml"
 hash = "03084ff4f74cedc1b8ac6c85a98842f75956fb4fa811d285d8ca7caa8d54da5d"
 metafile = true
@@ -26,6 +62,11 @@ hash = "7e0eca275f27b6543f06c36dec433851a956960cbedd2be57d19e159d636bfc1"
 metafile = true
 
 [[files]]
+file = "mods/mcincremental-prestige.pw.toml"
+hash = "ebd9dc43a64b45853903d06a0415436eff02bd048e0db70369e43454ac132811"
+metafile = true
+
+[[files]]
 file = "mods/projecte.pw.toml"
 hash = "bdca798ffe4124bf43ea13f1fa5f0593a7539762240edb56c47b1976b413ebc4"
 metafile = true
@@ -34,3 +75,13 @@ metafile = true
 file = "mods/rhino.pw.toml"
 hash = "e55ca32b338a0e0540f4fec5170675d860566255ae0f45692a00cb4ebf2eb535"
 metafile = true
+
+[[files]]
+file = "options.txt"
+hash = "499f58cc1f9c6a5ede0fbc00636a29470e5c350d72c20db04a56d8c84f4aab0a"
+preserve = true
+
+[[files]]
+file = "server.properties"
+hash = "5be70dc879f2b983f0dcb4c39aece206197a669cd68d836d54b4f91483bdf955"
+preserve = true
