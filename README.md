@@ -8,7 +8,7 @@ The current build is **PoC 1**, the first test of whether the loop is fun. It ru
 
 1. Start in a fresh Run area with a Transmutation Tablet. The world border keeps you inside the area.
 2. Mine, build and climb the GregTech tiers with what the area holds. There is no free resource generation beyond low-value renewables.
-3. Learn resources through ProjectE. Learned resources can be recreated from the shared EMC balance, and EMC barrels move items and fluids in and out of it automatically.
+3. Learn resources through ProjectE. Learned resources can be recreated from the shared EMC balance, and EMC intakes move items and fluids into it automatically and EMC barrels hand them back out.
 4. Prestige when you're stuck. The Prestige sweep converts every block, machine, inventory, tank and dropped item you added into EMC, then moves everyone to a new, never-visited area.
 
 The design is still evolving: see [`docs/pocs/poc-1.md`](docs/pocs/poc-1.md), the decisions in [`docs/adr/`](docs/adr/), and the vocabulary in [`GLOSSARY.md`](GLOSSARY.md). Open design questions are GitHub issues labelled `needs-triage`.
@@ -19,7 +19,7 @@ The design is still evolving: see [`docs/pocs/poc-1.md`](docs/pocs/poc-1.md), th
 |---|---|
 | [GregTech CEu](https://github.com/GregTechCEu/GregTech-Modern) 8.0 snapshot (pinned, mirrored in this repo's releases) | Content mod: the progression within a Run |
 | [ProjectE](https://www.curseforge.com/minecraft/mc-mods/projecte) | EMC and Knowledge, carried across Prestiges |
-| [Mc-incremental Prestige](https://github.com/VexedPanda/mc-incremental-prestige) | Run areas, Prestige, Prestige sweep, EMC barrel |
+| [Mc-incremental Prestige](https://github.com/VexedPanda/mc-incremental-prestige) | Run areas, Prestige, Prestige sweep, EMC barrel, EMC intake |
 | KubeJS (+ Rhino) | Recipe and EMC changes in the pack |
 | EMI, Jade, Better Advanced Tooltips | Quality of life |
 
@@ -65,7 +65,7 @@ The pack ships `server.properties` with view and simulation distance set to 2.
 ### What to try
 
 - **New world:** you spawn inside a Run area of 3×3 chunks bounded by the world border, holding a Transmutation Tablet. Use **Default** world generation, not superflat.
-- **EMC:** put items into the tablet to learn them and add EMC to the world balance, then take them back out. Craft an **EMC barrel** (a barrel plus redstone) and right-click it with a learned item, or with a bucket of a learned fluid, to choose what it hands out. Pull from it, or pipe anything into it to turn it into EMC.
+- **EMC:** put items into the tablet to learn them and add EMC to the world balance, then take them back out. Craft an **EMC barrel** (a barrel plus redstone) and right-click it with a learned item, or with a bucket of a learned fluid, to choose what it hands out. Pull from it; it only hands out. To bank items and fluids automatically, craft an **EMC intake** (a hopper plus redstone) and pipe anything into it, or right-click it with a stack or a filled bucket: everything with an EMC value is converted into the world balance and learned (water and other worthless things are refused and stay in the pipe).
 - **Prestige:** run `/prestige` (with cheats or op), or craft the **Prestige** item (one dirt, sand or cobblestone), use it once, then sneak-use it within 5 s to confirm. Everything you placed, along with machine and chest contents, is refunded as EMC, and you move to a new area. Chat shows the EMC gained and the new balance.
 - **Commands for poking around:** `/worldborder get`, and F3 for chunk coordinates.
 

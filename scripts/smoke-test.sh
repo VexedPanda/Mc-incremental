@@ -16,7 +16,8 @@
 # After the run it also scans the server log for ProjectE "EMC Exploit" warnings and
 # fails on any that creates EXPLOIT_THRESHOLD (100) EMC or more (ADR-0005's exploit
 # threshold). The known warnings are 9 GT tiny dusts -> 1 dust gaining 1-8 EMC (tiny
-# dust value rounds down); those are accepted (docs/pocs/poc-1.md, "Known small leaks").
+# dust value rounds down); those are accepted (docs/pocs/poc-1.md, "Known small leaks"). Recipes that make a material
+# with a late-tier floor are exempt (#59; see below).
 #
 # Exits 0 on PASS; non-zero on FAIL, a missing marker, a crash, an EMC exploit,
 # or a timeout.
@@ -178,7 +179,19 @@ if ! grep -qF "$PASS_MARKER" "$WORK_DIR/console.log"; then
 fi
 # ProjectE logs "EMC Exploit: ingredients (...) cost X but output value is Y" for every
 # recipe whose output is worth more than its inputs. Fail on any gain >= EXPLOIT_THRESHOLD.
-exploits="$(grep -F 'EMC Exploit:' "$WORK_DIR/console.log" \
+# Except: making a material with a late-tier floor (docs/research/emc-pricing/hand_values.json "floors", #59) gains
+# by design (owner decision: a fusion output may be worth more than its inputs, at its own tier).
+# Also exempt: outputs hand_values.json lists under "accepted_exploits", each with its reason.
+HAND_VALUES="$REPO_ROOT/docs/research/emc-pricing/hand_values.json"
+FLOORED="$(python3 -c 'import json,sys; print("|".join(sorted(json.load(open(sys.argv[1])).get("floors", {}).get("materials", {}))))' "$HAND_VALUES")"
+ACCEPTED="$(python3 -c 'import json,re,sys; print("|".join(re.escape(o) for o in sorted(json.load(open(sys.argv[1])).get("accepted_exploits", {}).get("outputs", {}))))' "$HAND_VALUES")"
+floored_output() { # reads exploit lines, drops those whose output is a form of a floored material or accepted
+  local out='=> [0-9]+\*(minecraft:item: |NSSFake: [^ ]*fluid )'
+  if [ -n "$FLOORED" ]; then
+    grep -vE "${out}gtceu:(hot_|tiny_|small_)?($FLOORED)(_dust|_ingot|_nugget|_block|_gem|_plate|_plasma)?\) cost"
+  else cat; fi | if [ -n "$ACCEPTED" ]; then grep -vE "${out}($ACCEPTED)\) cost"; else cat; fi
+}
+exploits="$(grep -F 'EMC Exploit:' "$WORK_DIR/console.log" | floored_output \
   | sed -n 's/.*cost \([0-9]*\) but output value is \([0-9]*\).*/\2 \1 &/p' \
   | awk -v t="$EXPLOIT_THRESHOLD" '$1 - $2 >= t { $1 = ""; $2 = ""; print }')" || true
 if [ -n "$exploits" ]; then
