@@ -18,56 +18,6 @@
    }
   },
   {
-   "why": "GT ingots, dusts, plates and blocks valued from ProjectE's default metals (#41, re-based in #47): dust = plate = ingot, block = 9 ingots; steel 288 (#55: the primitive blast furnace makes it from an iron ingot and nearly free coke dust (257 EMC) or a block from an iron block and 2 charcoal blocks (2,646), so at 512 every ingot gained 255 EMC; 288 keeps both routes under the 100 EMC threshold), wrought iron 256, zinc 512, brass 224, aluminium 1024, red alloy 384.",
-   "items": {
-    "gtceu:wrought_iron_ingot": 256,
-    "gtceu:steel_ingot": 288,
-    "gtceu:zinc_ingot": 512,
-    "gtceu:brass_ingot": 224,
-    "gtceu:aluminium_ingot": 1024,
-    "gtceu:red_alloy_ingot": 384,
-    "gtceu:iron_dust": 256,
-    "gtceu:iron_plate": 256,
-    "gtceu:gold_dust": 2048,
-    "gtceu:gold_plate": 2048,
-    "gtceu:copper_dust": 128,
-    "gtceu:copper_plate": 128,
-    "gtceu:tin_dust": 256,
-    "gtceu:tin_plate": 256,
-    "gtceu:tin_block": 2304,
-    "gtceu:bronze_dust": 160,
-    "gtceu:bronze_plate": 160,
-    "gtceu:bronze_block": 1440,
-    "gtceu:lead_dust": 512,
-    "gtceu:lead_plate": 512,
-    "gtceu:lead_block": 4608,
-    "gtceu:silver_dust": 512,
-    "gtceu:silver_plate": 512,
-    "gtceu:silver_block": 4608,
-    "gtceu:nickel_dust": 1024,
-    "gtceu:nickel_plate": 1024,
-    "gtceu:nickel_block": 9216,
-    "gtceu:wrought_iron_dust": 256,
-    "gtceu:wrought_iron_plate": 256,
-    "gtceu:wrought_iron_block": 2304,
-    "gtceu:steel_dust": 288,
-    "gtceu:steel_plate": 288,
-    "gtceu:steel_block": 2592,
-    "gtceu:zinc_dust": 512,
-    "gtceu:zinc_plate": 512,
-    "gtceu:zinc_block": 4608,
-    "gtceu:brass_dust": 224,
-    "gtceu:brass_plate": 224,
-    "gtceu:brass_block": 2016,
-    "gtceu:aluminium_dust": 1024,
-    "gtceu:aluminium_plate": 1024,
-    "gtceu:aluminium_block": 9216,
-    "gtceu:red_alloy_dust": 384,
-    "gtceu:red_alloy_plate": 384,
-    "gtceu:red_alloy_block": 3456
-   }
-  },
-  {
    "why": "GT's own stones, which generate in the world and come out of the Rock Breaker: marble and red granite at ProjectE's value for vanilla granite, diorite and andesite (16), cobblestone forms included (a forge hammer and a furnace turn one into the other). GT's concrete blocks set from concrete fluid (made from water and stone dust) at a nominal 1.",
    "items": {
     "gtceu:marble": 16,
@@ -81,9 +31,8 @@
    }
   },
   {
-   "why": "Vanilla items you can obtain but no recipe makes (mob drops, loot, silk-touched blocks), so ProjectE has no value for them. Priced like ProjectE prices their neighbours, and kept under the 100 EMC exploit threshold where a farm can make them (totems from raid farms, trial keys from trial spawners, wither skeleton skulls). Owner decisions, listed in the #55 report.",
+   "why": "Vanilla items you can obtain but no recipe makes (mob drops, loot, silk-touched blocks), so ProjectE has no value for them. Priced like ProjectE prices their neighbours, and kept under the 100 EMC exploit threshold where a farm can make them (totems from raid farms, trial keys from trial spawners). Owner decisions, listed in the #55 report.",
    "items": {
-    "minecraft:wither_skeleton_skull": 64,
     "minecraft:totem_of_undying": 64,
     "minecraft:trial_key": 64,
     "minecraft:ominous_trial_key": 64,
@@ -113,6 +62,30 @@
     "gtceu:reinforced_stone": 1,
     "gtceu:brittle_charcoal": 16
    }
+  },
+  {
+   "why": "Nether star (owner decision 5, #59): the wither skeleton skull is priced by rarity (wither skeletons spawn only on Nether fortress pieces, which overlap 1 in 8 Nether Run areas, and drop a skull 2.5% of the time: about 8,192), the nether star at its ingredient cost, 3 skulls + 4 soul sand (49 each, ProjectE), so the automatable Wither loop gains nothing. Overrides ProjectE's c:nether_stars default (139,264).",
+   "items": {
+    "minecraft:wither_skeleton_skull": 8192,
+    "minecraft:nether_star": 24772
+   }
+  },
+  {
+   "why": "ProjectE defaults a GT recipe undercuts (#59): GT synthesises blaze powder from carbon and sulfur (about 147 EMC) and its compressor packs 4 powder into a rod, so ProjectE's 1,536 rod gained about 1,000 EMC per rod. The rod is worth the 4 powder it is pressed from.",
+   "items": {
+    "minecraft:blaze_rod": 576
+   }
+  },
+  {
+   "why": "Steel stays 288 and wrought iron 256 (#55): the primitive blast furnace makes steel from an iron or wrought iron ingot and nearly free coke or charcoal (257 EMC), or a block from a block and 2 charcoal blocks, so at 512 every ingot gained 255 EMC; and v0.3.0's mapper would otherwise lower both to the share a gaining decomposition (a tool head of a floored material) gives them.",
+   "items": {
+    "gtceu:steel_ingot": 288,
+    "gtceu:steel_dust": 288,
+    "gtceu:steel_block": 2592,
+    "gtceu:wrought_iron_ingot": 256,
+    "gtceu:wrought_iron_dust": 256,
+    "gtceu:wrought_iron_block": 2304
+   }
   }
  ],
  "fluids_comment": "Water is the one free fluid (ADR-0005). Lava is ProjectE's default lava bucket (832) minus the empty bucket (768). Steam is nominal (boilers make it from water; no recipe values it). GT fuels are hand-set (#41). Milk is ProjectE's milk bucket (784) minus the empty bucket. Every other fluid is generated.",
@@ -136,5 +109,39 @@
    "gtceu:magnesia_dust",
    "gtceu:facade_cover"
   ]
+ },
+ "floors": {
+  "why": "Late-tier floors (owner decision 3, #59): minimum EMC for the dust and ingot of each tier's new materials, tuned with prestiges_per_tier.py so every tier takes 5-10 Prestiges and each tier's kit costs more than the last: EV titanium (2,048, the rarity price of its rutile; the bauxite chain otherwise makes rutile so cheap that the titanium EV hull undercuts the stainless HV hull); IV tungsten; LuV ruthenium, rhodium, indium and HSS-E; ZPM europium, trinium and naquadah alloy; UV the fusion products (americium, darmstadtium, duranium, naquadria, tritanium, neutronium). Only materials no ore yields directly, so the floors raise kit costs without raising what a Run's ores are worth. Products derive upward; the gain from making a floored material (a fusion output worth more than its inputs) is intended, at its own tier.",
+  "materials": {
+   "tungsten": 131072,
+   "ruthenium": 196608,
+   "rhodium": 196608,
+   "indium": 196608,
+   "hsse": 196608,
+   "europium": 32768,
+   "trinium": 32768,
+   "naquadah_alloy": 32768,
+   "americium": 32768,
+   "darmstadtium": 32768,
+   "duranium": 32768,
+   "naquadria": 32768,
+   "tritanium": 32768,
+   "neutronium": 32768,
+   "titanium": 2048
+  }
+ },
+ "tags": {
+  "why": "ProjectE's tag defaults that would still value the tag node above the item that now has a new value (#59): c:nether_stars (owner decision 5) and c:rods/blaze, pinned at the item's value. (generate.py also pins the metal and gem tags whose ProjectE defaults it overrides.)",
+  "tags": {
+   "c:nether_stars": 24772,
+   "c:rods/blaze": 576
+  }
+ },
+ "accepted_exploits": {
+  "why": "Recipes ProjectE reports gaining 100+ EMC that pricing doesn't fix, accepted with a reason; scripts/smoke-test.sh exempts recipes whose output is listed here (and those making a floored material).",
+  "outputs": {
+   "gtceu:diesel": "Blending 1 heavy fuel + 5 light fuel into 6 diesel gains about 270 EMC (ratio 1.55): diesel is hand-set at 768 (#41) while the refinery derives light and heavy fuel from oil (256). Fixing it means re-pricing GT's fuel chain (#41, power generation #25), not this ticket.",
+   "gtceu:iron_plasma": "GT's fusion reactor (LuV) makes iron plasma from silicon and magnesium. Iron keeps ProjectE's default (256 per ingot; an earlier rule, trades and the Philosopher's Stone rely on it), and silicon is cheap (sand), so fusing them gains about 700 EMC per run; iron plasma is worth its molten iron so cooling it gains nothing."
+  }
  }
 }

@@ -40,6 +40,9 @@ const SMOKE_DEFAULT_EMERALD_EMC = 16384
 // #55: at least this many GT ore blocks and raw ores must be compared with their material, so the
 // ore-vs-ingot check can't pass vacuously (GT registers about 1,800).
 const SMOKE_MIN_ORES_CHECKED = 1000
+// #59: at least this many GT metals (an ingot and a dust) must be compared, so the dust = ingot check can't pass
+// vacuously (GT registers about 150).
+const SMOKE_MIN_METALS_CHECKED = 100
 // #55: what may stay at 0 EMC. Every other registered item and fluid must have a value.
 // Items no survival player can obtain, or that ProjectE values only through data components:
 const SMOKE_ZERO_EMC_ITEMS = [
@@ -60,6 +63,10 @@ const SMOKE_ZERO_EMC_ITEMS = [
 // Fluids nothing in this Pack makes (no ore, no recipe; oil only came from the removed Fluid Drilling Rig):
 const SMOKE_ZERO_EMC_FLUIDS = ['minecraft:empty', 'minecraft:water', 'gtceu:bromine', 'gtceu:mc_guffium_239',
   'gtceu:uu_matter', 'gtceu:raw_oil', 'gtceu:light_oil', 'gtceu:potion']
+// #59: ProjectE tag defaults the Pack overrides (GT-mined metals and gems by rarity; nether star and blaze rod at
+// their ingredient cost): only these tags may be pinned in the EMC data file.
+const SMOKE_OVERRIDDEN_TAGS = ['c:nether_stars', 'c:rods/blaze', 'c:ingots/tin', 'c:ingots/lead', 'c:ingots/silver',
+  'c:ingots/nickel', 'c:ingots/osmium', 'c:ingots/platinum', 'c:ingots/bronze', 'c:gems/ruby', 'c:gems/sapphire']
 // How long to wait for ProjectE's EMC map after /reload before failing.
 const SMOKE_EMC_WAIT_SECONDS = 60
 
@@ -279,35 +286,24 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#55 EMC data file pins no tags, so ProjectE\'s tag defaults (emerald, ingots, gems) apply',
+    name: '#55/#59 EMC data file pins only the tags whose ProjectE defaults #59 overrides, so the others (emerald, iron, gold) apply',
     check: server => {
       JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
-        if (e.tag) throw 'tag pinned: ' + e.tag
+        if (e.tag && SMOKE_OVERRIDDEN_TAGS.indexOf(String(e.tag)) < 0) throw 'tag pinned: ' + e.tag
       })
       return true
     }
   },
   {
-    name: '#47 EMC: GT metals match ProjectE default metal values; GT key parts have EMC',
+    name: '#47/#59 EMC: GT metals are priced from rarity and recipes (dust = ingot), steel above iron; GT key parts have EMC',
     check: server => {
-      const expected = {
-        'gtceu:tin_ingot': 256,
-        'gtceu:bronze_ingot': 160,
-        'gtceu:lead_ingot': 512,
-        'gtceu:silver_ingot': 512,
-        'gtceu:nickel_ingot': 1024,
-        'gtceu:iron_dust': 256,
-        'gtceu:iron_plate': 256,
-        'gtceu:gold_plate': 2048,
-        'gtceu:copper_plate': 128
-      }
-      Object.keys(expected).forEach(id => {
-        if (smokeEmc(id) != expected[id]) throw id + ' EMC is ' + smokeEmc(id) + ', expected ' + expected[id]
-      })
-      ;['steel', 'bronze', 'wrought_iron', 'aluminium'].forEach(m => {
+      // #59: GT-mined metals (tin, lead, silver, nickel, aluminium, ...) are priced by rarity, no longer by ProjectE's
+      // metal defaults; vanilla metals keep theirs (the #47 vanilla check above). Iron dust follows the iron ingot.
+      if (smokeEmc('gtceu:iron_dust') != smokeEmc('minecraft:iron_ingot')) throw 'iron dust ' + smokeEmc('gtceu:iron_dust')
+      ;['tin', 'lead', 'silver', 'nickel', 'aluminium', 'steel', 'bronze', 'wrought_iron'].forEach(m => {
         const ingot = smokeEmc('gtceu:' + m + '_ingot')
-        if (!(ingot > 0) || smokeEmc('gtceu:' + m + '_dust') != ingot || smokeEmc('gtceu:' + m + '_plate') != ingot) {
-          throw m + ' ingot/dust/plate EMC ' + ingot + '/' + smokeEmc('gtceu:' + m + '_dust') + '/' + smokeEmc('gtceu:' + m + '_plate')
+        if (!(ingot > 0) || smokeEmc('gtceu:' + m + '_dust') != ingot) {
+          throw m + ' ingot/dust EMC ' + ingot + '/' + smokeEmc('gtceu:' + m + '_dust')
         }
       })
       if (!(smokeEmc('gtceu:steel_ingot') > smokeEmc('minecraft:iron_ingot'))) throw 'steel is not worth more than iron'
@@ -475,6 +471,72 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   // --- end #55 ---
+
+  // --- #59: re-priced against the Prestige mod v0.3.0 (docs/research/emc-pricing/README.md) ---
+  {
+    name: '#59 each GT metal\'s dust is worth its ingot (within rounding)',
+    check: server => {
+      // Every material with a GT ingot and a GT dust (c:ingots/<m>, c:dusts/<m>): smelting or macerating one into
+      // the other neither gains nor loses more than rounding (1 EMC or 1%).
+      let checked = 0
+      const bad = []
+      smokeRegistries.ITEM.getTags().forEach(pair => {
+        const match = /^c:ingots\/(.+)$/.exec(String(pair.getFirst().location()))
+        if (!match) return
+        const ingot = 'gtceu:' + match[1] + '_ingot'
+        const dust = 'gtceu:' + match[1] + '_dust'
+        if (!Item.exists(ingot) || !Item.exists(dust)) return
+        checked++
+        const i = smokeEmc(ingot)
+        const d = smokeEmc(dust)
+        if (!(i > 0) || Math.abs(i - d) > Math.max(1, 0.01 * i)) bad.push(match[1] + ' ingot ' + i + ' dust ' + d)
+      })
+      if (checked < SMOKE_MIN_METALS_CHECKED) throw 'only ' + checked + ' metals checked'
+      if (bad.length > 0) throw bad.length + ' metals: ' + bad.slice(0, 40).join(', ')
+      return true
+    }
+  },
+  {
+    name: '#59 smelting platinum dust into an ingot gains less than 100 EMC',
+    check: server => {
+      const gain = smokeEmc('gtceu:platinum_ingot') - smokeEmc('gtceu:platinum_dust')
+      if (!(smokeEmc('gtceu:platinum_dust') > 0) || gain >= 100) throw 'dust ' + smokeEmc('gtceu:platinum_dust') + ', ingot ' + smokeEmc('gtceu:platinum_ingot')
+      return true
+    }
+  },
+  {
+    name: '#59 free fluids are priced per tier, anchored at lava (64): air and oxygen 64 (LV), nether air 128 (MV), nitrogen above 1',
+    check: server => {
+      const v = JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb
+      const lava = v['minecraft:lava']
+      const expected = { 'gtceu:air': lava, 'gtceu:oxygen': lava, 'gtceu:nether_air': 2 * lava }
+      Object.keys(expected).forEach(f => {
+        if (v[f] != expected[f]) throw f + ' is ' + v[f] + ', expected ' + expected[f]
+      })
+      if (!(v['gtceu:nitrogen'] > 1)) throw 'nitrogen is ' + v['gtceu:nitrogen']
+      return true
+    }
+  },
+  {
+    name: '#59 nether star is worth its ingredients: 3 wither skeleton skulls (8,192, by rarity) + 4 soul sand',
+    check: server => {
+      const skull = smokeEmc('minecraft:wither_skeleton_skull')
+      const star = smokeEmc('minecraft:nether_star')
+      if (skull != 8192 || star != 3 * skull + 4 * smokeEmc('minecraft:soul_sand')) throw 'skull ' + skull + ', star ' + star
+      return true
+    }
+  },
+  {
+    name: '#59 rocks with valuable byproducts are worth their expected yield: end stone and netherrack above 1',
+    check: server => {
+      ;['minecraft:end_stone', 'minecraft:netherrack'].forEach(id => {
+        if (!(smokeEmc(id) > 1)) throw id + ' is ' + smokeEmc(id)
+      })
+      if (smokeEmc('gtceu:endstone_dust') != 1) throw 'end stone dust is ' + smokeEmc('gtceu:endstone_dust')
+      return true
+    }
+  },
+  // --- end #59 ---
 
   // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
   // Values come from the Pack's shipped server.properties (the smoke script keeps them).

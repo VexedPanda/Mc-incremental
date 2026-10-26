@@ -6,10 +6,12 @@
 //   FLUIDDUMP <fluid> src=<source> <emc> bucket=<item>   every fluid, its fluid_emc value and its bucket
 //   TAGDUMP <tag> <item>,<item>,...              every item tag
 //   RDUMP {json}                                 every recipe: inputs, outputs (c: carries data components),
-//                                                chances (GT) or ingredients (vanilla)
+//                                                chances (GT) or ingredients (vanilla); GT recipes also carry their
+//                                                duration in ticks (d) and voltage tier (t: 0 ULV, 1 LV, ...)
 // It relies on the smoke test's smokeRegistries, smokeEmc, smokeGTRecipe and smokeGTItemCap.
 const emcpFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
 const emcpFluidCap = Java.loadClass('com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability').CAP
+const emcpRecipeHelper = Java.loadClass('com.gregtechceu.gtceu.api.recipe.RecipeHelper')
 const emcpItemKey = st => String(smokeRegistries.ITEM.getKey(st.getItem()))
 const emcpRecipes = server => {
   let it = server.recipeManager.getRecipes().iterator()
@@ -39,6 +41,8 @@ const emcpRecipes = server => {
         side(r.inputs, o.i, o.fi)
         side(r.outputs, o.o, o.fo)
         o.cat = r.recipeCategory == null ? null : String(r.recipeCategory.id)
+        o.d = r.duration
+        try { o.t = emcpRecipeHelper.getRecipeEUtTier(r) } catch (e) { o.t = null }
       } else {
         let ings = r.getIngredients()
         for (let k = 0; k < ings.size(); k++) {
