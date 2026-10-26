@@ -4,5 +4,5 @@ ProjectE only learns an item when a player puts it into a transmutation table. W
 
 ## Consequences
 
-- Discovery happens when an item enters a player's inventory (crafting, pickups, trades), passes through an EMC barrel, is refunded by the Prestige sweep (so everything left in the Run area, including machine and tank contents, is discovered by Prestige at the latest), or is found by a periodic scan of the Run area's containers and tanks.
+- Discovery happens when an item enters a player's inventory (crafting, pickups, trades), passes through an EMC intake, is refunded by the Prestige sweep (so everything left in the Run area, including machine and tank contents, is discovered by Prestige at the latest), or is found by a periodic scan of the Run area's containers and tanks.
 - Dimension gates do not limit Discovery: an item obtained early (a wandering trader, a loot chest) is discovered anyway.
