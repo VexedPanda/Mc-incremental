@@ -1,6 +1,6 @@
 # GT recipe audit (#59), from dump.txt.xz: outputs > 1.1 x inputs, gaining 5+ EMC per second at machine speed
 
-## Exploits (gaining recipes pricing should fix): 183
+## Exploits (gaining recipes pricing should fix): 181
 
 | Gain/run | Inputs | Outputs | Ratio | EMC/s | Tier | Recipe |
 |---:|---:|---:|---:|---:|---|---|
@@ -13,8 +13,6 @@
 | 22,170 | 5,248 | 27,418 | 5.22 | 1,385.6 | LV | gtceu:chemical_reactor/phosphoric_acid_from_apatite |
 | 16,452 | 1,980 | 18,432 | 9.31 | 3,290.4 | HV | gtceu:large_chemical_reactor/diesel_shortcut |
 | 13,984 | 27,404 | 41,388 | 1.51 | 466.1 | LuV | gtceu:large_chemical_reactor/naquadah_separation |
-| 8,256 | 24,772 | 33,028 | 1.33 | 16,512.0 | LV | gtceu:packer/unpackage_nether_star_small_dust |
-| 8,256 | 16,515 | 24,771 | 1.50 | 2,261.9 | ULV | gtceu:macerator/macerate_nether_star_lens |
 | 7,483 | 7,014 | 14,497 | 2.07 | 374.1 | EV | gtceu:centrifuge/impure_naquadria_solution_separation |
 | 7,483 | 7,014 | 14,497 | 2.07 | 374.1 | EV | gtceu:centrifuge/impure_enriched_naquadah_solution_separation |
 | 7,207 | 44 | 7,251 | 164.80 | 327.6 | MV | gtceu:electrolyzer/decomposition_electrolyzing_biotite |
@@ -188,7 +186,7 @@
 | 11 | 1 | 12 | 11.63 | 8.8 | ULV | gtceu:cutter/snow_layer |
 | 10 | 25 | 35 | 1.40 | 22.5 | LV | gtceu:distillery/distill_severely_hydro_cracked_gas_to_methane |
 
-Of those, gaining 100+ EMC per run: 136
+Of those, gaining 100+ EMC per run: 134
 
 ## Recipes making a floored late-tier material (intended, owner decision 3): 30
 
