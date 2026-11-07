@@ -23,6 +23,10 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `audit.py` → `audit.txt` | GT recipes whose outputs are worth more than 1.1x their inputs at machine speed, including those ProjectE's scan can't see. |
 | `dump.js` | KubeJS dump (items, fluids, tags, recipes with their duration and voltage tier) for a smoke-test server. |
 | `dump.txt.xz` | The dump the committed values were generated from (Pack with the values it generated running). |
+| `dump_eu.js` | KubeJS dump of every GT recipe's EU (input and output EU/t, amperage, duration, fusion start energy) for the energy-in-EMC research (#64, `../energy-in-emc.md`). |
+| `eu.txt.xz` | Its output, from a smoke-test server running the v0.3.0 Pack. |
+| `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
+| `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) turns energy on in `emcmodel.py` and `audit.py`; unset, nothing changes. |
 | `game_caps.json` | Generated: listed fluids and material units capped at a cheaper route ProjectE found in the game, and the metals whose dust and ingot the game split; kept so re-runs are stable. |
 | `game_zero.json` | Generated: items a dump showed at 0 although the model values them; kept so re-runs are stable. |
 | `projecte_defaults/` | ProjectE PE1.1.0's own default values (`data/projecte/pe_custom_conversions`, MIT). |

@@ -27,7 +27,7 @@ import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from emcmodel import load_dump  # noqa: E402
+from emcmodel import eu_prices, load_dump, load_eu, recipe_energy  # noqa: E402
 
 TIERS = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
 
@@ -47,6 +47,8 @@ def main(argv):
     floored = sorted(hand.get('floors', {}).get('materials', {}))
     floor_rx = re.compile(r'^gtceu:(hot_|tiny_|small_)?(%s)(_dust|_ingot|_nugget|_block|_gem|_plate|_plasma)?$' % '|'.join(floored))
     fval = {f: v[1] for f, v in fluids.items()}
+    prices = eu_prices()  # #64: EMC_EU_PRICE counts each recipe's EU (iv x ia x duration) as an input
+    eu = load_eu() if prices else {}
     free, floor_rows, rows, rounding = [], [], [], []
     for r in recipes:
         if not r.get('gt'):
@@ -70,6 +72,9 @@ def main(argv):
                 cost += v * x['n'] / 1000
         if not ok:
             continue
+        energy = recipe_energy(r, eu, prices)
+        if energy and consumed:
+            cost += energy[2]
         outs = []
         for x in r['o']:
             if len(x['ids']) == 1:
@@ -108,6 +113,10 @@ def main(argv):
 
     print('# GT recipe audit (#59), from %s: outputs > %g x inputs, gaining %g+ EMC per second at machine speed' % (
         os.path.basename(log), ratio, min_rate))
+    if prices:
+        print()
+        print('Energy counted (#64): EMC per EU by tier %s' % {t: p for t, p in zip(TIERS, prices.values()) if t in
+                                                              ('ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV')})
     print()
     table('Exploits (gaining recipes pricing should fix)', rows)
     print('Of those, gaining 100+ EMC per run: %d' % sum(1 for r in rows if r[0] >= 100))
