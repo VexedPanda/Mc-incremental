@@ -3,6 +3,7 @@
  "caps": {
   "gtceu:americium": 9888,
   "gtceu:americium_plasma": 89000,
+  "gtceu:argon": 2413,
   "gtceu:beryllium": 4500,
   "gtceu:blaze": 1000,
   "gtceu:butadiene": 18,
@@ -30,10 +31,12 @@
   "gtceu:uranium_hexafluoride": 14032
  },
  "material_units": {
+  "barium": 4,
   "dark_ash": 4,
   "ender_pearl": 1024,
   "enriched_naquadah": 2072,
   "osmium": 552,
+  "potash": 9,
   "rutile": 126,
   "salt": 180,
   "soda_ash": 130,

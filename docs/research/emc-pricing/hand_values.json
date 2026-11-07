@@ -141,7 +141,7 @@
   "why": "Recipes ProjectE reports gaining 100+ EMC that pricing doesn't fix, accepted with a reason; scripts/smoke-test.sh exempts recipes whose output is listed here (and those making a floored material).",
   "outputs": {
    "gtceu:diesel": "Blending 1 heavy fuel + 5 light fuel into 6 diesel gains about 270 EMC (ratio 1.55): diesel is hand-set at 768 (#41) while the refinery derives light and heavy fuel from oil (256). Fixing it means re-pricing GT's fuel chain (#41, power generation #25), not this ticket.",
-   "gtceu:iron_plasma": "GT's fusion reactor (LuV) makes iron plasma from silicon and magnesium. Iron keeps ProjectE's default (256 per ingot; an earlier rule, trades and the Philosopher's Stone rely on it), and silicon is cheap (sand), so fusing them gains about 700 EMC per run; iron plasma is worth its molten iron so cooling it gains nothing."
+   "gtceu:tiny_dark_ash_dust": "#63 group 5, pending the owner's decision: unpacking 1 dark ash dust (a share of centrifuging basalt) into 9 tiny dark ash dusts, which are priced as a share of the primitive blast furnace's steel recipe (charcoal dust plus its long ULV machine time, #68), gains about 1,000 EMC per dust (about 2,000 EMC/s in a packer); it was already open at about 850 per dust, below the 100 EMC exploit warning only because ProjectE compares one tiny dust (95) with the dust (4). The advice on #63 is a hand pin (tiny = dark ash / 9)."
   }
  }
 }

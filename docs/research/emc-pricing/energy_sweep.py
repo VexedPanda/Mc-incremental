@@ -103,8 +103,8 @@ def run(scn, out_dir):
     tag = re.sub(r'[^a-z0-9]+', '_', name.lower()).strip('_')
     gen = os.path.join(out_dir, 'gen_%s.json' % tag)
     env = dict(os.environ)
-    env.pop('EMC_EU_PRICE', None)
     env.pop('EMC_FLOORS', None)
+    env['EMC_EU_PRICE'] = env['EMC_TIME_RATE'] = '0'  # off unless set below (unset, the Pack's config applies)
     if price:
         env['EMC_EU_PRICE'] = price
     if floors is not None:
