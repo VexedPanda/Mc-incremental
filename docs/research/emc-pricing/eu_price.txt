@@ -1,0 +1,187 @@
+# EU price from generation cost (#64), values from dump
+
+Each generator with its fuel: EU per second, fuel EMC per second, generator EMC (with the LV steam turbines a boiler needs), and EMC per EU for the fuel alone and with the generator amortised over H hours.
+
+| Generator, fuel | From | EU/s | Fuel EMC/s | Generator EMC | EMC/EU (fuel only) | EMC/EU (H = 100 h) | EMC/EU (H = 10 h) | EMC/EU (H = 1 h) |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| lp_steam_solar_boiler | LV | 30 | 0.00 | 3,577 | 0 | 0.000331 | 0.00331 | 0.0331 |
+| hp_steam_solar_boiler | LV | 90 | 0.00 | 7,300 | 0 | 0.000225 | 0.00225 | 0.0225 |
+| plasma_generator, gtceu:argon_plasma | LuV | 40,960 | 0.00 | 1,992,000 | 0 | 0.000135 | 0.00135 | 0.0135 |
+| plasma_generator, gtceu:iron_plasma | LuV | 40,960 | 0.00 | 1,992,000 | 0 | 0.000135 | 0.00135 | 0.0135 |
+| plasma_generator, gtceu:americium_plasma | LuV | 40,960 | 0.00 | 1,992,000 | 0 | 0.000135 | 0.00135 | 0.0135 |
+| ulv_solar_panel cover | LV | 80 | 0.00 | 5,393 | 0 | 0.000187 | 0.00187 | 0.0187 |
+| lv_solar_panel cover | LV | 320 | 0.00 | 211,237 | 0 | 0.00183 | 0.0183 | 0.183 |
+| plasma_generator, gtceu:oxygen_plasma | LuV | 40,960 | 0.04 | 1,992,000 | 8.75e-07 | 0.000136 | 0.00135 | 0.0135 |
+| large tungstensteel boiler, minecraft:dried_kelp_block | IV | 64,000 | 0.18 | 2,893,618 | 2.81e-06 | 0.000128 | 0.00126 | 0.0126 |
+| large tungstensteel boiler, gtceu:biomass | IV | 64,000 | 0.24 | 2,893,618 | 3.68e-06 | 0.000129 | 0.00126 | 0.0126 |
+| large titanium boiler, minecraft:dried_kelp_block | EV | 32,000 | 0.18 | 473,298 | 5.62e-06 | 4.67e-05 | 0.000416 | 0.00411 |
+| large tungstensteel boiler, gtceu:charcoal_dust | IV | 64,000 | 0.40 | 2,893,618 | 6.25e-06 | 0.000132 | 0.00126 | 0.0126 |
+| large titanium boiler, gtceu:biomass | EV | 32,000 | 0.24 | 473,298 | 7.35e-06 | 4.84e-05 | 0.000418 | 0.00412 |
+| large tungstensteel boiler, gtceu:heavy_fuel | IV | 64,000 | 0.52 | 2,893,618 | 8.06e-06 | 0.000134 | 0.00126 | 0.0126 |
+| plasma_generator, gtceu:tin_plasma | LuV | 40,960 | 0.33 | 1,992,000 | 8.1e-06 | 0.000143 | 0.00136 | 0.0135 |
+| large tungstensteel boiler, minecraft:lava | IV | 64,000 | 0.57 | 2,893,618 | 8.89e-06 | 0.000134 | 0.00126 | 0.0126 |
+| large steel boiler, minecraft:dried_kelp_block | MV | 18,000 | 0.18 | 252,419 | 1e-05 | 4.9e-05 | 0.0004 | 0.00391 |
+| plasma_generator, gtceu:nickel_plasma | LuV | 40,960 | 0.48 | 1,992,000 | 1.16e-05 | 0.000147 | 0.00136 | 0.0135 |
+| large titanium boiler, gtceu:charcoal_dust | EV | 32,000 | 0.40 | 473,298 | 1.25e-05 | 5.36e-05 | 0.000423 | 0.00412 |
+| large steel boiler, gtceu:biomass | MV | 18,000 | 0.24 | 252,419 | 1.31e-05 | 5.2e-05 | 0.000403 | 0.00391 |
+| large tungstensteel boiler, minecraft:charcoal | IV | 64,000 | 0.90 | 2,893,618 | 1.41e-05 | 0.00014 | 0.00127 | 0.0126 |
+| plasma_generator, gtceu:helium_plasma | LuV | 40,960 | 0.64 | 1,992,000 | 1.55e-05 | 0.000151 | 0.00137 | 0.0135 |
+| large titanium boiler, gtceu:heavy_fuel | EV | 32,000 | 0.52 | 473,298 | 1.61e-05 | 5.72e-05 | 0.000427 | 0.00412 |
+| large titanium boiler, minecraft:lava | EV | 32,000 | 0.57 | 473,298 | 1.78e-05 | 5.89e-05 | 0.000429 | 0.00413 |
+| plasma_generator, gtceu:nitrogen_plasma | LuV | 40,960 | 0.79 | 1,992,000 | 1.92e-05 | 0.000154 | 0.00137 | 0.0135 |
+| large steel boiler, gtceu:charcoal_dust | MV | 18,000 | 0.40 | 252,419 | 2.22e-05 | 6.12e-05 | 0.000412 | 0.00392 |
+| large bronze boiler, minecraft:dried_kelp_block | LV | 8,000 | 0.18 | 119,134 | 2.25e-05 | 6.39e-05 | 0.000436 | 0.00416 |
+| large titanium boiler, minecraft:charcoal | EV | 32,000 | 0.90 | 473,298 | 2.81e-05 | 6.92e-05 | 0.000439 | 0.00414 |
+| large steel boiler, gtceu:heavy_fuel | MV | 18,000 | 0.52 | 252,419 | 2.86e-05 | 6.76e-05 | 0.000418 | 0.00392 |
+| large bronze boiler, gtceu:biomass | LV | 8,000 | 0.24 | 119,134 | 2.94e-05 | 7.08e-05 | 0.000443 | 0.00417 |
+| large steel boiler, minecraft:lava | MV | 18,000 | 0.57 | 252,419 | 3.16e-05 | 7.06e-05 | 0.000421 | 0.00393 |
+| large tungstensteel boiler, minecraft:oak_planks | IV | 64,000 | 2.13 | 2,893,618 | 3.33e-05 | 0.000159 | 0.00129 | 0.0126 |
+| large tungstensteel boiler, gtceu:coke_block | IV | 64,000 | 2.52 | 2,893,618 | 3.94e-05 | 0.000165 | 0.0013 | 0.0126 |
+| large tungstensteel boiler, gtceu:sulfuric_heavy_fuel | IV | 64,000 | 2.61 | 2,893,618 | 4.08e-05 | 0.000166 | 0.0013 | 0.0126 |
+| large tungstensteel boiler, gtceu:coke_gem | IV | 64,000 | 2.80 | 2,893,618 | 4.38e-05 | 0.000169 | 0.0013 | 0.0126 |
+| large steel boiler, minecraft:charcoal | MV | 18,000 | 0.90 | 252,419 | 5e-05 | 8.9e-05 | 0.00044 | 0.00395 |
+| large bronze boiler, gtceu:charcoal_dust | LV | 8,000 | 0.40 | 119,134 | 5e-05 | 9.14e-05 | 0.000464 | 0.00419 |
+| large tungstensteel boiler, minecraft:stick | IV | 64,000 | 3.20 | 2,893,618 | 5e-05 | 0.000176 | 0.00131 | 0.0126 |
+| large bronze boiler, gtceu:heavy_fuel | LV | 8,000 | 0.52 | 119,134 | 6.44e-05 | 0.000106 | 0.000478 | 0.0042 |
+| large titanium boiler, minecraft:oak_planks | EV | 32,000 | 2.13 | 473,298 | 6.67e-05 | 0.000108 | 0.000478 | 0.00418 |
+| large bronze boiler, minecraft:lava | LV | 8,000 | 0.57 | 119,134 | 7.11e-05 | 0.000112 | 0.000485 | 0.00421 |
+| large tungstensteel boiler, gtceu:creosote | IV | 64,000 | 4.57 | 2,893,618 | 7.14e-05 | 0.000197 | 0.00133 | 0.0126 |
+| large titanium boiler, gtceu:coke_block | EV | 32,000 | 2.52 | 473,298 | 7.88e-05 | 0.00012 | 0.00049 | 0.00419 |
+| large titanium boiler, gtceu:sulfuric_heavy_fuel | EV | 32,000 | 2.61 | 473,298 | 8.16e-05 | 0.000123 | 0.000492 | 0.00419 |
+| large titanium boiler, gtceu:coke_gem | EV | 32,000 | 2.80 | 473,298 | 8.75e-05 | 0.000129 | 0.000498 | 0.0042 |
+| gas_turbine, gtceu:butadiene | LV | 640 | 0.06 | 7,981 | 8.82e-05 | 0.000123 | 0.000435 | 0.00355 |
+| gas_turbine, gtceu:methane | LV | 640 | 0.06 | 7,981 | 8.93e-05 | 0.000124 | 0.000436 | 0.00355 |
+| large tungstensteel boiler, minecraft:coal_block | IV | 64,000 | 5.76 | 2,893,618 | 9e-05 | 0.000216 | 0.00135 | 0.0126 |
+| combustion_generator, gtceu:bio_diesel | LV | 640 | 0.06 | 12,099 | 9.38e-05 | 0.000146 | 0.000619 | 0.00535 |
+| gas_turbine, gtceu:ethylene | LV | 640 | 0.06 | 7,981 | 9.38e-05 | 0.000128 | 0.00044 | 0.00356 |
+| large titanium boiler, minecraft:stick | EV | 32,000 | 3.20 | 473,298 | 0.0001 | 0.000141 | 0.000511 | 0.00421 |
+| large tungstensteel boiler, minecraft:coal | IV | 64,000 | 6.40 | 2,893,618 | 0.0001 | 0.000226 | 0.00136 | 0.0127 |
+| large tungstensteel boiler, gtceu:coal_dust | IV | 64,000 | 6.40 | 2,893,618 | 0.0001 | 0.000226 | 0.00136 | 0.0127 |
+| large tungstensteel boiler, gtceu:heavy_oil | IV | 64,000 | 6.55 | 2,893,618 | 0.000102 | 0.000228 | 0.00136 | 0.0127 |
+| large bronze boiler, minecraft:charcoal | LV | 8,000 | 0.90 | 119,134 | 0.000112 | 0.000154 | 0.000526 | 0.00425 |
+| large steel boiler, minecraft:oak_planks | MV | 18,000 | 2.13 | 252,419 | 0.000119 | 0.000157 | 0.000508 | 0.00401 |
+| combustion_generator, gtceu:cetane_boosted_diesel | LV | 640 | 0.08 | 12,099 | 0.000124 | 0.000176 | 0.000649 | 0.00537 |
+| large tungstensteel boiler, minecraft:oak_log | IV | 64,000 | 8.53 | 2,893,618 | 0.000133 | 0.000259 | 0.00139 | 0.0127 |
+| large steel boiler, gtceu:coke_block | MV | 18,000 | 2.52 | 252,419 | 0.00014 | 0.000179 | 0.00053 | 0.00404 |
+| large titanium boiler, gtceu:creosote | EV | 32,000 | 4.57 | 473,298 | 0.000143 | 0.000184 | 0.000554 | 0.00425 |
+| large steel boiler, gtceu:sulfuric_heavy_fuel | MV | 18,000 | 2.61 | 252,419 | 0.000145 | 0.000184 | 0.000535 | 0.00404 |
+| gas_turbine, gtceu:ethane | LV | 640 | 0.10 | 7,981 | 0.000155 | 0.000189 | 0.000501 | 0.00362 |
+| large steel boiler, gtceu:coke_gem | MV | 18,000 | 2.80 | 252,419 | 0.000156 | 0.000195 | 0.000545 | 0.00405 |
+| large steel boiler, minecraft:stick | MV | 18,000 | 3.20 | 252,419 | 0.000178 | 0.000217 | 0.000567 | 0.00407 |
+| large titanium boiler, minecraft:coal_block | EV | 32,000 | 5.76 | 473,298 | 0.00018 | 0.000221 | 0.000591 | 0.00429 |
+| gas_turbine, gtceu:nitrobenzene | LV | 640 | 0.12 | 7,981 | 0.00019 | 0.000224 | 0.000536 | 0.00365 |
+| large titanium boiler, minecraft:coal | EV | 32,000 | 6.40 | 473,298 | 0.0002 | 0.000241 | 0.000611 | 0.00431 |
+| large titanium boiler, gtceu:coal_dust | EV | 32,000 | 6.40 | 473,298 | 0.0002 | 0.000241 | 0.000611 | 0.00431 |
+| large titanium boiler, gtceu:heavy_oil | EV | 32,000 | 6.55 | 473,298 | 0.000205 | 0.000246 | 0.000616 | 0.00431 |
+| combustion_generator, gtceu:light_fuel | LV | 640 | 0.14 | 12,099 | 0.000219 | 0.000271 | 0.000744 | 0.00547 |
+| gas_turbine, gtceu:coal_gas | LV | 640 | 0.15 | 7,981 | 0.00024 | 0.000274 | 0.000586 | 0.0037 |
+| large steel boiler, gtceu:creosote | MV | 18,000 | 4.57 | 252,419 | 0.000254 | 0.000293 | 0.000644 | 0.00415 |
+| large bronze boiler, minecraft:oak_planks | LV | 8,000 | 2.13 | 119,134 | 0.000267 | 0.000308 | 0.00068 | 0.0044 |
+| large titanium boiler, minecraft:oak_log | EV | 32,000 | 8.53 | 473,298 | 0.000267 | 0.000308 | 0.000678 | 0.00438 |
+| large tungstensteel boiler, minecraft:blaze_rod | IV | 64,000 | 19.20 | 2,893,618 | 0.0003 | 0.000426 | 0.00156 | 0.0129 |
+| large bronze boiler, gtceu:coke_block | LV | 8,000 | 2.52 | 119,134 | 0.000315 | 0.000356 | 0.000729 | 0.00445 |
+| gas_turbine, gtceu:lpg | LV | 640 | 0.20 | 7,981 | 0.000319 | 0.000353 | 0.000665 | 0.00378 |
+| large steel boiler, minecraft:coal_block | MV | 18,000 | 5.76 | 252,419 | 0.00032 | 0.000359 | 0.00071 | 0.00422 |
+| large tungstensteel boiler, gtceu:oil | IV | 64,000 | 20.48 | 2,893,618 | 0.00032 | 0.000446 | 0.00158 | 0.0129 |
+| large bronze boiler, gtceu:sulfuric_heavy_fuel | LV | 8,000 | 2.61 | 119,134 | 0.000326 | 0.000368 | 0.00074 | 0.00446 |
+| combustion_generator, gtceu:ethanol | LV | 640 | 0.21 | 12,099 | 0.000333 | 0.000386 | 0.000858 | 0.00558 |
+| large bronze boiler, gtceu:coke_gem | LV | 8,000 | 2.80 | 119,134 | 0.00035 | 0.000391 | 0.000764 | 0.00449 |
+| large steel boiler, minecraft:coal | MV | 18,000 | 6.40 | 252,419 | 0.000356 | 0.000395 | 0.000745 | 0.00425 |
+| large steel boiler, gtceu:coal_dust | MV | 18,000 | 6.40 | 252,419 | 0.000356 | 0.000395 | 0.000745 | 0.00425 |
+| large steel boiler, gtceu:heavy_oil | MV | 18,000 | 6.55 | 252,419 | 0.000364 | 0.000403 | 0.000754 | 0.00426 |
+| gas_turbine, gtceu:butane | LV | 640 | 0.26 | 7,981 | 0.000399 | 0.000433 | 0.000745 | 0.00386 |
+| large bronze boiler, minecraft:stick | LV | 8,000 | 3.20 | 119,134 | 0.0004 | 0.000441 | 0.000814 | 0.00454 |
+| large steel boiler, minecraft:oak_log | MV | 18,000 | 8.53 | 252,419 | 0.000474 | 0.000513 | 0.000864 | 0.00437 |
+| gas_turbine, gtceu:butene | LV | 640 | 0.30 | 7,981 | 0.000477 | 0.000511 | 0.000823 | 0.00394 |
+| large bronze boiler, gtceu:creosote | LV | 8,000 | 4.57 | 119,134 | 0.000571 | 0.000613 | 0.000985 | 0.00471 |
+| hp_steam_solid_boiler, minecraft:dried_kelp_block | LV | 150 | 0.09 | 3,390 | 0.0006 | 0.000663 | 0.00123 | 0.00688 |
+| large titanium boiler, minecraft:blaze_rod | EV | 32,000 | 19.20 | 473,298 | 0.0006 | 0.000641 | 0.00101 | 0.00471 |
+| large titanium boiler, gtceu:oil | EV | 32,000 | 20.48 | 473,298 | 0.00064 | 0.000681 | 0.00105 | 0.00475 |
+| combustion_generator, gtceu:gasoline | LV | 640 | 0.41 | 12,099 | 0.00064 | 0.000693 | 0.00117 | 0.00589 |
+| combustion_generator, gtceu:high_octane_gasoline | LV | 640 | 0.42 | 12,099 | 0.000653 | 0.000705 | 0.00118 | 0.0059 |
+| large bronze boiler, minecraft:coal_block | LV | 8,000 | 5.76 | 119,134 | 0.00072 | 0.000761 | 0.00113 | 0.00486 |
+| lp_steam_solid_boiler, minecraft:dried_kelp_block | LV | 60 | 0.04 | 1,662 | 0.00075 | 0.000827 | 0.00152 | 0.00844 |
+| combustion_generator, gtceu:rocket_fuel | LV | 640 | 0.49 | 12,099 | 0.00076 | 0.000813 | 0.00129 | 0.00601 |
+| large bronze boiler, minecraft:coal | LV | 8,000 | 6.40 | 119,134 | 0.0008 | 0.000841 | 0.00121 | 0.00494 |
+| large bronze boiler, gtceu:coal_dust | LV | 8,000 | 6.40 | 119,134 | 0.0008 | 0.000841 | 0.00121 | 0.00494 |
+| large tungstensteel boiler, minecraft:bamboo | IV | 64,000 | 51.20 | 2,893,618 | 0.0008 | 0.000926 | 0.00206 | 0.0134 |
+| large bronze boiler, gtceu:heavy_oil | LV | 8,000 | 6.55 | 119,134 | 0.000819 | 0.000861 | 0.00123 | 0.00496 |
+| large tungstensteel boiler, gtceu:fish_oil | IV | 64,000 | 58.50 | 2,893,618 | 0.000914 | 0.00104 | 0.00217 | 0.0135 |
+| hp_steam_liquid_boiler, minecraft:lava | LV | 300 | 0.28 | 7,117 | 0.000948 | 0.00101 | 0.00161 | 0.00754 |
+| gas_turbine, gtceu:wood_gas | LV | 640 | 0.61 | 7,981 | 0.000958 | 0.000993 | 0.0013 | 0.00442 |
+| gas_turbine, gtceu:propene | LV | 640 | 0.63 | 7,981 | 0.00099 | 0.00102 | 0.00134 | 0.00445 |
+| gas_turbine, gtceu:benzene | LV | 640 | 0.66 | 7,981 | 0.00103 | 0.00106 | 0.00137 | 0.00449 |
+| large bronze boiler, minecraft:oak_log | LV | 8,000 | 8.53 | 119,134 | 0.00107 | 0.00111 | 0.00148 | 0.0052 |
+| large steel boiler, minecraft:blaze_rod | MV | 18,000 | 19.20 | 252,419 | 0.00107 | 0.00111 | 0.00146 | 0.00496 |
+| combustion_generator, gtceu:toluene | LV | 640 | 0.72 | 12,099 | 0.00113 | 0.00118 | 0.00166 | 0.00638 |
+| large steel boiler, gtceu:oil | MV | 18,000 | 20.48 | 252,419 | 0.00114 | 0.00118 | 0.00153 | 0.00503 |
+| lp_steam_liquid_boiler, minecraft:lava | LV | 120 | 0.14 | 3,564 | 0.00119 | 0.00127 | 0.00201 | 0.00944 |
+| gas_turbine, gtceu:phenol | LV | 640 | 0.84 | 7,981 | 0.00132 | 0.00135 | 0.00166 | 0.00478 |
+| hp_steam_solid_boiler, gtceu:charcoal_dust | LV | 150 | 0.20 | 3,390 | 0.00133 | 0.0014 | 0.00196 | 0.00761 |
+| combustion_generator, gtceu:naphtha | LV | 640 | 0.90 | 12,099 | 0.00141 | 0.00146 | 0.00193 | 0.00666 |
+| gas_turbine, gtceu:refinery_gas | LV | 640 | 0.99 | 7,981 | 0.00155 | 0.00158 | 0.0019 | 0.00501 |
+| large titanium boiler, minecraft:bamboo | EV | 32,000 | 51.20 | 473,298 | 0.0016 | 0.00164 | 0.00201 | 0.00571 |
+| combustion_generator, gtceu:diesel | LV | 640 | 1.02 | 12,099 | 0.0016 | 0.00165 | 0.00213 | 0.00685 |
+| lp_steam_solid_boiler, gtceu:charcoal_dust | LV | 60 | 0.10 | 1,662 | 0.00167 | 0.00174 | 0.00244 | 0.00936 |
+| large titanium boiler, gtceu:fish_oil | EV | 32,000 | 58.50 | 473,298 | 0.00183 | 0.00187 | 0.00224 | 0.00594 |
+| gas_turbine, gtceu:propane | LV | 640 | 1.29 | 7,981 | 0.00201 | 0.00204 | 0.00236 | 0.00547 |
+| large bronze boiler, minecraft:blaze_rod | LV | 8,000 | 19.20 | 119,134 | 0.0024 | 0.00244 | 0.00281 | 0.00654 |
+| large bronze boiler, gtceu:oil | LV | 8,000 | 20.48 | 119,134 | 0.00256 | 0.0026 | 0.00297 | 0.0067 |
+| large steel boiler, minecraft:bamboo | MV | 18,000 | 51.20 | 252,419 | 0.00284 | 0.00288 | 0.00323 | 0.00674 |
+| hp_steam_solid_boiler, minecraft:charcoal | LV | 150 | 0.45 | 3,390 | 0.003 | 0.00306 | 0.00363 | 0.00928 |
+| hp_steam_liquid_boiler, gtceu:creosote | LV | 300 | 0.91 | 7,117 | 0.00305 | 0.00311 | 0.00371 | 0.00964 |
+| large steel boiler, gtceu:fish_oil | MV | 18,000 | 58.50 | 252,419 | 0.00325 | 0.00329 | 0.00364 | 0.00715 |
+| gas_turbine, gtceu:sulfuric_gas | LV | 640 | 2.25 | 7,981 | 0.00352 | 0.00355 | 0.00387 | 0.00698 |
+| lp_steam_solid_boiler, minecraft:charcoal | LV | 60 | 0.22 | 1,662 | 0.00375 | 0.00383 | 0.00452 | 0.0114 |
+| lp_steam_liquid_boiler, gtceu:creosote | LV | 120 | 0.46 | 3,564 | 0.00381 | 0.00389 | 0.00463 | 0.0121 |
+| combustion_generator, gtceu:methanol | LV | 640 | 3.20 | 12,099 | 0.005 | 0.00505 | 0.00553 | 0.0103 |
+| large bronze boiler, minecraft:bamboo | LV | 8,000 | 51.20 | 119,134 | 0.0064 | 0.00644 | 0.00681 | 0.0105 |
+| hp_steam_solid_boiler, minecraft:oak_planks | LV | 150 | 1.07 | 3,390 | 0.00711 | 0.00717 | 0.00774 | 0.0134 |
+| large bronze boiler, gtceu:fish_oil | LV | 8,000 | 58.50 | 119,134 | 0.00731 | 0.00735 | 0.00773 | 0.0114 |
+| hp_steam_solid_boiler, gtceu:coke_block | LV | 150 | 1.26 | 3,390 | 0.0084 | 0.00846 | 0.00903 | 0.0147 |
+| lp_steam_solid_boiler, minecraft:oak_planks | LV | 60 | 0.53 | 1,662 | 0.00889 | 0.00897 | 0.00966 | 0.0166 |
+| hp_steam_solid_boiler, gtceu:coke_gem | LV | 150 | 1.40 | 3,390 | 0.00933 | 0.0094 | 0.00996 | 0.0156 |
+| lp_steam_solid_boiler, gtceu:coke_block | LV | 60 | 0.63 | 1,662 | 0.0105 | 0.0106 | 0.0113 | 0.0182 |
+| hp_steam_solid_boiler, minecraft:stick | LV | 150 | 1.60 | 3,390 | 0.0107 | 0.0107 | 0.0113 | 0.0169 |
+| lp_steam_solid_boiler, gtceu:coke_gem | LV | 60 | 0.70 | 1,662 | 0.0117 | 0.0117 | 0.0124 | 0.0194 |
+| gas_turbine, gtceu:natural_gas | LV | 640 | 8.19 | 7,981 | 0.0128 | 0.0128 | 0.0131 | 0.0163 |
+| lp_steam_solid_boiler, minecraft:stick | LV | 60 | 0.80 | 1,662 | 0.0133 | 0.0134 | 0.0141 | 0.021 |
+| gas_turbine, gtceu:sulfuric_naphtha | LV | 640 | 10.24 | 7,981 | 0.016 | 0.016 | 0.0163 | 0.0195 |
+| hp_steam_solid_boiler, minecraft:coal_block | LV | 150 | 2.88 | 3,390 | 0.0192 | 0.0193 | 0.0198 | 0.0255 |
+| hp_steam_solid_boiler, minecraft:coal | LV | 150 | 3.20 | 3,390 | 0.0213 | 0.0214 | 0.022 | 0.0276 |
+| hp_steam_solid_boiler, gtceu:coal_dust | LV | 150 | 3.20 | 3,390 | 0.0213 | 0.0214 | 0.022 | 0.0276 |
+| lp_steam_solid_boiler, minecraft:coal_block | LV | 60 | 1.44 | 1,662 | 0.024 | 0.0241 | 0.0248 | 0.0317 |
+| lp_steam_solid_boiler, minecraft:coal | LV | 60 | 1.60 | 1,662 | 0.0267 | 0.0267 | 0.0274 | 0.0344 |
+| lp_steam_solid_boiler, gtceu:coal_dust | LV | 60 | 1.60 | 1,662 | 0.0267 | 0.0267 | 0.0274 | 0.0344 |
+| combustion_generator, gtceu:sulfuric_light_fuel | LV | 640 | 18.19 | 12,099 | 0.0284 | 0.0285 | 0.029 | 0.0337 |
+| hp_steam_solid_boiler, minecraft:oak_log | LV | 150 | 4.27 | 3,390 | 0.0284 | 0.0285 | 0.0291 | 0.0347 |
+| lp_steam_solid_boiler, minecraft:oak_log | LV | 60 | 2.13 | 1,662 | 0.0356 | 0.0356 | 0.0363 | 0.0432 |
+| hp_steam_solid_boiler, minecraft:blaze_rod | LV | 150 | 9.60 | 3,390 | 0.064 | 0.0641 | 0.0646 | 0.0703 |
+| lp_steam_solid_boiler, minecraft:blaze_rod | LV | 60 | 4.80 | 1,662 | 0.08 | 0.0801 | 0.0808 | 0.0877 |
+| hp_steam_solid_boiler, minecraft:bamboo | LV | 150 | 25.60 | 3,390 | 0.171 | 0.171 | 0.171 | 0.177 |
+| lp_steam_solid_boiler, minecraft:bamboo | LV | 60 | 12.80 | 1,662 | 0.213 | 0.213 | 0.214 | 0.221 |
+| combustion_generator, gtceu:octane | LV | 640 | 181.60 | 12,099 | 0.284 | 0.284 | 0.284 | 0.289 |
+
+## Cheapest generation by tier (the derived EU price)
+
+| Tier | fuel only | H = 100 h | H = 10 h | H = 1 h |
+|---|---|---|---|---|
+| LV | 0 (lp_steam_solar_boiler) | 6.39e-05 (large bronze boiler, minecraft:dried_kelp_block) | 0.000435 (gas_turbine, gtceu:butadiene) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| MV | 0 (lp_steam_solar_boiler) | 4.9e-05 (large steel boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| HV | 0 (lp_steam_solar_boiler) | 4.9e-05 (large steel boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| EV | 0 (lp_steam_solar_boiler) | 4.67e-05 (large titanium boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| IV | 0 (lp_steam_solar_boiler) | 4.67e-05 (large titanium boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| LuV | 0 (lp_steam_solar_boiler) | 4.67e-05 (large titanium boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| ZPM | 0 (lp_steam_solar_boiler) | 4.67e-05 (large titanium boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+| UV | 0 (lp_steam_solar_boiler) | 4.67e-05 (large titanium boiler, minecraft:dried_kelp_block) | 0.0004 (large steel boiler, minecraft:dried_kelp_block) | 0.00355 (gas_turbine, gtceu:butadiene) |
+
+EMC_EU_PRICE for each horizon: fuel only: {"LV": 0.0, "MV": 0.0, "HV": 0.0, "EV": 0.0, "IV": 0.0, "LuV": 0.0, "ZPM": 0.0, "UV": 0.0}; H=100 h: {"LV": 6.39e-05, "MV": 4.9e-05, "HV": 4.9e-05, "EV": 4.67e-05, "IV": 4.67e-05, "LuV": 4.67e-05, "ZPM": 4.67e-05, "UV": 4.67e-05}; H=10 h: {"LV": 0.000435, "MV": 0.0004, "HV": 0.0004, "EV": 0.0004, "IV": 0.0004, "LuV": 0.0004, "ZPM": 0.0004, "UV": 0.0004}; H=1 h: {"LV": 0.00355, "MV": 0.00355, "HV": 0.00355, "EV": 0.00355, "IV": 0.00355, "LuV": 0.00355, "ZPM": 0.00355, "UV": 0.00355}
+
+## Pump check: EMC per second each generator makes at a flat price p (EU/s x p - fuel EMC/s)
+
+Positive means burning that fuel and banking the EU in recipe outputs makes EMC. The worst five per price:
+
+- p = 0 EMC/EU: lp_steam_solar_boiler +0.0 EMC/s (+0 per hour); hp_steam_solar_boiler +0.0 EMC/s (+0 per hour); plasma_generator, gtceu:argon_plasma +0.0 EMC/s (+0 per hour); plasma_generator, gtceu:iron_plasma +0.0 EMC/s (+0 per hour); plasma_generator, gtceu:americium_plasma +0.0 EMC/s (+0 per hour)
+- p = 6.39e-05 EMC/EU: large tungstensteel boiler, minecraft:dried_kelp_block +3.9 EMC/s (+14067 per hour); large tungstensteel boiler, gtceu:biomass +3.9 EMC/s (+13868 per hour); large tungstensteel boiler, gtceu:charcoal_dust +3.7 EMC/s (+13275 per hour); large tungstensteel boiler, gtceu:heavy_fuel +3.6 EMC/s (+12859 per hour); large tungstensteel boiler, minecraft:lava +3.5 EMC/s (+12667 per hour)
+- p = 0.000435 EMC/EU: large tungstensteel boiler, minecraft:dried_kelp_block +27.6 EMC/s (+99491 per hour); large tungstensteel boiler, gtceu:biomass +27.6 EMC/s (+99292 per hour); large tungstensteel boiler, gtceu:charcoal_dust +27.4 EMC/s (+98699 per hour); large tungstensteel boiler, gtceu:heavy_fuel +27.3 EMC/s (+98283 per hour); large tungstensteel boiler, minecraft:lava +27.2 EMC/s (+98091 per hour)
+- p = 0.00355 EMC/EU: large tungstensteel boiler, minecraft:dried_kelp_block +227.2 EMC/s (+817781 per hour); large tungstensteel boiler, gtceu:biomass +227.1 EMC/s (+817582 per hour); large tungstensteel boiler, gtceu:charcoal_dust +226.9 EMC/s (+816989 per hour); large tungstensteel boiler, gtceu:heavy_fuel +226.8 EMC/s (+816573 per hour); large tungstensteel boiler, minecraft:lava +226.8 EMC/s (+816381 per hour)

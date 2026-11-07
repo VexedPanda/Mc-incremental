@@ -33,6 +33,49 @@ def _lines(path):
     return open(path, encoding='utf-8', errors='replace')
 
 
+TIER_NAMES = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
+
+
+def eu_prices():
+    """Energy in EMC (#64, docs/research/energy-in-emc.md), opt-in: EMC_EU_PRICE is EMC per EU, a number or a JSON
+    {tier name: price} (a tier left out costs its next lower listed tier's price). None when unset or all 0, so the
+    committed outputs don't change. Returns {tier index: price}."""
+    spec = os.environ.get('EMC_EU_PRICE')
+    if not spec:
+        return None
+    spec = json.loads(spec)
+    if not isinstance(spec, dict):
+        spec = {'ULV': spec}
+    prices, last = {}, 0.0
+    for i, t in enumerate(TIER_NAMES):
+        last = float(spec.get(t, last))
+        prices[i] = last
+    return prices if any(prices.values()) else None
+
+
+def load_eu(path=None):
+    """{recipe id: (EU consumed per run, EU produced per run, fusion start EU or None)} from dump_eu.js's EUDUMP lines
+    (EMC_EU_DUMP, by default the committed eu.txt.xz)."""
+    path = path or os.environ.get('EMC_EU_DUMP') or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'eu.txt.xz')
+    out = {}
+    for line in _lines(path):
+        i = line.find('EUDUMP {')
+        if i >= 0:
+            o = json.loads(line[i + 7:])
+            out[o['id']] = (o.get('iv', 0) * o.get('ia', 0) * o['d'], o.get('ov', 0) * o.get('oa', 0) * o['d'], o.get('start'))
+    return out
+
+
+def recipe_energy(r, eu, prices):
+    """(tier name, EU per run, EMC of that EU) for a GT recipe, or None when energy isn't counted or it uses none."""
+    if not prices or not r.get('gt') or r['id'] not in eu or not eu[r['id']][0]:
+        return None
+    t = r['t'] if isinstance(r.get('t'), int) and 0 <= r['t'] < len(TIER_NAMES) else 0
+    if not prices[t]:
+        return None
+    return TIER_NAMES[t], eu[r['id']][0], eu[r['id']][0] * prices[t]
+
+
 def load_dump(path):
     """(items {id: in-game EMC}, fluids {id: (source id, listed value, bucket item)}, tags {tag: [ids]}, recipes [dict])."""
     items, fluids, tags, recipes = {}, {}, {}, []
@@ -71,6 +114,9 @@ class Model:
         self.tools = {i for t, ids in self.tags.items() if t.startswith(TOOL_TAG_PREFIX) for i in ids}
         self.skipped = defaultdict(int)
         self.fixed = {}
+        # #64: a GT recipe's EU as an ingredient node 'e:<tier>' worth EMC_EU_PRICE per EU (off unless set)
+        self.eu_price = eu_prices()
+        self.eu = load_eu() if self.eu_price else {}
         if pe_jar:
             self._load_pe_defaults(pe_jar)
         for r in recipes:
@@ -243,6 +289,9 @@ class Model:
         if isinstance(sides, str):
             return sides
         inp, out = sides
+        energy = recipe_energy(r, self.eu, self.eu_price)
+        if energy and inp:  # like the mapper, recipes with no consumed input stay unvalued
+            inp['e:' + energy[0]] = int(round(energy[1] * 1000))  # thousandths, like the other amounts
         prim = next(iter(out), None)
         if self.mode == 'cost':
             # Fallback costs for what the mapper doesn't value: the other guaranteed outputs (byproducts), chanced
@@ -278,6 +327,11 @@ class Model:
         in ProjectE, which floors them only at the end (so an item costing less than 1 EMC ends up at 0). A
         conversion with no ingredients, or one costing 0 or less, gives nothing."""
         val = {k: v for k, v in fixed.items() if v > 0}
+        if self.eu_price:
+            fixed = dict(fixed)
+            for i, p in self.eu_price.items():
+                if p > 0:
+                    fixed['e:' + TIER_NAMES[i]] = val['e:' + TIER_NAMES[i]] = p
         by_ing = defaultdict(list)
         for c in self.conv:
             for k in c[2]:
