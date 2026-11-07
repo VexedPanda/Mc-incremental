@@ -1,0 +1,211 @@
+# Time in EMC: sweep (#64)
+
+R is EMC per machine-second at the recipe's tier; the EU price per tier is the cheapest generator's (fuel + generator time x R) / EU. Pass 2 re-derives the EU price from the model's values (with floors).
+
+## LV 4 x4
+
+| Tier | R (EMC/s) | EMC/EU | Set by | Pass 2 EMC/EU | Pass 2 set by |
+|---|---:|---:|---|---:|---|
+| LV | 4 | 0.00634 | LV gas_turbine, gtceu:butadiene | 0.00634 | LV gas_turbine, gtceu:butadiene |
+| MV | 16 | 0.00634 | LV gas_turbine, gtceu:butadiene | 0.00634 | LV gas_turbine, gtceu:butadiene |
+| HV | 64 | 0.00365 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines | 0.00365 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines |
+| EV | 256 | 0.00165 | large gas turbine, gtceu:butadiene | 0.00165 | large gas turbine, gtceu:butadiene |
+| IV | 1024 | 0.00165 | large gas turbine, gtceu:butadiene | 0.00165 | large gas turbine, gtceu:butadiene |
+| LuV | 4096 | 0.00156 | large plasma turbine, gtceu:argon_plasma | 0.00156 | large plasma turbine, gtceu:iron_plasma |
+| ZPM | 16384 | 0.00156 | large plasma turbine, gtceu:argon_plasma | 0.00156 | large plasma turbine, gtceu:iron_plasma |
+| UV | 65536 | 0.00156 | large plasma turbine, gtceu:argon_plasma | 0.00156 | large plasma turbine, gtceu:iron_plasma |
+
+In-game exploits still open, first order: 97 of 181 (gaining 100+ per run: 81). By group: 3 refinery and fuel 13; 2 ore chains 18; 1 cheap inputs split into elements 14; 4 chemistry splitting gases 36; 5 other (lathes) 1; 5 other 15.
+Worst: gtceu:large_chemical_reactor/gasoline +13,405 EMC/s above time (6,702 per run); gtceu:chemical_reactor/gasoline +13,405 EMC/s above time (6,702 per run); gtceu:mixer/diesel +5,110 EMC/s above time (4,088 per run); gtceu:large_chemical_reactor/diesel_shortcut +3,191 EMC/s above time (15,957 per run); gtceu:large_chemical_reactor/prussian_blue +1,866 EMC/s above time (46,661 per run).
+
+| Floors | Exploits (100+/run) | Worst EMC/s above time | LV | MV | HV | EV | IV | LUV | ZPM | UV |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| floors (baseline) | 273 (217) | 13,504.0 (gtceu:large_chemical_reactor/gasoline) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 5.3 (63 M) | 5.7 (233 M) | 9.2 (600 M) | 9.7 (634 M) |
+| floors | 242 (197) | 18,834.8 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 5.4 (66 M) | 6.7 (295 M) | 12.4 (806 M) | 19.4 (1259 M) |
+| half floors (baseline) | 288 (232) | 13,504.0 (gtceu:large_chemical_reactor/gasoline) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.9 (33 M) | 4.1 (129 M) | 5.1 (331 M) | 5.6 (364 M) |
+| half floors | 253 (208) | 18,834.8 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.9 (37 M) | 5.4 (211 M) | 9.1 (592 M) | 15.7 (1019 M) |
+| no floors (baseline) | 357 (292) | 13,504.0 (gtceu:large_chemical_reactor/gasoline) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.4 (3 M) | 2.5 (24 M) | 1.1 (72 M) | 2.3 (148 M) |
+| no floors | 265 (220) | 18,834.8 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.5 (9 M) | 4.1 (128 M) | 5.9 (386 M) | 14.7 (958 M) |
+
+Base earnings from time: 10 machines at the tier, 1 A at V[tier] each, powered by the price-setting generator; every machine and generator running all hour with its outputs banked:
+
+| Tier | Machines EMC/h | Generators EMC/h | Total EMC/h | EU cost/h (fuel + time) | Base hours per Run (net EMC/Run) | Base hours to earn the kit's added cost (no floors) |
+|---|---:|---:|---:|---:|---:|---:|
+| LV | 144,000 | 144,000 | 288,000 | 146,033 | 23.1 | 0.1 |
+| MV | 576,000 | 576,000 | 1,152,000 | 584,132 | 8.6 | 0.0 |
+| HV | 2,304,000 | 1,336,320 | 3,640,320 | 1,344,614 | 9.0 | 0.0 |
+| EV | 9,216,000 | 2,304,000 | 11,520,000 | 2,434,108 | 5.7 | 0.1 |
+| IV | 36,864,000 | 9,216,000 | 46,080,000 | 9,736,433 | 1.4 | 0.1 |
+| LuV | 147,456,000 | 36,864,000 | 184,320,000 | 36,864,000 | 0.4 | 0.6 |
+| ZPM | 589,824,000 | 147,456,000 | 737,280,000 | 147,456,000 | 0.1 | 0.4 |
+| UV | 2,359,296,000 | 589,824,000 | 2,949,120,000 | 589,824,000 | 0.0 | 0.3 |
+
+Step-down pump (a tier's recipe at 1 A of V[tier], run on the cheapest EU anywhere, 0.00156 EMC/EU): EMC/s per machine on top of its time R, and as a share of R (with one flat EU price, the cheapest anywhere, it is 0): LV +3.06 (76% of R); MV +12.23 (76% of R); HV +21.35 (33% of R); EV +3.61 (1% of R); IV +14.46 (1% of R); LuV +0.00 (0% of R); ZPM +0.00 (0% of R); UV +0.00 (0% of R).
+
+Overclocking: time earned per machine-second by a recipe run in a higher-tier machine, as a multiple of that machine's R, worst case: non-perfect overclock (2x speed per tier) 0.50 x R (LV recipe in a MV machine); perfect (4x, EBF coils) 1.00 x R (LV recipe in a MV machine).
+
+Tool crafting (unmapped, instant) worth more than its inputs: 1129, 1066 of them new (vs baseline); worst new: gtceu:shaped/huge_naquadah_pipe +39,795; gtceu:shaped/huge_iridium_pipe +14,526; gtceu:shaped/buzzsaw_blade_naquadah_alloy +14,341; gtceu:shaped/huge_osmium_pipe +14,329; gtceu:shaped/huge_tungsten_pipe +13,845.
+
+## LV 4 x2
+
+| Tier | R (EMC/s) | EMC/EU | Set by | Pass 2 EMC/EU | Pass 2 set by |
+|---|---:|---:|---|---:|---|
+| LV | 4 | 0.00634 | LV gas_turbine, gtceu:butadiene | 0.00634 | LV gas_turbine, gtceu:butadiene |
+| MV | 8 | 0.00321 | MV gas_turbine, gtceu:butadiene | 0.00321 | MV gas_turbine, gtceu:butadiene |
+| HV | 16 | 0.00124 | large steel boiler, minecraft:dried_kelp_block + large steam turbines | 0.00123 | large steel boiler, gtceu:charcoal_dust + large steam turbines |
+| EV | 32 | 0.000284 | large gas turbine, gtceu:butadiene | 0.000284 | large gas turbine, gtceu:butadiene |
+| IV | 64 | 0.000284 | large gas turbine, gtceu:butadiene | 0.000284 | large gas turbine, gtceu:butadiene |
+| LuV | 128 | 9.77e-05 | large plasma turbine, gtceu:argon_plasma | 9.77e-05 | large plasma turbine, gtceu:iron_plasma |
+| ZPM | 256 | 9.77e-05 | large plasma turbine, gtceu:argon_plasma | 9.77e-05 | large plasma turbine, gtceu:iron_plasma |
+| UV | 512 | 9.77e-05 | large plasma turbine, gtceu:argon_plasma | 9.77e-05 | large plasma turbine, gtceu:iron_plasma |
+
+In-game exploits still open, first order: 123 of 181 (gaining 100+ per run: 99). By group: 3 refinery and fuel 23; 2 ore chains 25; 1 cheap inputs split into elements 16; 4 chemistry splitting gases 43; 5 other (lathes) 1; 5 other 15.
+Worst: gtceu:large_chemical_reactor/gasoline +13,476 EMC/s above time (6,738 per run); gtceu:chemical_reactor/gasoline +13,476 EMC/s above time (6,738 per run); gtceu:mixer/diesel +5,126 EMC/s above time (4,100 per run); gtceu:large_chemical_reactor/diesel_shortcut +3,263 EMC/s above time (16,313 per run); gtceu:large_chemical_reactor/prussian_blue +1,938 EMC/s above time (48,439 per run).
+
+| Floors | Exploits (100+/run) | Worst EMC/s above time | LV | MV | HV | EV | IV | LUV | ZPM | UV |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| floors | 262 (215) | 21,403.2 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 5.4 (63 M) | 5.8 (236 M) | 9.5 (616 M) | 10.3 (669 M) |
+| half floors | 275 (228) | 21,403.2 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.9 (33 M) | 4.2 (135 M) | 5.4 (353 M) | 6.2 (402 M) |
+| no floors | 310 (262) | 21,403.2 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.4 (4 M) | 2.8 (41 M) | 1.7 (112 M) | 4.0 (262 M) |
+
+Base earnings from time: 10 machines at the tier, 1 A at V[tier] each, powered by the price-setting generator; every machine and generator running all hour with its outputs banked:
+
+| Tier | Machines EMC/h | Generators EMC/h | Total EMC/h | EU cost/h (fuel + time) | Base hours per Run (net EMC/Run) | Base hours to earn the kit's added cost (no floors) |
+|---|---:|---:|---:|---:|---:|---:|
+| LV | 144,000 | 144,000 | 288,000 | 146,033 | 23.1 | 0.1 |
+| MV | 288,000 | 288,000 | 576,000 | 296,132 | 17.2 | 0.0 |
+| HV | 576,000 | 451,840 | 1,027,840 | 455,526 | 31.8 | 0.1 |
+| EV | 1,152,000 | 288,000 | 1,440,000 | 418,108 | 45.3 | 0.3 |
+| IV | 2,304,000 | 1,152,000 | 3,456,000 | 1,672,433 | 18.9 | 0.3 |
+| LuV | 4,608,000 | 2,304,000 | 6,912,000 | 2,304,000 | 9.4 | 2.4 |
+| ZPM | 9,216,000 | 9,216,000 | 18,432,000 | 9,216,000 | 3.5 | 2.2 |
+| UV | 18,432,000 | 36,864,000 | 55,296,000 | 36,864,000 | 1.2 | 2.0 |
+
+Step-down pump (a tier's recipe at 1 A of V[tier], run on the cheapest EU anywhere, 9.77e-05 EMC/EU): EMC/s per machine on top of its time R, and as a share of R (with one flat EU price, the cheapest anywhere, it is 0): LV +3.99 (100% of R); MV +7.98 (100% of R); HV +11.65 (73% of R); EV +7.61 (24% of R); IV +30.46 (48% of R); LuV +0.00 (0% of R); ZPM +0.00 (0% of R); UV +0.00 (0% of R).
+
+Overclocking: time earned per machine-second by a recipe run in a higher-tier machine, as a multiple of that machine's R, worst case: non-perfect overclock (2x speed per tier) 1.00 x R (LV recipe in a MV machine); perfect (4x, EBF coils) 128.00 x R (LV recipe in a UV machine).
+
+Tool crafting (unmapped, instant) worth more than its inputs: 1106, 1043 of them new (vs baseline); worst new: gtceu:shaped/huge_naquadah_pipe +8,435; gtceu:shaped/buzzsaw_blade_neutronium +5,207; gtceu:shaped/huge_neutronium_pipe +4,302; gtceu:shaped/buzzsaw_blade_naquadah_alloy +3,859; gtceu:shaped/large_naquadah_pipe +3,227.
+
+## LV 1 x4
+
+| Tier | R (EMC/s) | EMC/EU | Set by | Pass 2 EMC/EU | Pass 2 set by |
+|---|---:|---:|---|---:|---|
+| LV | 1 | 0.00165 | LV gas_turbine, gtceu:butadiene | 0.00165 | LV gas_turbine, gtceu:butadiene |
+| MV | 4 | 0.00165 | LV gas_turbine, gtceu:butadiene | 0.00165 | LV gas_turbine, gtceu:butadiene |
+| HV | 16 | 0.000929 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines | 0.000929 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines |
+| EV | 64 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| IV | 256 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| LuV | 1024 | 0.000391 | large plasma turbine, gtceu:argon_plasma | 0.000391 | large plasma turbine, gtceu:iron_plasma |
+| ZPM | 4096 | 0.000391 | large plasma turbine, gtceu:argon_plasma | 0.000391 | large plasma turbine, gtceu:iron_plasma |
+| UV | 16384 | 0.000391 | large plasma turbine, gtceu:argon_plasma | 0.000391 | large plasma turbine, gtceu:iron_plasma |
+
+In-game exploits still open, first order: 141 of 181 (gaining 100+ per run: 102). By group: 3 refinery and fuel 28; 2 ore chains 25; 1 cheap inputs split into elements 18; 4 chemistry splitting gases 48; 5 other (lathes) 1; 5 other 21.
+Worst: gtceu:large_chemical_reactor/gasoline +13,479 EMC/s above time (6,740 per run); gtceu:chemical_reactor/gasoline +13,479 EMC/s above time (6,740 per run); gtceu:mixer/diesel +5,133 EMC/s above time (4,107 per run); gtceu:large_chemical_reactor/diesel_shortcut +3,265 EMC/s above time (16,327 per run); gtceu:large_chemical_reactor/prussian_blue +1,941 EMC/s above time (48,513 per run).
+
+| Floors | Exploits (100+/run) | Worst EMC/s above time | LV | MV | HV | EV | IV | LUV | ZPM | UV |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| floors | 260 (210) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 5.4 (63 M) | 5.9 (249 M) | 10.0 (653 M) | 12.1 (792 M) |
+| half floors | 273 (223) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.9 (34 M) | 4.5 (153 M) | 6.4 (419 M) | 8.7 (568 M) |
+| no floors | 298 (248) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.5 (4 M) | 3.1 (61 M) | 3.1 (201 M) | 7.7 (505 M) |
+
+Base earnings from time: 10 machines at the tier, 1 A at V[tier] each, powered by the price-setting generator; every machine and generator running all hour with its outputs banked:
+
+| Tier | Machines EMC/h | Generators EMC/h | Total EMC/h | EU cost/h (fuel + time) | Base hours per Run (net EMC/Run) | Base hours to earn the kit's added cost (no floors) |
+|---|---:|---:|---:|---:|---:|---:|
+| LV | 36,000 | 36,000 | 72,000 | 38,033 | 92.3 | 0.1 |
+| MV | 144,000 | 144,000 | 288,000 | 152,132 | 34.4 | 0.1 |
+| HV | 576,000 | 334,080 | 910,080 | 342,374 | 35.9 | 0.1 |
+| EV | 2,304,000 | 576,000 | 2,880,000 | 706,108 | 22.6 | 0.2 |
+| IV | 9,216,000 | 2,304,000 | 11,520,000 | 2,824,433 | 5.7 | 0.2 |
+| LuV | 36,864,000 | 9,216,000 | 46,080,000 | 9,216,000 | 1.4 | 0.8 |
+| ZPM | 147,456,000 | 36,864,000 | 184,320,000 | 36,864,000 | 0.4 | 0.7 |
+| UV | 589,824,000 | 147,456,000 | 737,280,000 | 147,456,000 | 0.1 | 0.5 |
+
+Step-down pump (a tier's recipe at 1 A of V[tier], run on the cheapest EU anywhere, 0.000391 EMC/EU): EMC/s per machine on top of its time R, and as a share of R (with one flat EU price, the cheapest anywhere, it is 0): LV +0.81 (81% of R); MV +3.23 (81% of R); HV +5.51 (34% of R); EV +3.61 (6% of R); IV +14.46 (6% of R); LuV +0.00 (0% of R); ZPM +0.00 (0% of R); UV +0.00 (0% of R).
+
+Overclocking: time earned per machine-second by a recipe run in a higher-tier machine, as a multiple of that machine's R, worst case: non-perfect overclock (2x speed per tier) 0.50 x R (LV recipe in a MV machine); perfect (4x, EBF coils) 1.00 x R (LV recipe in a MV machine).
+
+Tool crafting (unmapped, instant) worth more than its inputs: 1039, 976 of them new (vs baseline); worst new: gtceu:shaped/huge_naquadah_pipe +9,947; gtceu:shaped/huge_iridium_pipe +3,631; gtceu:shaped/buzzsaw_blade_naquadah_alloy +3,600; gtceu:shaped/huge_osmium_pipe +3,581; gtceu:shaped/huge_tungsten_pipe +3,461.
+
+## flat 4
+
+| Tier | R (EMC/s) | EMC/EU | Set by | Pass 2 EMC/EU | Pass 2 set by |
+|---|---:|---:|---|---:|---|
+| LV | 4 | 0.00634 | LV gas_turbine, gtceu:butadiene | 0.00634 | LV gas_turbine, gtceu:butadiene |
+| MV | 4 | 0.00165 | MV gas_turbine, gtceu:butadiene | 0.00165 | MV gas_turbine, gtceu:butadiene |
+| HV | 4 | 0.000428 | large steel boiler, minecraft:dried_kelp_block + large steam turbines | 0.000428 | large steel boiler, minecraft:dried_kelp_block + large steam turbines |
+| EV | 4 | 0.000113 | large gas turbine, gtceu:butadiene | 0.000113 | large gas turbine, gtceu:butadiene |
+| IV | 4 | 0.000113 | large gas turbine, gtceu:butadiene | 0.000113 | large gas turbine, gtceu:butadiene |
+| LuV | 4 | 6.1e-06 | large plasma turbine, gtceu:argon_plasma | 6.1e-06 | large plasma turbine, gtceu:iron_plasma |
+| ZPM | 4 | 6.1e-06 | large plasma turbine, gtceu:argon_plasma | 6.1e-06 | large plasma turbine, gtceu:iron_plasma |
+| UV | 4 | 6.1e-06 | large plasma turbine, gtceu:argon_plasma | 6.1e-06 | large plasma turbine, gtceu:iron_plasma |
+
+In-game exploits still open, first order: 133 of 181 (gaining 100+ per run: 107). By group: 3 refinery and fuel 26; 2 ore chains 29; 1 cheap inputs split into elements 17; 4 chemistry splitting gases 44; 5 other (lathes) 1; 5 other 16.
+Worst: gtceu:large_chemical_reactor/gasoline +13,496 EMC/s above time (6,748 per run); gtceu:chemical_reactor/gasoline +13,496 EMC/s above time (6,748 per run); gtceu:mixer/diesel +5,133 EMC/s above time (4,107 per run); gtceu:large_chemical_reactor/diesel_shortcut +3,282 EMC/s above time (16,411 per run); gtceu:large_chemical_reactor/prussian_blue +1,957 EMC/s above time (48,933 per run).
+
+| Floors | Exploits (100+/run) | Worst EMC/s above time | LV | MV | HV | EV | IV | LUV | ZPM | UV |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| floors | 269 (219) | 12,960.9 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 5.4 (63 M) | 5.7 (234 M) | 9.3 (606 M) | 9.9 (644 M) |
+| half floors | 284 (234) | 12,960.9 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.9 (33 M) | 4.1 (130 M) | 5.2 (339 M) | 5.8 (376 M) |
+| no floors | 343 (289) | 12,960.9 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.4 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (1 M) | 4.4 (3 M) | 2.5 (27 M) | 1.2 (80 M) | 2.5 (165 M) |
+
+Base earnings from time: 10 machines at the tier, 1 A at V[tier] each, powered by the price-setting generator; every machine and generator running all hour with its outputs banked:
+
+| Tier | Machines EMC/h | Generators EMC/h | Total EMC/h | EU cost/h (fuel + time) | Base hours per Run (net EMC/Run) | Base hours to earn the kit's added cost (no floors) |
+|---|---:|---:|---:|---:|---:|---:|
+| LV | 144,000 | 144,000 | 288,000 | 146,033 | 23.1 | 0.1 |
+| MV | 144,000 | 144,000 | 288,000 | 152,132 | 34.4 | 0.0 |
+| HV | 144,000 | 153,920 | 297,920 | 157,606 | 109.7 | 0.2 |
+| EV | 144,000 | 36,000 | 180,000 | 166,108 | 362.3 | -0.1 |
+| IV | 144,000 | 144,000 | 288,000 | 664,433 | 226.4 | 1.4 |
+| LuV | 144,000 | 144,000 | 288,000 | 144,000 | 226.4 | 10.6 |
+| ZPM | 144,000 | 576,000 | 720,000 | 576,000 | 90.6 | 10.5 |
+| UV | 144,000 | 2,304,000 | 2,448,000 | 2,304,000 | 26.6 | 6.8 |
+
+Step-down pump (a tier's recipe at 1 A of V[tier], run on the cheapest EU anywhere, 6.1e-06 EMC/EU): EMC/s per machine on top of its time R, and as a share of R (with one flat EU price, the cheapest anywhere, it is 0): LV +4.05 (101% of R); MV +4.21 (105% of R); HV +4.32 (108% of R); EV +4.36 (109% of R); IV +17.46 (436% of R); LuV +0.00 (0% of R); ZPM +0.00 (0% of R); UV +0.00 (0% of R).
+
+Overclocking: time earned per machine-second by a recipe run in a higher-tier machine, as a multiple of that machine's R, worst case: non-perfect overclock (2x speed per tier) 128.00 x R (LV recipe in a UV machine); perfect (4x, EBF coils) 16384.00 x R (LV recipe in a UV machine).
+
+Tool crafting (unmapped, instant) worth more than its inputs: 1087, 1026 of them new (vs baseline); worst new: gtceu:shaped/buzzsaw_blade_neutronium +3,464; gtceu:shaped/huge_neutronium_pipe +2,043; gtceu:shaped/large_neutronium_pipe +1,556; gtceu:shaped/huge_naquadah_pipe +1,234; gtceu:shaped/buzzsaw_blade_naquadah_alloy +1,065.
+
+## Prestige-derived
+
+| Tier | R (EMC/s) | EMC/EU | Set by | Pass 2 EMC/EU | Pass 2 set by |
+|---|---:|---:|---|---:|---|
+| LV | 1 | 0.00165 | LV gas_turbine, gtceu:butadiene | 0.00165 | LV gas_turbine, gtceu:butadiene |
+| MV | 4 | 0.00165 | LV gas_turbine, gtceu:butadiene | 0.00165 | LV gas_turbine, gtceu:butadiene |
+| HV | 16 | 0.000929 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines | 0.000929 | large bronze boiler, minecraft:dried_kelp_block + large steam turbines |
+| EV | 64 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| IV | 2048 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| LuV | 4096 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| ZPM | 8192 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+| UV | 16384 | 0.000479 | large gas turbine, gtceu:butadiene | 0.000479 | large gas turbine, gtceu:butadiene |
+
+In-game exploits still open, first order: 141 of 181 (gaining 100+ per run: 102). By group: 3 refinery and fuel 28; 2 ore chains 25; 1 cheap inputs split into elements 18; 4 chemistry splitting gases 48; 5 other (lathes) 1; 5 other 21.
+Worst: gtceu:large_chemical_reactor/gasoline +13,479 EMC/s above time (6,740 per run); gtceu:chemical_reactor/gasoline +13,479 EMC/s above time (6,740 per run); gtceu:mixer/diesel +5,133 EMC/s above time (4,107 per run); gtceu:large_chemical_reactor/diesel_shortcut +3,265 EMC/s above time (16,327 per run); gtceu:large_chemical_reactor/prussian_blue +1,941 EMC/s above time (48,513 per run).
+
+| Floors | Exploits (100+/run) | Worst EMC/s above time | LV | MV | HV | EV | IV | LUV | ZPM | UV |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| floors | 260 (210) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 5.4 (66 M) | 6.4 (282 M) | 11.4 (746 M) | 14.6 (955 M) |
+| half floors | 273 (223) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.9 (36 M) | 5.2 (198 M) | 8.2 (536 M) | 11.2 (732 M) |
+| no floors | 305 (254) | 9,098.1 (gtceu:large_chemical_reactor/desulfurize_heavy_fuel) | 6.3 (0 M) | 8.2 (0 M) | 6.8 (1 M) | 4.5 (2 M) | 4.5 (7 M) | 3.9 (115 M) | 5.1 (330 M) | 10.4 (681 M) |
+
+Base earnings from time: 10 machines at the tier, 1 A at V[tier] each, powered by the price-setting generator; every machine and generator running all hour with its outputs banked:
+
+| Tier | Machines EMC/h | Generators EMC/h | Total EMC/h | EU cost/h (fuel + time) | Base hours per Run (net EMC/Run) | Base hours to earn the kit's added cost (no floors) |
+|---|---:|---:|---:|---:|---:|---:|
+| LV | 36,000 | 36,000 | 72,000 | 38,033 | 92.3 | 0.2 |
+| MV | 144,000 | 144,000 | 288,000 | 152,132 | 34.4 | 0.1 |
+| HV | 576,000 | 334,080 | 910,080 | 342,374 | 35.9 | 0.1 |
+| EV | 2,304,000 | 576,000 | 2,880,000 | 706,108 | 22.6 | 0.2 |
+| IV | 73,728,000 | 2,304,000 | 76,032,000 | 2,824,433 | 0.9 | 0.1 |
+| LuV | 147,456,000 | 9,216,000 | 156,672,000 | 11,297,732 | 0.4 | 0.6 |
+| ZPM | 294,912,000 | 36,864,000 | 331,776,000 | 45,190,927 | 0.2 | 0.8 |
+| UV | 589,824,000 | 147,456,000 | 737,280,000 | 180,763,708 | 0.1 | 0.7 |
+
+Step-down pump (a tier's recipe at 1 A of V[tier], run on the cheapest EU anywhere, 0.000479 EMC/EU): EMC/s per machine on top of its time R, and as a share of R (with one flat EU price, the cheapest anywhere, it is 0): LV +0.75 (75% of R); MV +3.00 (75% of R); HV +4.61 (29% of R); EV +0.00 (0% of R); IV +0.00 (0% of R); LuV +0.00 (0% of R); ZPM +0.00 (0% of R); UV +0.00 (0% of R).
+
+Overclocking: time earned per machine-second by a recipe run in a higher-tier machine, as a multiple of that machine's R, worst case: non-perfect overclock (2x speed per tier) 1.00 x R (IV recipe in a LuV machine); perfect (4x, EBF coils) 8.00 x R (IV recipe in a UV machine).
+
+Tool crafting (unmapped, instant) worth more than its inputs: 1040, 977 of them new (vs baseline); worst new: gtceu:shaped/huge_naquadah_pipe +9,947; gtceu:shaped/huge_iridium_pipe +3,631; gtceu:shaped/buzzsaw_blade_naquadah_alloy +3,600; gtceu:shaped/huge_osmium_pipe +3,581; gtceu:shaped/huge_tungsten_pipe +3,461.

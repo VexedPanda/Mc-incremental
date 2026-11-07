@@ -27,6 +27,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `eu.txt.xz` | Its output, from a smoke-test server running the v0.3.0 Pack. |
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
 | `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) turns energy on in `emcmodel.py` and `audit.py`; unset, nothing changes. |
+| `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) turns time on in `emcmodel.py` and `audit.py`; unset, nothing changes. |
 | `game_caps.json` | Generated: listed fluids and material units capped at a cheaper route ProjectE found in the game, and the metals whose dust and ingot the game split; kept so re-runs are stable. |
 | `game_zero.json` | Generated: items a dump showed at 0 although the model values them; kept so re-runs are stable. |
 | `projecte_defaults/` | ProjectE PE1.1.0's own default values (`data/projecte/pe_custom_conversions`, MIT). |
