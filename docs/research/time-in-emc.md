@@ -201,7 +201,8 @@ case per schedule, as a multiple of the faster machine's R:
 | flat 4 | **128 × R** (LV recipe in a UV machine, 512 EMC/s) | 16,384 × R |
 | Prestige-derived | 1.0 × R | 8 × R |
 
-Normal overclocking runs a recipe 2× as fast per tier. Perfect overclocking runs it 4× as fast per tier; the EBF's
+Overclocking also doubles the EU per run for each tier, which the time figure leaves out, so the real gain is lower
+and this check is conservative. Normal overclocking runs a recipe 2× as fast per tier. Perfect overclocking runs it 4× as fast per tier; the EBF's
 coil bonus does this.
 
 The same applies to **parallel recipes** (GCyM large machines and parallel hatches, not modelled). A multiblock that
