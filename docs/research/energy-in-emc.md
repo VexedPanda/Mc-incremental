@@ -1,5 +1,9 @@
 # Energy in EMC (#64)
 
+> **Superseded in part:** the owner has since decided that time is a real cost (#64). `time-in-emc.md` prices EU
+> and machine time per tier and replaces this note's recommendation. The generator data and the energy flag below
+> still apply.
+
 Should a GT recipe's energy (EU/t × duration) count towards its outputs' EMC? Research only: nothing in the Pack or
 the Prestige mod changes. Scripts and outputs are in `emc-pricing/` (see "Reproduce" below).
 

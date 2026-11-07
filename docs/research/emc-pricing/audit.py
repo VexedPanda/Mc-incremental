@@ -27,7 +27,7 @@ import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from emcmodel import eu_prices, load_dump, load_eu, recipe_energy  # noqa: E402
+from emcmodel import eu_prices, load_dump, load_eu, recipe_energy, recipe_time, time_rates  # noqa: E402
 
 TIERS = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
 
@@ -49,6 +49,7 @@ def main(argv):
     fval = {f: v[1] for f, v in fluids.items()}
     prices = eu_prices()  # #64: EMC_EU_PRICE counts each recipe's EU (iv x ia x duration) as an input
     eu = load_eu() if prices else {}
+    rates = time_rates()  # #64: EMC_TIME_RATE counts each recipe's machine time (duration x R at its tier) as an input
     free, floor_rows, rows, rounding = [], [], [], []
     for r in recipes:
         if not r.get('gt'):
@@ -75,6 +76,9 @@ def main(argv):
         energy = recipe_energy(r, eu, prices)
         if energy and consumed:
             cost += energy[2]
+        spent = recipe_time(r, rates)
+        if spent and consumed:
+            cost += spent[2]
         outs = []
         for x in r['o']:
             if len(x['ids']) == 1:
@@ -117,6 +121,11 @@ def main(argv):
         print()
         print('Energy counted (#64): EMC per EU by tier %s' % {t: p for t, p in zip(TIERS, prices.values()) if t in
                                                               ('ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV')})
+    if rates:
+        print()
+        print('Time counted (#64): EMC per machine-second by tier %s; a recipe gaining no more than its time is paying '
+              'for it, so the rows below gain more than that' % {t: p for t, p in zip(TIERS, rates.values()) if t in
+                                                             ('ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV')})
     print()
     table('Exploits (gaining recipes pricing should fix)', rows)
     print('Of those, gaining 100+ EMC per run: %d' % sum(1 for r in rows if r[0] >= 100))

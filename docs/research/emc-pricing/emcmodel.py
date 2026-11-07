@@ -53,6 +53,37 @@ def eu_prices():
     return prices if any(prices.values()) else None
 
 
+def time_rates():
+    """Time in EMC (#64, docs/research/time-in-emc.md), opt-in: EMC_TIME_RATE is R, the EMC per machine-second, a
+    number (flat across tiers) or a JSON {tier name: R} (a tier left out takes its next lower listed tier's R; tiers
+    below the first listed take 0). None when unset or all 0, so the committed outputs don't change. Returns
+    {tier index: R}."""
+    spec = os.environ.get('EMC_TIME_RATE')
+    if not spec:
+        return None
+    spec = json.loads(spec)
+    if not isinstance(spec, dict):
+        spec = {'ULV': spec}
+    rates, last = {}, 0.0
+    for i, t in enumerate(TIER_NAMES):
+        last = float(spec.get(t, last))
+        rates[i] = last
+    return rates if any(rates.values()) else None
+
+
+def recipe_time(r, rates):
+    """(tier name, seconds per run, EMC of that time) for a GT recipe, or None when time isn't counted. The tier is the
+    recipe's own (the dump's t, its EU/t voltage tier; ULV for recipes using no EU) and the duration its listed one:
+    what the mapper would read, with no overclocking."""
+    if not rates or not r.get('gt') or not r.get('d'):
+        return None
+    t = r['t'] if isinstance(r.get('t'), int) and 0 <= r['t'] < len(TIER_NAMES) else 0
+    if not rates[t]:
+        return None
+    secs = r['d'] / 20
+    return TIER_NAMES[t], secs, secs * rates[t]
+
+
 def load_eu(path=None):
     """{recipe id: (EU consumed per run, EU produced per run, fusion start EU or None)} from dump_eu.js's EUDUMP lines
     (EMC_EU_DUMP, by default the committed eu.txt.xz)."""
@@ -117,6 +148,8 @@ class Model:
         # #64: a GT recipe's EU as an ingredient node 'e:<tier>' worth EMC_EU_PRICE per EU (off unless set)
         self.eu_price = eu_prices()
         self.eu = load_eu() if self.eu_price else {}
+        # #64: a GT recipe's machine time as an ingredient node 's:<tier>' worth EMC_TIME_RATE per second (off unless set)
+        self.time_rate = time_rates()
         if pe_jar:
             self._load_pe_defaults(pe_jar)
         for r in recipes:
@@ -292,6 +325,9 @@ class Model:
         energy = recipe_energy(r, self.eu, self.eu_price)
         if energy and inp:  # like the mapper, recipes with no consumed input stay unvalued
             inp['e:' + energy[0]] = int(round(energy[1] * 1000))  # thousandths, like the other amounts
+        spent = recipe_time(r, self.time_rate)
+        if spent and inp:  # time, like energy, only where something is consumed
+            inp['s:' + spent[0]] = int(round(spent[1] * 1000))
         prim = next(iter(out), None)
         if self.mode == 'cost':
             # Fallback costs for what the mapper doesn't value: the other guaranteed outputs (byproducts), chanced
@@ -332,6 +368,11 @@ class Model:
             for i, p in self.eu_price.items():
                 if p > 0:
                     fixed['e:' + TIER_NAMES[i]] = val['e:' + TIER_NAMES[i]] = p
+        if self.time_rate:
+            fixed = dict(fixed)
+            for i, p in self.time_rate.items():
+                if p > 0:
+                    fixed['s:' + TIER_NAMES[i]] = val['s:' + TIER_NAMES[i]] = p
         by_ing = defaultdict(list)
         for c in self.conv:
             for k in c[2]:

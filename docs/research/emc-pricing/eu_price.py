@@ -1,6 +1,7 @@
 """EU price from generation cost, and the pump check (VexedPanda/Mc-incremental#64; ../energy-in-emc.md).
 
 Usage: python3 eu_price.py [--model GEN_OUT.json] [--hours H[,H...]] [--price P] > eu_price.txt
+       python3 eu_price.py [--model GEN_OUT.json] --rate R|'{"LV": R, ...}'   (time-priced EU, ../time-in-emc.md)
 
 Every steady way to make EU in the Pack, with what one generator makes per second and what it burns:
 
@@ -124,6 +125,88 @@ def generators(items, fval, recipes, eu):
     return [g for g in out if g[2] > 0]
 
 
+# ---- time-priced generation (#64, ../time-in-emc.md) ----
+# Every generator setup as (name, tier it is available from, EU/s, fuel EMC/s, {time tier: machines}); the time
+# term is each machine's running time at R of its tier: price = (fuel EMC/s + sum machines x R[tier]) / EU/s.
+V = {'ULV': 8, 'LV': 32, 'MV': 128, 'HV': 512, 'EV': 2048, 'IV': 8192, 'LuV': 32768, 'ZPM': 131072, 'UV': 524288}
+ALL_TIERS = ['ULV'] + TIERS
+# Single-block generators come in LV, MV and HV (V[tier] EU/t, same fuel per EU); recipe generators' recipes are
+# at LV. Large turbines make 2 x V[tier] EU/t with a 100% rotor (LargeTurbineMachine.BASE_EU_OUTPUT; better rotors
+# raise it), large combustion engines V[tier] (no oxygen boost); tiers from GTMultiMachines.
+SINGLE = {'gtceu:combustion_generator': 'combustion', 'gtceu:gas_turbine': 'gas_turbine'}
+LARGE = {'gtceu:combustion_generator': [('large combustion engine', 'EV', 2048, 'EV'),
+                                        ('extreme combustion engine', 'IV', 8192, 'IV')],
+         'gtceu:gas_turbine': [('large gas turbine', 'EV', 4096 * 2, 'EV')],
+         'gtceu:plasma_generator': [('large plasma turbine', 'LuV', 8192 * 2 * 2, 'IV')]}  # plasma needs LuV fusion
+LARGE_STEAM_TURBINE = ('HV', 1024 * 2)  # 2 x V[HV] EU/t, from 2 mB of steam per EU: mB of steam per tick it takes
+
+
+def timed_generators(items, fval, recipes, eu):
+    out = []
+    by_type = {}
+    for r in recipes:
+        if r.get('gt'):
+            by_type.setdefault(r['type'], []).append(r)
+
+    def steam(name, tier, mbt, fuel_per_s, machines, solar=False):
+        f = DAYLIGHT if solar else 1
+        eus = mbt / 2 * 20 * f
+        # turn the steam into EU with LV steam turbines (64 mB/t each), or from HV with large steam turbines
+        out.append((name + ' + LV steam turbines', tier, eus, fuel_per_s * f, dict(machines, LV=machines.get('LV', 0) + mbt / 64)))
+        if mbt >= 400:
+            t2 = TIERS[max(TIERS.index(tier), TIERS.index('HV'))]
+            out.append((name + ' + large steam turbines', t2, eus, fuel_per_s * f,
+                        dict(machines, HV=machines.get('HV', 0) + mbt / LARGE_STEAM_TURBINE[1])))
+
+    for item, tier, mbt, mult, kind in SMALL_BOILERS:
+        b = item.split(':')[1]
+        if kind == 'solid':
+            for fuel, t in BURN.items():
+                steam('%s, %s' % (b, fuel), tier, mbt, items.get(fuel, 0) / (t * mult) * 20, {'ULV': 1})
+        elif kind == 'liquid':
+            for r in by_type.get('gtceu:steam_boiler', []):
+                x = r['fi'][0]
+                steam('%s, %s' % (b, x['ids'][0]), tier, mbt, fval.get(x['ids'][0], 0) * x['n'] / 1000 / (r['d'] * mult) * 20, {'ULV': 1})
+        else:
+            steam(b, tier, mbt, 0, {'ULV': 1}, solar=True)
+    for name, tier, mbt, parts in LARGE_BOILERS:
+        for fuel, t in BURN.items():
+            steam('large %s boiler, %s' % (name, fuel), tier, mbt, items.get(fuel, 0) / (t / 4) * 20, {tier: 1})
+        for r in by_type.get('gtceu:large_boiler', []):
+            x = r['fi'][0]
+            steam('large %s boiler, %s' % (name, x['ids'][0]), tier, mbt, fval.get(x['ids'][0], 0) * x['n'] / 1000 / r['d'] * 20, {tier: 1})
+    for rtype in RECIPE_GENERATORS:
+        for r in by_type.get(rtype, []):
+            made = eu.get(r['id'], (0, 0, None))[1]
+            if not made or not r['fi'] or r['fi'][0]['ids'][0] in UNOBTAINABLE:
+                continue
+            x = r['fi'][0]
+            back = sum(fval.get(o['ids'][0], 0) * o['n'] / 1000 for o in r['fo'])
+            fuel_per_eu = (fval.get(x['ids'][0], 0) * x['n'] / 1000 - back) / made
+            eut = made / r['d']
+            f = x['ids'][0]
+            if rtype in SINGLE:
+                for t in ('LV', 'MV', 'HV'):
+                    eus = eut * V[t] / 32 * 20
+                    out.append(('%s %s, %s' % (t, SINGLE[rtype], f), t, eus, eus * fuel_per_eu, {t: 1}))
+            for name, avail, eut2, tt in LARGE.get(rtype, []):
+                eus = eut2 * 20
+                out.append(('%s, %s' % (name, f), avail, eus, eus * fuel_per_eu, {tt: 1}))
+    for name, tier, ttier, v in [('ULV solar panel cover', 'LV', 'ULV', 8), ('LV solar panel cover', 'LV', 'LV', 32)]:
+        out.append((name, tier, v * 20 * DAYLIGHT, 0, {ttier: 1}))
+    return [g for g in out if g[2] > 0 and g[3] >= 0]
+
+
+def time_price(g, rates):
+    """EMC per EU of generator g at R = rates {tier name: EMC per machine-second}."""
+    return (g[3] + sum(n * rates.get(t, 0) for t, n in g[4].items())) / g[2]
+
+
+def time_cheapest(gens, tier, rates):
+    ok = [g for g in gens if TIERS.index(g[1]) <= TIERS.index(tier)]
+    return min(ok, key=lambda g: time_price(g, rates))
+
+
 def price(g, hours):
     return (g[3] + (g[4] / (hours * 3600) if hours else 0)) / g[2]
 
@@ -133,9 +216,26 @@ def cheapest(gens, tier, hours):
     return min(ok, key=lambda g: price(g, hours))
 
 
+def main_rate(argv, items, fval, recipes, eu, src):
+    rates = json.loads(argv[argv.index('--rate') + 1])
+    if not isinstance(rates, dict):
+        rates = {t: rates for t in ALL_TIERS}
+    gens = timed_generators(items, fval, recipes, eu)
+    print('# EU price with time counted (#64), R = %s, values from %s' % (rates, src))
+    print()
+    print('| Tier | EMC/EU | Set by | Fuel EMC/s | Time EMC/s | EU/s |')
+    print('|---|---:|---|---:|---:|---:|')
+    for t in TIERS:
+        g = time_cheapest(gens, t, rates)
+        print('| %s | %.3g | %s | %.2f | %.2f | %s |' % (t, time_price(g, rates), g[0], g[3],
+              sum(n * rates.get(k, 0) for k, n in g[4].items()), '{:,.0f}'.format(g[2])))
+
+
 def main(argv):
     items, fval, recipes, src = load(argv)
     eu = load_eu()
+    if '--rate' in argv:
+        return main_rate(argv, items, fval, recipes, eu, src)
     hours = [float(h) if h != 'inf' else None for h in
              (argv[argv.index('--hours') + 1] if '--hours' in argv else 'inf,100,10,1').split(',')]
     gens = generators(items, fval, recipes, eu)
