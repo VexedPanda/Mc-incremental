@@ -9,7 +9,7 @@ The current build is **PoC 1**, the first test of whether the loop is fun. It ru
 1. Start in a fresh Run area with a Transmutation Tablet. The world border keeps you inside the area.
 2. Mine, build and climb the GregTech tiers with what the area holds. There is no free resource generation beyond low-value renewables.
 3. Learn resources through ProjectE. Learned resources can be recreated from the shared EMC balance, and EMC intakes move items and fluids into it automatically and EMC barrels hand them back out.
-4. Prestige when you're stuck. The Prestige sweep converts every block, machine, inventory, tank and dropped item you added into EMC, then moves everyone to a new, never-visited area.
+4. Prestige when you're stuck. The Prestige sweep converts every block, machine, inventory, tank and dropped item you added into EMC, then you pick one of 3 new, never-visited Candidate areas and everyone moves there.
 
 The design is still evolving: see [`docs/pocs/poc-1.md`](docs/pocs/poc-1.md), the decisions in [`docs/adr/`](docs/adr/), and the vocabulary in [`GLOSSARY.md`](GLOSSARY.md). Open design questions are GitHub issues labelled `needs-triage`.
 
