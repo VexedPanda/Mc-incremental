@@ -1,22 +1,24 @@
 # Prestiges per tier (#59), from dump dump.txt.xz
 
 EMC per Run area when fully mined and banked (ores | other blocks | total):
-  overworld    64,879,427 |    1,416,347 |   66,295,774
-  the_end      18,849,477 |      710,896 |   19,560,372
-  the_nether   31,225,793 |    3,576,081 |   34,801,874
+  overworld    65,967,899 |    1,419,457 |   67,387,356
+  the_end      19,557,881 |      710,895 |   20,268,776
+  the_nether   31,452,119 |    3,575,617 |   35,027,736
 
 | Tier | Kit cost | Net EMC/Run (dimension) | Kit Runs | Discovery Runs | Prestiges |
 |---|---:|---|---:|---:|---:|
-| LV | 252,189 | 6,629,577 (overworld) | 0.0 | 6.3 | **6.3** |
-| MV | 255,689 | 9,873,549 (overworld) | 0.0 | 8.2 | **8.2** |
-| HV | 976,930 | 32,581,348 (overworld) | 0.0 | 6.7 | **6.8** |
-| EV | 1,325,211 | 65,021,062 (overworld) | 0.0 | 4.5 | **4.5** |
-| IV | 55,773,024 | 65,021,062 (overworld) | 0.9 | 4.4 | **5.2** |
-| LUV | 228,005,876 | 65,021,062 (overworld) | 3.5 | 2.1 | **5.6** |
-| ZPM | 542,832,404 | 65,021,062 (overworld) | 8.3 | 0.0 | **8.3** |
-| UV | 636,933,635 | 65,021,062 (overworld) | 9.8 | 0.0 | **9.8** |
+| LV | 267,749 | 6,738,736 (overworld) | 0.0 | 6.3 | **6.3** |
+| MV | 216,493 | 10,037,131 (overworld) | 0.0 | 8.2 | **8.2** |
+| HV | 990,526 | 33,125,895 (overworld) | 0.0 | 6.7 | **6.8** |
+| EV | 1,377,021 | 66,109,845 (overworld) | 0.0 | 4.5 | **4.5** |
+| IV | 57,733,725 | 66,109,845 (overworld) | 0.9 | 4.4 | **5.3** |
+| LUV | 273,363,583 | 66,109,845 (overworld) | 4.1 | 2.1 | **6.3** |
+| ZPM | 591,113,366 | 66,109,845 (overworld) | 8.9 | 0.0 | **8.9** |
+| UV | 681,382,121 | 66,109,845 (overworld) | 10.3 | 0.0 | **10.3** |
 
 Invariants (kit cost rises with tier; 5-10 Prestiges per tier):
+- MV kit (216,493) does not cost more than the tier below (267,749)
 - EV takes 4.5 Prestiges, outside 5-10
+- UV takes 10.3 Prestiges, outside 5-10
 
 Assumptions: ore fraction mined per tier {'lv': 0.1, 'mv': 0.15, 'hv': 0.5, 'ev': 1.0, 'iv': 1.0, 'luv': 1.0, 'zpm': 1.0, 'uv': 1.0}; rock fraction 0.1; dimensions from {'overworld': 'lv', 'the_nether': 'mv', 'the_end': 'ev'}; 2000 games, 3 candidates.

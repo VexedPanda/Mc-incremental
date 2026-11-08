@@ -1,5 +1,5 @@
 {
- "comment": "Hand-set EMC values. generate.py copies 'items' into pack/config/ProjectE/custom_emc.json and 'fluids' (EMC per 1000 mB) into fluid_emc/fluids.json, then adds what it generates. Everything else is derived by ProjectE and the Prestige mod's GT recipe mapper.",
+ "comment": "Hand-set EMC values. generate.py copies 'items' into pack/config/ProjectE/custom_emc.json and 'fluids' (EMC per 1000 mB) into fluid_emc/fluids.json, then adds what it generates. Owner decision on #72: pin only what no recipe can make from cheaper things (natural items no recipe creates, ProjectE's defaults and the overrides they need, the explicit fluid values, the late-tier floors, the 0-EMC Transmutation Tablet); recipes set everything else, through ProjectE and the Prestige mod's GT recipe mapper.",
  "groups": [
   {
    "why": "ProjectE's own default values for vanilla items GT's recipe changes leave ProjectE unable to value (its bucket and metal-block recipes need tools or machines): bucket = 3 iron, lava bucket = bucket + redstone, block = 9 ingots.",
@@ -18,16 +18,11 @@
    }
   },
   {
-   "why": "GT's own stones, which generate in the world and come out of the Rock Breaker: marble and red granite at ProjectE's value for vanilla granite, diorite and andesite (16), cobblestone forms included (a forge hammer and a furnace turn one into the other). GT's concrete blocks set from concrete fluid (made from water and stone dust) at a nominal 1.",
+   "why": "GT's own stones, which generate in the world and come out of the Rock Breaker (no consumed input, so ProjectE can't map it): marble and red granite at ProjectE's value for vanilla granite, diorite and andesite (16). Light concrete sets in the world from concrete fluid (made from water and stone dust), at a nominal 1. Their cobblestone forms and dark concrete derive from their recipes (forge hammer, chemical bath; #72).",
    "items": {
     "gtceu:marble": 16,
-    "gtceu:marble_cobblestone": 16,
     "gtceu:red_granite": 16,
-    "gtceu:red_granite_cobblestone": 16,
-    "gtceu:light_concrete": 1,
-    "gtceu:light_concrete_cobblestone": 1,
-    "gtceu:dark_concrete": 1,
-    "gtceu:dark_concrete_cobblestone": 1
+    "gtceu:light_concrete": 1
    }
   },
   {
@@ -71,42 +66,22 @@
    }
   },
   {
-   "why": "ProjectE defaults a GT recipe undercuts (#59): GT synthesises blaze powder from carbon and sulfur (about 147 EMC) and its compressor packs 4 powder into a rod, so ProjectE's 1,536 rod gained about 1,000 EMC per rod. The rod is worth the 4 powder it is pressed from.",
+   "why": "A ProjectE default a GT recipe undercuts (#59): GT synthesises blaze powder from carbon and sulfur (about 147 EMC) and its compressor packs 4 powder into a rod, so ProjectE's 1,536 rod gained about 1,000 EMC per rod. A custom value is the only way to replace a ProjectE default, so the rod is pinned at the 4 powder it is pressed from.",
    "items": {
     "minecraft:blaze_rod": 576
    }
-  },
-  {
-   "why": "Steel stays 288 and wrought iron 256 (#55): the primitive blast furnace makes steel from an iron or wrought iron ingot and nearly free coke or charcoal (257 EMC), or a block from a block and 2 charcoal blocks, so at 512 every ingot gained 255 EMC; and v0.3.0's mapper would otherwise lower both to the share a gaining decomposition (a tool head of a floored material) gives them.",
-   "items": {
-    "gtceu:steel_ingot": 288,
-    "gtceu:steel_dust": 288,
-    "gtceu:steel_block": 2592,
-    "gtceu:wrought_iron_ingot": 256,
-    "gtceu:wrought_iron_dust": 256,
-    "gtceu:wrought_iron_block": 2304
-   }
   }
  ],
- "fluids_comment": "Water is the one free fluid (ADR-0005). Lava is ProjectE's default lava bucket (832) minus the empty bucket (768). Steam is nominal (boilers make it from water; no recipe values it). GT fuels are hand-set (#41). Milk is ProjectE's milk bucket (784) minus the empty bucket. Every other fluid is generated.",
+ "fluids_comment": "Water is the one free fluid (ADR-0005). Lava is ProjectE's default lava bucket (832) minus the empty bucket (768). Steam is nominal (boilers make it from water and fuel, which no recipe maps). Milk is ProjectE's milk bucket (784) minus the empty bucket. Every other fluid is generated; GT's fuels (oil, diesel, gasoline, creosote, ethanol, seed oil, ...) derive from their recipes (#72, retiring #41's hand-set fuels), and natural gas, which only the removed Fluid Drilling Rig made, has no value.",
  "fluids": {
   "minecraft:water": 0,
   "minecraft:lava": 64,
   "gtceu:steam": 1,
-  "gtceu:creosote": 32,
-  "gtceu:seed_oil": 16,
-  "gtceu:ethanol": 64,
-  "gtceu:oil": 256,
-  "gtceu:natural_gas": 256,
-  "gtceu:diesel": 768,
-  "gtceu:gasoline": 1024,
   "minecraft:milk": 16
  },
  "pin_at_derived_value": {
-  "why": "Items the game can't derive although this model can, pinned at the value the model derives. A recipe cycle that subtracts a byproduct fluid on every pass (5 magnesite -> 2 magnesia + CO2, 2 magnesia + CO2 -> 5 magnesite): ProjectE floors on every pass, so in the game their value sinks to 1-2 EMC, and magnesia then electrolyses into 512-EMC magnesium. The facade cover: GT crafts it with a special recipe class that ProjectE skips.",
+  "why": "Items the game can't derive although this model can, pinned at the value the model derives: the facade cover, which GT crafts with a special recipe class that ProjectE skips.",
   "items": [
-   "gtceu:magnesite_dust",
-   "gtceu:magnesia_dust",
    "gtceu:facade_cover"
   ]
  },
@@ -140,7 +115,6 @@
  "accepted_exploits": {
   "why": "Recipes ProjectE reports gaining 100+ EMC that pricing doesn't fix, accepted with a reason; scripts/smoke-test.sh exempts recipes whose output is listed here (and those making a floored material).",
   "outputs": {
-   "gtceu:diesel": "Blending 1 heavy fuel + 5 light fuel into 6 diesel gains about 270 EMC (ratio 1.55): diesel is hand-set at 768 (#41) while the refinery derives light and heavy fuel from oil (256). Fixing it means re-pricing GT's fuel chain (#41, power generation #25), not this ticket.",
    "gtceu:tiny_dark_ash_dust": "#63 group 5, pending the owner's decision: unpacking 1 dark ash dust (a share of centrifuging basalt) into 9 tiny dark ash dusts, which are priced as a share of the primitive blast furnace's steel recipe (charcoal dust plus its long ULV machine time, #68), gains about 1,000 EMC per dust (about 2,000 EMC/s in a packer); it was already open at about 850 per dust, below the 100 EMC exploit warning only because ProjectE compares one tiny dust (95) with the dust (4). The advice on #63 is a hand pin (tiny = dark ash / 9)."
   }
  }

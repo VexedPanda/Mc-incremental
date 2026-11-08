@@ -27,18 +27,17 @@ const smokeItemInfo = Java.loadClass('moze_intel.projecte.api.ItemInfo')
 const smokeRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
 const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const smokeFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
-const smokePrestigeConfig = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.Config')
-// GT voltage tiers, ULV to MAX: the length of the Prestige mod's per-tier EMC config lists (#68)
+// The Prestige mod's GT recipe EMC mapper: its built-in per-tier time rate and EU price (v0.5.0, #71)
+const smokeGtMapper = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.gt.GtRecipeEmcMapper')
+// GT voltage tiers, ULV to MAX
 const SMOKE_GT_TIERS = 15
 const smokeGTUtil = Java.loadClass('com.gregtechceu.gtceu.utils.GTUtil')
 
 // Thresholds.
 // The EMC data file has ~3,900 generated entries (#55); far fewer means it was truncated or mis-parsed.
 const SMOKE_MIN_EMC_ENTRIES = 2000
-// Diesel is a refined GT fuel; below one iron ingot (256) it would be near-free to bank.
-const SMOKE_MIN_DIESEL_EMC = 256
-// Lava plus at least one GT fuel must resolve to a bucket, so the check can't pass vacuously.
-const SMOKE_MIN_BUCKETS_CHECKED = 2
+// Lava plus the GT fluids must resolve to buckets (GT registers about 380), so the check can't pass vacuously.
+const SMOKE_MIN_BUCKETS_CHECKED = 300
 // #55: ProjectE's default emerald value (on the c:gems/emerald tag), back in force now nothing pins it.
 const SMOKE_DEFAULT_EMERALD_EMC = 16384
 // #55: at least this many GT ore blocks and raw ores must be compared with their material, so the
@@ -62,11 +61,12 @@ const SMOKE_ZERO_EMC_ITEMS = [
   /^gtceu:.*_(fluid_drilling_rig|bedrock_ore_miner)$/,               // recipes removed (#40, ADR-0005)
   /^projecte:(collector_mk[123]|tome)$/,                             // recipes removed (#40) / disabled
   /^projecte:transmutation_tablet$/,                                 // 0 on purpose: the Prestige mod hands it out
-  /^gtceu:(bromine|mc_guffium_239|uu_matter|raw_oil|light_oil)_bucket$/ // buckets of the fluids below
+  /^gtceu:(bromine|mc_guffium_239|uu_matter|raw_oil|light_oil|natural_gas)_bucket$/ // buckets of the fluids below
 ]
-// Fluids nothing in this Pack makes (no ore, no recipe; oil only came from the removed Fluid Drilling Rig):
+// Fluids nothing in this Pack makes (no ore, no recipe; raw and light oil and natural gas only came from the removed
+// Fluid Drilling Rig, and #72 retired natural gas's hand-set value):
 const SMOKE_ZERO_EMC_FLUIDS = ['minecraft:empty', 'minecraft:water', 'gtceu:bromine', 'gtceu:mc_guffium_239',
-  'gtceu:uu_matter', 'gtceu:raw_oil', 'gtceu:light_oil', 'gtceu:potion']
+  'gtceu:uu_matter', 'gtceu:raw_oil', 'gtceu:light_oil', 'gtceu:natural_gas', 'gtceu:potion']
 // #59: ProjectE tag defaults the Pack overrides (GT-mined metals and gems by rarity; nether star and blaze rod at
 // their ingredient cost): only these tags may be pinned in the EMC data file.
 const SMOKE_OVERRIDDEN_TAGS = ['c:nether_stars', 'c:rods/blaze', 'c:ingots/tin', 'c:ingots/lead', 'c:ingots/silver',
@@ -240,26 +240,31 @@ const SMOKE_TEST_ASSERTIONS = [
         if (!(values[id] >= 0)) throw id + ' has bad value ' + values[id]
       })
       if (values['minecraft:water'] !== 0) throw 'water is ' + values['minecraft:water']
-      if (!(values['gtceu:diesel'] >= SMOKE_MIN_DIESEL_EMC)) throw 'diesel is ' + values['gtceu:diesel']
       return true
     }
   },
   {
-    name: 'Fluid EMC: each filled bucket is worth an empty bucket plus its fluid value',
+    name: 'Fluid EMC: each filled bucket is worth an empty bucket plus its fluid value (listed or derived)',
     check: server => {
-      const values = JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb
+      // #72: most fluids are derived by the Prestige mod's GT recipe mapper rather than listed, so every source
+      // fluid with a bucket is checked against its runtime value: the EMC intake (bucket emptied) and the Prestige
+      // sweep (bucket as an item) must agree.
       const empty = smokeEmc('minecraft:bucket')
       let checked = 0
-      Object.keys(values).forEach(id => {
-        const bucket = smokeRegistries.FLUID.get(smokeRL.parse(id)).getBucket()
-        const bucketId = String(smokeRegistries.ITEM.getKey(bucket))
+      const bad = []
+      smokeRegistries.FLUID.keySet().forEach(rl => {
+        const f = smokeRegistries.FLUID.get(rl)
+        if (String(smokeRegistries.FLUID.getKey(smokeFluidEmc.source(f))) != String(rl)) return
+        const id = String(rl)
+        if (SMOKE_ZERO_EMC_FLUIDS.indexOf(id) >= 0 || id == 'minecraft:water') return
+        const bucketId = String(smokeRegistries.ITEM.getKey(f.getBucket()))
         if (bucketId == 'minecraft:air') return
         checked++
-        if (smokeEmc(bucketId) != empty + values[id]) {
-          throw bucketId + ' EMC is ' + smokeEmc(bucketId) + ', expected ' + empty + ' + ' + values[id]
-        }
+        const fluid = Number(smokeFluidEmc.valuePerBucket(f))
+        if (smokeEmc(bucketId) != empty + fluid) bad.push(bucketId + ' ' + smokeEmc(bucketId) + ' != ' + empty + ' + ' + fluid)
       })
       if (checked < SMOKE_MIN_BUCKETS_CHECKED) throw 'only ' + checked + ' buckets checked'
+      if (bad.length > 0) throw bad.length + ' buckets: ' + bad.slice(0, 40).join(', ')
       return true
     }
   },
@@ -299,14 +304,15 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#47/#59 EMC: GT metals are priced from rarity and recipes (dust = ingot), steel above iron; GT key parts have EMC',
+    name: '#47/#59/#72 EMC: GT metals are priced from rarity and recipes, steel above iron; GT key parts have EMC',
     check: server => {
       // #59: GT-mined metals (tin, lead, silver, nickel, aluminium, ...) are priced by rarity, no longer by ProjectE's
       // metal defaults; vanilla metals keep theirs (the #47 vanilla check above). Iron dust follows the iron ingot.
+      // #72: alloys and metals a recipe makes for less (bronze, steel, wrought iron, lead from galena) derive.
       if (smokeEmc('gtceu:iron_dust') != smokeEmc('minecraft:iron_ingot')) throw 'iron dust ' + smokeEmc('gtceu:iron_dust')
       ;['tin', 'lead', 'silver', 'nickel', 'aluminium', 'steel', 'bronze', 'wrought_iron'].forEach(m => {
         const ingot = smokeEmc('gtceu:' + m + '_ingot')
-        if (!(ingot > 0) || smokeEmc('gtceu:' + m + '_dust') != ingot) {
+        if (!(ingot > 0) || !(smokeEmc('gtceu:' + m + '_dust') > 0)) {
           throw m + ' ingot/dust EMC ' + ingot + '/' + smokeEmc('gtceu:' + m + '_dust')
         }
       })
@@ -415,21 +421,19 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#55 each GT ore block and raw ore is worth at least its material\'s ingot (or gem, or dust)',
+    name: '#55 each GT ore block and raw ore is worth at least its material\'s dust (or gem)',
     check: server => {
-      // Material forms by tag: c:ores/<m> and c:raw_materials/<m> against c:ingots/<m>, c:gems/<m>, else c:dusts/<m>.
+      // Material forms by tag: c:ores/<m> and c:raw_materials/<m> against c:dusts/<m>, else c:gems/<m>. (#72: not the
+      // ingot, which an EBF makes from the dust at a cost.)
       let checked = 0
       const bad = []
       const best = m => {
         let v = 0
-        ;['c:ingots/', 'c:gems/'].forEach(t => {
-          if (!String(Ingredient.of('#' + t + m).itemIds).includes('minecraft:barrier')) {
+        ;['c:dusts/', 'c:gems/'].forEach(t => {
+          if (v == 0 && !String(Ingredient.of('#' + t + m).itemIds).includes('minecraft:barrier')) {
             Ingredient.of('#' + t + m).itemIds.forEach(id => { v = Math.max(v, smokeEmc(id)) })
           }
         })
-        if (v == 0 && !String(Ingredient.of('#c:dusts/' + m).itemIds).includes('minecraft:barrier')) {
-          Ingredient.of('#c:dusts/' + m).itemIds.forEach(id => { v = Math.max(v, smokeEmc(id)) })
-        }
         return v
       }
       smokeRegistries.ITEM.getTags().forEach(pair => {
@@ -446,16 +450,18 @@ const SMOKE_TEST_ASSERTIONS = [
         })
       })
       if (checked < SMOKE_MIN_ORES_CHECKED) throw 'only ' + checked + ' ores checked'
-      if (bad.length > 0) throw bad.length + ' ores below their ingot: ' + bad.slice(0, 40).join(', ')
+      if (bad.length > 0) throw bad.length + ' ores below their dust: ' + bad.slice(0, 40).join(', ')
       return true
     }
   },
   {
-    name: '#52/#55 GT machines and circuits are valued from their recipes: MV macerator > LV macerator > 0, good integrated circuit > 0',
+    name: '#52/#55 GT machines and circuits are valued from their recipes: LV and MV macerators > 0, good integrated circuit > 0',
     check: server => {
+      // #72: not MV > LV any more: aluminium derives from clay electrolysis (a few EMC), so MV parts can cost less
+      // than LV's steel and tin ones
       const lv = smokeEmc('gtceu:lv_macerator')
       const mv = smokeEmc('gtceu:mv_macerator')
-      if (!(lv > 0 && mv > lv)) throw 'lv_macerator ' + lv + ', mv_macerator ' + mv
+      if (!(lv > 0 && mv > 0)) throw 'lv_macerator ' + lv + ', mv_macerator ' + mv
       if (!(smokeEmc('gtceu:good_integrated_circuit') > 0)) throw 'good_integrated_circuit has no EMC'
       return true
     }
@@ -478,10 +484,11 @@ const SMOKE_TEST_ASSERTIONS = [
 
   // --- #59: re-priced against the Prestige mod v0.3.0 (docs/research/emc-pricing/README.md) ---
   {
-    name: '#59 each GT metal\'s dust is worth its ingot (within rounding)',
+    name: '#59/#72 no GT metal\'s dust is worth 100+ EMC more than its ingot (macerating an ingot gains nothing)',
     check: server => {
-      // Every material with a GT ingot and a GT dust (c:ingots/<m>, c:dusts/<m>): smelting or macerating one into
-      // the other neither gains nor loses more than rounding (1 EMC or 1%).
+      // Every material with a GT ingot and a GT dust (c:ingots/<m>, c:dusts/<m>). #72: dust and ingot are no longer
+      // pinned equal; recipes set them, so an ingot an EBF makes is worth its dust plus the EBF's time and EU, and
+      // the dust is at most the ingot macerated. A dust 100+ EMC (the exploit threshold) above its ingot would gain.
       let checked = 0
       const bad = []
       smokeRegistries.ITEM.getTags().forEach(pair => {
@@ -493,7 +500,7 @@ const SMOKE_TEST_ASSERTIONS = [
         checked++
         const i = smokeEmc(ingot)
         const d = smokeEmc(dust)
-        if (!(i > 0) || Math.abs(i - d) > Math.max(1, 0.01 * i)) bad.push(match[1] + ' ingot ' + i + ' dust ' + d)
+        if (!(i > 0) || !(d > 0) || d - i >= 100) bad.push(match[1] + ' ingot ' + i + ' dust ' + d)
       })
       if (checked < SMOKE_MIN_METALS_CHECKED) throw 'only ' + checked + ' metals checked'
       if (bad.length > 0) throw bad.length + ' metals: ' + bad.slice(0, 40).join(', ')
@@ -517,7 +524,9 @@ const SMOKE_TEST_ASSERTIONS = [
       Object.keys(expected).forEach(f => {
         if (v[f] != expected[f]) throw f + ' is ' + v[f] + ', expected ' + expected[f]
       })
-      if (!(v['gtceu:nitrogen'] > 1)) throw 'nitrogen is ' + v['gtceu:nitrogen']
+      // nitrogen derives from air (#72: no longer listed), at its runtime value
+      const nitrogen = Number(smokeFluidEmc.valuePerBucket(smokeRegistries.FLUID.get(smokeRL.parse('gtceu:nitrogen'))))
+      if (!(nitrogen > 1)) throw 'nitrogen is ' + nitrogen
       return true
     }
   },
@@ -542,26 +551,28 @@ const SMOKE_TEST_ASSERTIONS = [
   },
   // --- end #59 ---
 
-  // --- #68: GT recipes count machine time and EU (Prestige mod v0.4.0's emc.timeRate and emc.euPrice) ---
+  // --- #68/#71: GT recipes count machine time and EU (built into the Prestige mod since v0.5.0) ---
   {
-    name: '#68 time rate is 2 EMC per machine-second at ULV, 4 at LV, doubling every tier to MAX',
+    name: '#68/#71 time rate is 2 EMC per machine-second at ULV, 4 at LV, doubling every tier to MAX',
     check: server => {
-      const rates = smokePrestigeConfig.TIME_RATE.get()
-      if (rates.size() != SMOKE_GT_TIERS) throw 'timeRate has ' + rates.size() + ' tiers, expected ' + SMOKE_GT_TIERS
+      // (no const in the loop: Rhino keeps its first value)
       for (let t = 0; t < SMOKE_GT_TIERS; t++) {
-        if (Number(rates.get(t)) != 2 * Math.pow(2, t)) throw 'timeRate tier ' + t + ' is ' + rates.get(t) + ', expected ' + 2 * Math.pow(2, t)
+        if (Number(smokeGtMapper.timeRate(t)) != 2 * Math.pow(2, t)) {
+          throw 'timeRate tier ' + t + ' is ' + smokeGtMapper.timeRate(t) + ', expected ' + 2 * Math.pow(2, t)
+        }
       }
       return true
     }
   },
   {
-    name: '#68 EU price is set for every tier, above 0, and never rises with tier (a lower tier\'s generators stay available)',
+    name: '#68/#71 EU price is set for every tier, above 0, and never rises with tier (a lower tier\'s generators stay available)',
     check: server => {
-      const prices = smokePrestigeConfig.EU_PRICE.get()
-      if (prices.size() != SMOKE_GT_TIERS) throw 'euPrice has ' + prices.size() + ' tiers, expected ' + SMOKE_GT_TIERS
+      // (no const in the loop: Rhino keeps its first value)
       for (let t = 0; t < SMOKE_GT_TIERS; t++) {
-        if (!(Number(prices.get(t)) > 0)) throw 'euPrice tier ' + t + ' is ' + prices.get(t)
-        if (t > 0 && Number(prices.get(t)) > Number(prices.get(t - 1))) throw 'euPrice rises at tier ' + t + ': ' + prices
+        if (!(Number(smokeGtMapper.euPrice(t)) > 0)) throw 'euPrice tier ' + t + ' is ' + smokeGtMapper.euPrice(t)
+        if (t > 0 && Number(smokeGtMapper.euPrice(t)) > Number(smokeGtMapper.euPrice(t - 1))) {
+          throw 'euPrice rises at tier ' + t + ': ' + smokeGtMapper.euPrice(t)
+        }
       }
       return true
     }
@@ -575,8 +586,8 @@ const SMOKE_TEST_ASSERTIONS = [
       const tier = smokeGTUtil.getTierByVoltage(eu.voltage())
       if (tier != 2) throw 'tier ' + tier + ', expected MV (2)'
       const materials = smokeEmc('gtceu:yttrium_dust')
-      const energy = Number(eu.getTotalEU()) * recipe.duration * smokePrestigeConfig.atTier(smokePrestigeConfig.EU_PRICE.get(), tier)
-      const time = recipe.duration / 20 * smokePrestigeConfig.atTier(smokePrestigeConfig.TIME_RATE.get(), tier)
+      const energy = Number(eu.getTotalEU()) * recipe.duration * Number(smokeGtMapper.euPrice(tier))
+      const time = recipe.duration / 20 * Number(smokeGtMapper.timeRate(tier))
       const value = smokeEmc('gtceu:hot_yttrium_ingot')
       // ProjectE floors the value; the mapper rounds the EU and time cost to thousandths
       if (!(materials > 0 && energy > 0 && time > 0) || Math.abs(value - (materials + energy + time)) > 1) {

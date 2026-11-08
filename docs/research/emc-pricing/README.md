@@ -1,10 +1,20 @@
-# EMC pricing (#55, re-based in #59 and #68)
+# EMC pricing (#55, re-based in #59, #68 and #72)
 
 Generates the Pack's EMC values, `pack/config/ProjectE/custom_emc.json` and
 `pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json`, so that every obtainable item and fluid but water has
-EMC, against the Prestige mod v0.4.1's GT recipe mapper (it splits each recipe's cost across its outputs, and counts
-each recipe's EU and machine time at the rates in `pack/config/mcincremental_prestige-common.toml`, #68). The method
-and its decisions are in `docs/pocs/poc-1.md` ("How EMC values are made").
+EMC, against the Prestige mod v0.5.0's GT recipe mapper (it splits each recipe's cost across its outputs, counts each
+recipe's EU and machine time at rates built into the mod, #71, and derives and publishes every unlisted fluid). The
+method and its decisions are in `docs/pocs/poc-1.md` ("How EMC values are made").
+
+**The rule (owner decision on #72): pin only what no recipe can make from cheaper things, and let recipes set
+everything else.** Pinned: raw materials (ore products, mob drops and other natural items no recipe creates) at their
+rarity price, the late-tier floors, ProjectE's vanilla defaults (and the overrides where a recipe undercuts one: blaze
+rod, nether star), the explicit fluid values (water, lava, steam, milk, the free fluids per tier) and the 0-EMC
+Transmutation Tablet; plus the plumbing ProjectE needs to see anything at all (ore blocks and processing forms at
+their yield, filled buckets, what the game leaves at 0 from valued inputs, values below 1 EMC). ProjectE takes the
+cheapest route by itself, so nothing is capped: #63's R1 ceilings, `game_caps.json` and #41's hand-set GT fuels are
+gone, and so are the hand pins a recipe derives (steel, wrought iron, GT cobblestone forms, dark concrete, magnesite
+and magnesia).
 
 The balancing metric (owner decision, #59) is **Prestiges per tier: about 5-10 per tier**, counting the Runs spent
 discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump; its output is committed as
@@ -16,7 +26,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 |---|---|
 | `generate.py` | Writes both files (`--write`); without it, prints the report only. |
 | `emcmodel.py` | Offline replay of ProjectE's mapping and the GT recipe mapper's first-output conversions (#52), from a dump. It steers the pins; the game (a dump) is what the reports read. |
-| `hand_values.json` | Hand-set values (with reasons), the free fluids' anchor, the late-tier `floors`, tag pins, and `accepted_exploits` (outputs the smoke test exempts, each with its reason). Edit this, then re-run. |
+| `hand_values.json` | Hand-set values (with reasons): natural items no recipe makes, ProjectE defaults and the overrides they need, the explicit fluids, the late-tier `floors`, tag pins, and `accepted_exploits` (outputs the smoke test exempts, each with its reason). Edit this, then re-run. |
 | `rarity.py` → `rarity.json` | Rarity prices: material units per Run in the dimension that yields the most, and their EMC value. `EXPONENT` and `MAX_VALUE` are the dials. |
 | `extract_ores.py` → `ore_counts.json` | Mean blocks per Run area per dimension (ores and every other block), from the research dumps (`../emc-economy.md`, `../dimensions.md`). End areas with too little land are left out. |
 | `extract_yields.py` → `ore_yields.json` | What crushing and processing each ore yields (ore washer and chemical bath routes), and what crushing each rock yields, from a recipe dump. |
@@ -25,12 +35,11 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `dump.js` | KubeJS dump (items, fluids, tags, recipes with their duration and voltage tier) for a smoke-test server. |
 | `dump.txt.xz` | The dump the committed values were generated from (Pack with the values it generated running). |
 | `dump_eu.js` | KubeJS dump of every GT recipe's EU (input and output EU/t, amperage, duration, fusion start energy) for the energy-in-EMC research (#64, `../energy-in-emc.md`). |
-| `eu.txt.xz` | Its output, from a smoke-test server running the v0.4.1 Pack (#68; take it with the dump, below). |
+| `eu.txt.xz` | Its output, from a smoke-test server running the v0.5.0 Pack (#72; take it with the dump, below). |
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
-| `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the Pack's EU price in `emcmodel.py` and `audit.py` (`0`: off). |
-| `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the Pack's time rate in `emcmodel.py` and `audit.py` (`0`: off). |
-| `game_caps.json` | Generated: listed fluids and material units capped at a cheaper route ProjectE found in the game, and the metals whose dust and ingot the game split; kept so re-runs are stable. |
-| `game_zero.json` | Generated: items a dump showed at 0 although the model values them; kept so re-runs are stable. |
+| `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the mod's EU price in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
+| `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the mod's time rate in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
+| `game_zero.json` | Generated: items and fluids a dump showed at 0 although a recipe makes them from inputs the game valued (a recipe ProjectE can't map, such as a smithing upgrade or an output with data components; a share split that gives a byproduct nothing; a tiny dust floored to 0), pinned at the model's value; kept so re-runs are stable. |
 | `projecte_defaults/` | ProjectE PE1.1.0's own default values (`data/projecte/pe_custom_conversions`, MIT). |
 
 ## Reproduce
@@ -42,17 +51,13 @@ python3 prestiges_per_tier.py > prestiges_per_tier.txt
 python3 audit.py > audit.txt
 ```
 
-**Time and EU (#68).** `emcmodel.py` and `audit.py` read the rates from the Pack's
-`pack/config/mcincremental_prestige-common.toml` (`[emc]` `timeRate` and `euPrice`), so every committed output counts
-them as the game does; `EMC_TIME_RATE` and `EMC_EU_PRICE` (a number, or JSON per tier; `0` turns it off) override them
-for sweeps. The model maps crafting recipes that use a GT tool, as v0.4.0's mapper does once a rate is set, but not v0.4.1's fix
-(#69: a machine route that also makes byproducts, such as a lathe, sets the price of what a tool craft makes), so
-`audit.py --model` still lists about 70 lathe loops the game no longer has; the in-game `audit.txt` is the reference.
-
-**R1, pins as ceilings (advice on #63, not decided).** `generate.py`'s `PIN_CEILINGS` (off) lowers a rarity-priced
-material unit or a hand-set GT item to what a GT recipe makes it for, counting its machine time and EU; ProjectE's
-defaults and the late-tier floors are exempt. Flip it to `True` to adopt it; `EMC_PIN_CEILINGS=1` turns it on for one
-run (`GEN_OUT=gen.json` then `audit.py --model gen.json`, `prestiges_per_tier.py --model gen.json` for a report).
+**Time and EU (#68, #71).** Since v0.5.0 the rates are built into the Prestige mod (4 EMC per machine-second at LV,
+doubling every tier; the EU price per tier from `eu_price.py`), with no config. `emcmodel.py` mirrors them
+(`BUILTIN_TIME_RATE`, `BUILTIN_EU_PRICE`), so every committed output counts them as the game does; `EMC_TIME_RATE` and
+`EMC_EU_PRICE` (a number, or JSON per tier; `0` turns it off) override them for sweeps. The model maps neither GT tool
+crafts nor the mapper's share split (it gives a recipe's whole cost to its first output), so `generate.py` only keeps
+its values for what the game can't derive (step 4 of its docstring) and `audit.py --model` overstates loops; the in-game
+`audit.txt` is the reference.
 
 `RARITY_EXPONENT`, `RARITY_MAX` (rarity.py) and `EMC_FLOORS` (a JSON `{material: floor}`, generate.py) override the
 dials for sweeps; `generate.py --model`-style checks are `GEN_OUT=gen.json python3 generate.py` followed by
@@ -69,10 +74,10 @@ The model only steers the pins; the game is checked, so a new dump is needed whe
 2. Strip the log: `grep -oE '(EMCDUMP|FLUIDDUMP|TAGDUMP|RDUMP|EMC Exploit:).*' console.log | xz -9 > dump.txt.xz` and
    `grep -oE 'EUDUMP.*' console.log | xz -9 > eu.txt.xz`.
 3. `python3 generate.py --write`, `packwiz refresh` in `pack/`, and run the smoke test. Values settle within a few
-   runs: the generator reads the game's values and exploit warnings from the dump (items the game floors to 0, metals
-   whose dust and ingot it splits, routes cheaper than a listed fluid or a material's unit), and the last dump should
-   come from a server running the values it generated. One value never settles: concrete dust (14-16) follows whichever
-   concrete colour's recycling recipes GT registers on that boot (it varies).
+   runs: the generator reads from the dump what the game leaves at 0 although its inputs have values (one layer per
+   run: what is 0 only because an input was is left to the next) and what the game derives for each unlisted fluid (its
+   bucket's pin), and the last dump should come from a server running the values it generated. Filled buckets lag one
+   run behind the fluids they hold, so the smoke test's bucket check passes once the fluids stop moving.
 4. If recipes changed, also `python3 extract_yields.py <console.log> > ore_yields.json` and re-run `rarity.py`; if the
    world generation changed, re-run the research dumps and `extract_ores.py`.
 5. Re-run `prestiges_per_tier.py` and `audit.py` and commit their output.

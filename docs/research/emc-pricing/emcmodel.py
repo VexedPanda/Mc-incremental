@@ -36,16 +36,20 @@ def _lines(path):
 TIER_NAMES = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
 
 
-PACK_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'pack', 'config',
-                           'mcincremental_prestige-common.toml')
+# The Prestige mod's built-in rates (v0.5.0, #71: always on, no config): GtRecipeEmcMapper.timeRate and euPrice.
+# Time: 4 EMC per machine-second at LV, doubling every tier (ULV 2 ... MAX 32,768). EU price: the cheapest generator
+# available by the tier (eu_price.py, rounded down to 4 significant figures), ULV to LuV; a tier past the end takes
+# the last price.
+BUILTIN_TIME_RATE = [2.0 * 2 ** t for t in range(len(TIER_NAMES))]
+BUILTIN_EU_PRICE = [0.006338, 0.006338, 0.003213, 0.001235, 0.0002835, 0.0002835, 9.765625e-05]
 
 
-def _per_tier(env, key):
-    """{tier index: value} for one of the Prestige mod's per-tier EMC lists (#67, #68), or None when off (unset or all
-    0). The environment variable wins, for sweeps: a number (every tier) or a JSON {tier name: value} (a tier left out
-    takes its next lower listed tier's value; tiers below the first listed take 0), and 0 turns it off. Unset, the
-    Pack's shipped config is read (pack/config/mcincremental_prestige-common.toml, [emc] KEY: a list from ULV, a tier
-    past its end taking the last value), so the committed outputs follow the Pack."""
+def _per_tier(env, builtin):
+    """{tier index: value} for one of the Prestige mod's per-tier EMC rates (#67, #71), or None when off (all 0). The
+    environment variable wins, for sweeps: a number (every tier) or a JSON {tier name: value} (a tier left out takes
+    its next lower listed tier's value; tiers below the first listed take 0), and 0 turns it off. Unset, the mod's
+    built-in rates are used (BUILTIN_*: a list from ULV, a tier past its end taking the last value), so the committed
+    outputs follow the game."""
     spec = os.environ.get(env)
     if spec:
         spec = json.loads(spec)
@@ -56,27 +60,20 @@ def _per_tier(env, key):
             last = float(spec.get(t, last))
             out[i] = last
     else:
-        if not os.path.exists(PACK_CONFIG):
-            return None
-        import tomllib
-        with open(PACK_CONFIG, 'rb') as f:
-            listed = [float(x) for x in tomllib.load(f).get('emc', {}).get(key, [])]
-        if not listed:
-            return None
-        out = {i: listed[min(i, len(listed) - 1)] for i in range(len(TIER_NAMES))}
+        out = {i: builtin[min(i, len(builtin) - 1)] for i in range(len(TIER_NAMES))}
     return out if any(out.values()) else None
 
 
 def eu_prices():
-    """Energy in EMC (#64, docs/research/energy-in-emc.md; set by the Pack in #68): EMC per EU per tier, from
-    EMC_EU_PRICE or the Pack's euPrice (see _per_tier). Returns {tier index: price}, or None when off."""
-    return _per_tier('EMC_EU_PRICE', 'euPrice')
+    """Energy in EMC (#64, docs/research/energy-in-emc.md; built into the Prestige mod in #71): EMC per EU per tier, from
+    EMC_EU_PRICE or the mod's built-in price (see _per_tier). Returns {tier index: price}, or None when off."""
+    return _per_tier('EMC_EU_PRICE', BUILTIN_EU_PRICE)
 
 
 def time_rates():
-    """Time in EMC (#64, docs/research/time-in-emc.md; set by the Pack in #68): R, the EMC per machine-second per tier,
-    from EMC_TIME_RATE or the Pack's timeRate (see _per_tier). Returns {tier index: R}, or None when off."""
-    return _per_tier('EMC_TIME_RATE', 'timeRate')
+    """Time in EMC (#64, docs/research/time-in-emc.md; built into the Prestige mod in #71): R, the EMC per machine-second per tier,
+    from EMC_TIME_RATE or the mod's built-in rate (see _per_tier). Returns {tier index: R}, or None when off."""
+    return _per_tier('EMC_TIME_RATE', BUILTIN_TIME_RATE)
 
 
 def recipe_time(r, rates):
@@ -153,10 +150,10 @@ class Model:
         self.tools = {i for t, ids in self.tags.items() if t.startswith(TOOL_TAG_PREFIX) for i in ids}
         self.skipped = defaultdict(int)
         self.fixed = {}
-        # #64: a GT recipe's EU as an ingredient node 'e:<tier>' worth EMC_EU_PRICE per EU (off unless set)
+        # #64: a GT recipe's EU as an ingredient node 'e:<tier>' worth its EU price (the built-in rate, or EMC_EU_PRICE)
         self.eu_price = eu_prices()
         self.eu = load_eu() if self.eu_price else {}
-        # #64: a GT recipe's machine time as an ingredient node 's:<tier>' worth EMC_TIME_RATE per second (off unless set)
+        # #64: a GT recipe's machine time as an ingredient node 's:<tier>' worth its time rate (the built-in rate, or EMC_TIME_RATE)
         self.time_rate = time_rates()
         if pe_jar:
             self._load_pe_defaults(pe_jar)

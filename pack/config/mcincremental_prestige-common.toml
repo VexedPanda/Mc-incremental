@@ -1,22 +1,7 @@
 # Mc-incremental Prestige mod common config, shipped by the Pack (#68). Without preserve, so a Pack update brings new
-# rates; startingItems is the mod's default.
+# settings; startingItems is the mod's default. Since v0.5.0 the GT recipe EMC rates (time and EU) are built into the
+# mod, with no config (#71, #72).
 
 #Item ids every player is given after every Prestige, one of each. On every join a player is also
 #given any of these they don't hold.
 startingItems = ["projecte:transmutation_tablet"]
-
-#GT recipe EMC: what a GT machine recipe's EU and machine time add to its outputs' EMC
-#(VexedPanda/Mc-incremental#67). Each is a list per GT voltage tier, starting at ULV:
-#[ULV, LV, MV, HV, EV, IV, LuV, ZPM, UV, UHV, UEV, UIV, UXV, OpV, MAX]. A tier past the end of a list
-#takes the last value listed. Empty (the default) or 0: not counted.
-[emc]
-	#EMC per machine-second at the recipe's tier (its duration, before overclocking). Should at least
-	#double each tier: an overclocked recipe runs twice as fast per tier above its own.
-	#Pack (#64, #68): 4 at LV, doubling every tier (ULV 2 ... UV 512 ... MAX 32,768).
-	timeRate = [2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0, 4096.0, 8192.0, 16384.0, 32768.0]
-	#EMC per EU at the recipe's tier (EU per tick x duration). Generator recipes add none.
-	#Pack (#68): the cheapest generator available by the tier, (fuel EMC + generator time x timeRate) / EU made, from
-	#docs/research/emc-pricing/eu_price.py (rounded down to 4 significant figures): LV and MV gas turbines, a large
-	#steel boiler with large steam turbines at HV, the large gas turbine at EV and IV, the large plasma turbine from LuV
-	#(UV's price for the tiers above: no cheaper generator is modelled there). ULV takes LV's.
-	euPrice = [0.006338, 0.006338, 0.003213, 0.001235, 0.0002835, 0.0002835, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05, 9.765625e-05]
