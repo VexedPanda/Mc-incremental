@@ -27,6 +27,10 @@ const smokeItemInfo = Java.loadClass('moze_intel.projecte.api.ItemInfo')
 const smokeRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
 const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const smokeFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
+const smokePrestigeConfig = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.Config')
+// GT voltage tiers, ULV to MAX: the length of the Prestige mod's per-tier EMC config lists (#68)
+const SMOKE_GT_TIERS = 15
+const smokeGTUtil = Java.loadClass('com.gregtechceu.gtceu.utils.GTUtil')
 
 // Thresholds.
 // The EMC data file has ~3,900 generated entries (#55); far fewer means it was truncated or mis-parsed.
@@ -537,6 +541,51 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   // --- end #59 ---
+
+  // --- #68: GT recipes count machine time and EU (Prestige mod v0.4.0's emc.timeRate and emc.euPrice) ---
+  {
+    name: '#68 time rate is 2 EMC per machine-second at ULV, 4 at LV, doubling every tier to MAX',
+    check: server => {
+      const rates = smokePrestigeConfig.TIME_RATE.get()
+      if (rates.size() != SMOKE_GT_TIERS) throw 'timeRate has ' + rates.size() + ' tiers, expected ' + SMOKE_GT_TIERS
+      for (let t = 0; t < SMOKE_GT_TIERS; t++) {
+        if (Number(rates.get(t)) != 2 * Math.pow(2, t)) throw 'timeRate tier ' + t + ' is ' + rates.get(t) + ', expected ' + 2 * Math.pow(2, t)
+      }
+      return true
+    }
+  },
+  {
+    name: '#68 EU price is set for every tier, above 0, and never rises with tier (a lower tier\'s generators stay available)',
+    check: server => {
+      const prices = smokePrestigeConfig.EU_PRICE.get()
+      if (prices.size() != SMOKE_GT_TIERS) throw 'euPrice has ' + prices.size() + ' tiers, expected ' + SMOKE_GT_TIERS
+      for (let t = 0; t < SMOKE_GT_TIERS; t++) {
+        if (!(Number(prices.get(t)) > 0)) throw 'euPrice tier ' + t + ' is ' + prices.get(t)
+        if (t > 0 && Number(prices.get(t)) > Number(prices.get(t - 1))) throw 'euPrice rises at tier ' + t + ': ' + prices
+      }
+      return true
+    }
+  },
+  {
+    name: '#68 a GT recipe\'s output is worth its materials + EU x euPrice + seconds x timeRate: 1 yttrium dust blasted (MV) into a hot yttrium ingot',
+    check: server => {
+      // The hot ingot's only recipe; the output isn't pinned, so the Prestige mod's GT recipe mapper sets its value.
+      const recipe = server.recipeManager.byKey('gtceu:electric_blast_furnace/blast_yttrium').get().value()
+      const eu = recipe.getInputEUt()
+      const tier = smokeGTUtil.getTierByVoltage(eu.voltage())
+      if (tier != 2) throw 'tier ' + tier + ', expected MV (2)'
+      const materials = smokeEmc('gtceu:yttrium_dust')
+      const energy = Number(eu.getTotalEU()) * recipe.duration * smokePrestigeConfig.atTier(smokePrestigeConfig.EU_PRICE.get(), tier)
+      const time = recipe.duration / 20 * smokePrestigeConfig.atTier(smokePrestigeConfig.TIME_RATE.get(), tier)
+      const value = smokeEmc('gtceu:hot_yttrium_ingot')
+      // ProjectE floors the value; the mapper rounds the EU and time cost to thousandths
+      if (!(materials > 0 && energy > 0 && time > 0) || Math.abs(value - (materials + energy + time)) > 1) {
+        throw 'hot yttrium ingot ' + value + ', expected ' + materials + ' + ' + energy + ' (EU) + ' + time + ' (time)'
+      }
+      return true
+    }
+  },
+  // --- end #68 ---
 
   // --- #46: view and simulation distance default to the Run area plus one chunk (radius 2) ---
   // Values come from the Pack's shipped server.properties (the smoke script keeps them).

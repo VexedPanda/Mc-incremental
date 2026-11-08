@@ -36,7 +36,7 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from emcmodel import Model, load_dump, _lines  # noqa: E402
+from emcmodel import Model, load_dump, _lines, recipe_energy, recipe_time  # noqa: E402
 from extract_yields import unit as item_unit  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
@@ -68,6 +68,11 @@ ROCK_BASE = {'minecraft:deepslate': 'minecraft:cobbled_deepslate'}
 # Fluids made from these (nitrogen, ammonia, nitric acid, ...) derive from them. Water stays free; distilled water,
 # ice and steam are water in another form and stay nominal.
 LAVA_ANCHOR = 64
+# R1 (advice on #63, not yet decided by the owner): rarity and hand-set pins are ceilings. When a GT recipe makes a
+# rarity-priced material (or a hand-set GT item) for less than its pin, counting the recipe's inputs, machine time and
+# EU (#68), the material takes that cost. ProjectE's defaults and the late-tier floors are exempt. Off: flip this to
+# True to adopt it (EMC_PIN_CEILINGS=1 or 0 overrides it, for reports).
+PIN_CEILINGS = False
 VANILLA_NUGGETS_UNITS = {'minecraft:gold_nugget': ('gold', 1 / 9), 'minecraft:iron_nugget': ('iron', 1 / 9)}
 WATER_FORMS = {'gtceu:distilled_water': 1, 'gtceu:ice': 1}
 # A listed fluid a recipe makes for this much less is lowered (well under the 100 EMC exploit threshold; a smaller
@@ -162,6 +167,23 @@ class Generator:
         self.pins[item] = (int(value), reason)
         return True
 
+    def form_value(self, val, node):
+        """A metal's dust or ingot value without the machine time and EU (#68) of turning another form of the same
+        metal into it (its molten fluid solidified, its ingot macerated, its tiny dusts packed): dust = ingot = fluid
+        are the Pack's invariants, and carrying a form change's time into the pin would ratchet the metal up on every
+        re-run (the next dump's ingot sets its fluid, which sets the ingot plus time)."""
+        v = val.get(node)
+        c = self.game.best(val, node) if v else None
+        if not c:
+            return v
+        m = node[2:].split(':', 1)[1]
+        m = re.sub(r'^(tiny_|small_)', '', re.sub(r'_(ingot|dust|nugget)$', '', m))
+        own = lambda k: k == 'f:gtceu:' + m or re.match(r'^i:gtceu:(tiny_|small_)?%s_(ingot|dust|nugget|block)$' % re.escape(m), k)
+        mats = [k for k in c[2] if not k.startswith(('s:', 'e:'))]
+        if not mats or not all(own(k) for k in mats):
+            return v
+        return sum(c[2][k] * val[k] for k in mats) / c[1]
+
     # ---- steps ----
     def smelt_floor(self, val, item):
         best = 0
@@ -234,6 +256,9 @@ class Generator:
         self.units = units
         self.recipe_consistency()
         self.alloy_units(val)
+        if os.environ.get('EMC_PIN_CEILINGS', '1' if PIN_CEILINGS else '0') == '1':
+            self.pin_ceilings()
+            self.alloy_units(val)  # alloys follow their lowered components
         for v, w in self.units.values():
             why[w] += 1
         self.log.append('material units: %s' % dict(why))
@@ -283,6 +308,104 @@ class Generator:
             if not changed:
                 break
         self.log.append('alloys priced at their mixer recipe: %d' % n)
+
+    CEILING_KINDS = ('rarity', 'rarity cap', 'recipe cost', 'composition cost')
+
+    def pin_ceilings(self, rounds=30):
+        """R1 (PIN_CEILINGS): a rarity-priced material unit, or a hand-set GT item, is at most what a GT recipe makes
+        it for: its consumed inputs (material units, rocks at their block's value, fixed values, listed fluids, and
+        what non-ore recipes make anything else for), plus the recipe's machine time and EU at its tier (#68). Where a
+        recipe's outputs are worth more than that, its lowerable outputs are scaled down together until they are
+        not; outputs with ProjectE's defaults, late-tier floors and other fixed values keep theirs. Repeated until
+        nothing moves, since a lowered material is cheaper as an input elsewhere."""
+        fixed = self.fixed()
+        rates, prices, eu = self.game.time_rate, self.game.eu_price, self.game.eu
+        hand_gt = {i for i in self.hand['items'] if i.startswith('gtceu:')}
+
+        def value(i, out):
+            u = mat_unit(i)
+            if u and u[0] in self.units:
+                return self.units[u[0]][0] * u[1], u[0] if self.units[u[0]][1] in self.CEILING_KINDS else None
+            if i in hand_gt:
+                return self.hand['items'][i], i
+            if u and u[0] in ROCKS:
+                rock = ROCK_DUSTS[u[0]]
+                return (fixed.get('i:' + rock) or self.base_val.get('i:' + rock) or 1) * u[1], None
+            v = fixed.get('i:' + i)
+            if v is None and not out and self.base_val.get('i:' + i, 0) >= 1:
+                v = self.base_val['i:' + i]
+            return v, None
+
+        def fluid_value(x, out):
+            f = self.fluids.get(x['ids'][0], (x['ids'][0],))[0] if x['ids'] else None
+            if f == 'minecraft:water':
+                return 0
+            return self.listed.get(f) if out else self.listed.get(f, self.base_val.get('f:%s' % f))
+
+        gt = [r for r in self.recipes if r.get('gt') and not (r.get('cat') or '').endswith('_recycling')]
+        lowered = {}
+        for _ in range(rounds):
+            changed = False
+            for r in gt:
+                cost = 0.0
+                in_mats = set()
+                for x in r['i']:
+                    if x['ch'] == 0:
+                        continue
+                    vs = [(v, k) for v, k in (value(i, False) for i in x['ids']) if v is not None]
+                    if not vs:
+                        break
+                    v, k = min(vs, key=lambda p: p[0])
+                    cost += v * x['n'] * x['ch'] / x['mx']
+                    in_mats.update(mat_unit(i)[0] for i in x['ids'] if mat_unit(i))
+                else:
+                    for x in r['fi']:
+                        if x['ch'] == 0:
+                            continue
+                        fv = fluid_value(x, False)
+                        if fv is None:
+                            break
+                        cost += fv * x['n'] / 1000 * x['ch'] / x['mx']
+                    else:
+                        if cost <= 0:
+                            continue
+                        spent = recipe_time(r, rates)
+                        energy = recipe_energy(r, eu, prices)
+                        cost += (spent[2] if spent else 0) + (energy[2] if energy else 0)
+                        movable, fixed_out = defaultdict(float), 0.0
+                        for x in r['o']:
+                            if len(x['ids']) != 1:
+                                continue
+                            v, k = value(x['ids'][0], True)
+                            amount = x['n'] * x['ch'] / x['mx']
+                            if k and (mat_unit(x['ids'][0]) or (None,))[0] not in in_mats:
+                                movable[k] += v * amount
+                            elif v:
+                                fixed_out += v * amount
+                        for x in r['fo']:
+                            fv = fluid_value(x, True)
+                            fixed_out += (fv or 0) * x['n'] / 1000 * x['ch'] / x['mx']
+                        total = sum(movable.values())
+                        if not total or total + fixed_out <= cost * 1.001 + 1 or fixed_out >= cost:
+                            continue  # balanced, or gaining on fixed outputs alone (lowering can't close it)
+                        factor = (cost - fixed_out) / total
+                        for k in movable:
+                            if k in self.units:
+                                v = max(1, math.floor(self.units[k][0] * factor))
+                                if v < self.units[k][0]:
+                                    self.units[k] = (v, 'recipe cost')
+                                    lowered[k] = r['id']
+                                    changed = True
+                            else:
+                                v = max(1, math.floor(self.hand['items'][k] * factor))
+                                if v < self.hand['items'][k]:
+                                    self.hand['items'][k] = v
+                                    lowered[k] = r['id']
+                                    changed = True
+            if not changed:
+                break
+        self.log.append('R1, pins as ceilings: %d lowered to a recipe that makes them for less: %s' % (
+            len(lowered), ', '.join('%s (%s)' % kv for kv in sorted(lowered.items()))))
 
     def recipe_consistency(self, rounds=20):
         """Keep material units consistent with GT's recipes between materials (#59, "metals and dusts are consistent
@@ -577,7 +700,9 @@ class Generator:
             if item in self.pins:
                 continue
             dust = re.sub(r'_(ingot|gem)$', '_dust', k)
-            v = val.get(dust) or val.get(k)
+            # the cheaper of its dust and ingot: either is the other converted, and the conversion's machine time
+            # (#68) must not carry into the next re-run
+            v = min((x for x in (self.form_value(val, dust), self.form_value(val, k)) if x), default=None)
             if v and self.pin(item, max(1, math.floor(v)), 'overrides ProjectE\'s default: derived value'):
                 n += 1
         # ProjectE's tag node keeps its default too (a tag ingredient would value the item at it): pin the tag
@@ -598,7 +723,7 @@ class Generator:
             if not (item.startswith('gtceu:') and item.endswith('_ingot')) or item.startswith('gtceu:hot_'):
                 continue
             dust = item[:-6] + '_dust'
-            i, d = val.get('i:' + item), val.get('i:' + dust)
+            i, d = self.form_value(val, 'i:' + item), self.form_value(val, 'i:' + dust)
             gi, gd = self.items.get(item, 0), self.items.get(dust, 0)
             if not i or not d:
                 continue
@@ -616,12 +741,16 @@ class Generator:
                 self.metal_mismatch.add(item)  # kept in game_caps.json: once pinned, the dump shows them equal
             if abs(i - d) <= max(1, 0.005 * max(i, d)) and item not in self.metal_mismatch:
                 continue
-            # the game's mapper (v0.3.0's output shares) can still split them: pin both, and the nugget
+            # the game's mapper (v0.3.0's output shares) can still split them: pin both, and the nugget, at the
+            # cheaper one. With machine time counted (#68) the dearer is usually the cheaper one converted (an ingot
+            # macerated, tiny dusts cut and reassembled), so pinning at the dearer would ratchet both up every re-run;
+            # at the cheaper, converting one into the other never gains.
+            v = min(i, d)
             for form in (item, dust):
-                if self.pin(form, math.floor(max(i, d)), 'dust = ingot'):
+                if self.pin(form, math.floor(v), 'dust = ingot'):
                     n.append(form)
             nugget = item[:-6] + '_nugget'
-            if nugget in self.items and nugget not in self.pins and self.pin(nugget, math.floor(max(i, d) / 9), 'dust = ingot'):
+            if nugget in self.items and nugget not in self.pins and self.pin(nugget, math.floor(v / 9), 'dust = ingot'):
                 n.append(nugget)
         self.log.append('dusts or ingots pinned to match the other: %d' % len(n))
 
@@ -825,10 +954,13 @@ class Generator:
             # make 100 EMC even nine at a time). When the dump
             # was taken from a server running these values, an item it shows at 2 or less that this model costs under
             # 20 EMC is rounding too (its base is cheaper in the game, e.g. tiny silicon dust from 8-EMC silicon); it
-            # stays pinned on the next run, whose dump shows it at its pin.
+            # stays pinned on the next run, whose dump shows it at its pin. Only while nine of them gain under 100
+            # EMC at that pin, though: with machine time counted (#68) a tiny dust unpacked from a dust costs well
+            # above its old pin (tiny potash: 17), and pinning it at 1 would let nine of them pack into a dust at a
+            # gain.
             def is_low(k, v):
                 g = self.items.get(k[2:])
-                return v < 5 or (g is not None and g <= 2 and v < 20)
+                return v < 5 or (g is not None and g <= 2 and v < 20 and 9 * (v - g) < 100)
             low = [k for k, v in val.items() if k.startswith('i:') and is_low(k, v)
                    and k[2:] not in self.hand['items'] and k[2:] not in self.pins]
             if not low:
@@ -978,7 +1110,8 @@ def write(g):
     lines = ['  {"id": %s, "emc": %d}' % (json.dumps(k), v) for k, v in sorted(entries.items())]
     # Tags ProjectE's own defaults pin that must follow an item's new value (owner decision 5: c:nether_stars).
     tags = dict(g.hand.get('tags', {}).get('tags', {}))
-    tags.update(g.tag_pins)
+    # each overridden tag follows its item's final pin (metal_pins may re-pin the ingot after override_pins)
+    tags.update({k: g.pins.get(g.tags[k][0], (v,))[0] for k, v in g.tag_pins.items()})
     lines += ['  {"tag": %s, "emc": %d}' % (json.dumps(k), v) for k, v in sorted(tags.items())]
     with open(CUSTOM_EMC, 'w') as f:
         f.write('{\n "comment": %s,\n "entries": [\n%s\n ]\n}\n' % (json.dumps(CUSTOM_EMC_COMMENT), ',\n'.join(lines)))

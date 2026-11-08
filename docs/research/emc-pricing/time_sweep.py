@@ -74,8 +74,8 @@ def run(job, out_dir):
     tag = re.sub(r'[^a-z0-9]+', '_', ('%s %s' % (name, fname)).lower()).strip('_')
     gen = os.path.join(out_dir, 'gen_%s.json' % tag)
     env = dict(os.environ)
-    for k in ('EMC_EU_PRICE', 'EMC_TIME_RATE', 'EMC_FLOORS'):
-        env.pop(k, None)
+    env.pop('EMC_FLOORS', None)
+    env['EMC_EU_PRICE'] = env['EMC_TIME_RATE'] = '0'  # off unless set below (unset, the Pack's config applies)
     if rates:
         env['EMC_TIME_RATE'] = json.dumps(rates)
         env['EMC_EU_PRICE'] = json.dumps(prices)

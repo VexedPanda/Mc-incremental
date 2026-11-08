@@ -36,39 +36,47 @@ def _lines(path):
 TIER_NAMES = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
 
 
+PACK_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'pack', 'config',
+                           'mcincremental_prestige-common.toml')
+
+
+def _per_tier(env, key):
+    """{tier index: value} for one of the Prestige mod's per-tier EMC lists (#67, #68), or None when off (unset or all
+    0). The environment variable wins, for sweeps: a number (every tier) or a JSON {tier name: value} (a tier left out
+    takes its next lower listed tier's value; tiers below the first listed take 0), and 0 turns it off. Unset, the
+    Pack's shipped config is read (pack/config/mcincremental_prestige-common.toml, [emc] KEY: a list from ULV, a tier
+    past its end taking the last value), so the committed outputs follow the Pack."""
+    spec = os.environ.get(env)
+    if spec:
+        spec = json.loads(spec)
+        if not isinstance(spec, dict):
+            spec = {'ULV': spec}
+        out, last = {}, 0.0
+        for i, t in enumerate(TIER_NAMES):
+            last = float(spec.get(t, last))
+            out[i] = last
+    else:
+        if not os.path.exists(PACK_CONFIG):
+            return None
+        import tomllib
+        with open(PACK_CONFIG, 'rb') as f:
+            listed = [float(x) for x in tomllib.load(f).get('emc', {}).get(key, [])]
+        if not listed:
+            return None
+        out = {i: listed[min(i, len(listed) - 1)] for i in range(len(TIER_NAMES))}
+    return out if any(out.values()) else None
+
+
 def eu_prices():
-    """Energy in EMC (#64, docs/research/energy-in-emc.md), opt-in: EMC_EU_PRICE is EMC per EU, a number or a JSON
-    {tier name: price} (a tier left out costs its next lower listed tier's price). None when unset or all 0, so the
-    committed outputs don't change. Returns {tier index: price}."""
-    spec = os.environ.get('EMC_EU_PRICE')
-    if not spec:
-        return None
-    spec = json.loads(spec)
-    if not isinstance(spec, dict):
-        spec = {'ULV': spec}
-    prices, last = {}, 0.0
-    for i, t in enumerate(TIER_NAMES):
-        last = float(spec.get(t, last))
-        prices[i] = last
-    return prices if any(prices.values()) else None
+    """Energy in EMC (#64, docs/research/energy-in-emc.md; set by the Pack in #68): EMC per EU per tier, from
+    EMC_EU_PRICE or the Pack's euPrice (see _per_tier). Returns {tier index: price}, or None when off."""
+    return _per_tier('EMC_EU_PRICE', 'euPrice')
 
 
 def time_rates():
-    """Time in EMC (#64, docs/research/time-in-emc.md), opt-in: EMC_TIME_RATE is R, the EMC per machine-second, a
-    number (flat across tiers) or a JSON {tier name: R} (a tier left out takes its next lower listed tier's R; tiers
-    below the first listed take 0). None when unset or all 0, so the committed outputs don't change. Returns
-    {tier index: R}."""
-    spec = os.environ.get('EMC_TIME_RATE')
-    if not spec:
-        return None
-    spec = json.loads(spec)
-    if not isinstance(spec, dict):
-        spec = {'ULV': spec}
-    rates, last = {}, 0.0
-    for i, t in enumerate(TIER_NAMES):
-        last = float(spec.get(t, last))
-        rates[i] = last
-    return rates if any(rates.values()) else None
+    """Time in EMC (#64, docs/research/time-in-emc.md; set by the Pack in #68): R, the EMC per machine-second per tier,
+    from EMC_TIME_RATE or the Pack's timeRate (see _per_tier). Returns {tier index: R}, or None when off."""
+    return _per_tier('EMC_TIME_RATE', 'timeRate')
 
 
 def recipe_time(r, rates):
@@ -237,17 +245,23 @@ class Model:
         if out.get('c') and self.mode == 'game':
             return 'makes a stack with data components'  # ProjectE values that stack, not the plain item
         ing = defaultdict(float)
+        tool = False
         for x in r['i']:
             ids = [i for i in x['ids'] if i != 'minecraft:air']
             if not ids:
                 continue
             if all(i in self.tools for i in ids):
-                if self.mode == 'game':
+                # The Prestige mod v0.4.0 maps these when EU or time is counted (#67): the tool isn't consumed and the
+                # craft takes no time. ProjectE alone doesn't map them.
+                if self.mode == 'game' and not (self.time_rate or self.eu_price):
                     return 'uses a tool'
+                tool = True
                 continue  # a GT tool comes back damaged: not consumed
             ing[self.group(ids)] += x['n']
             if all(i.endswith('_bucket') and i != 'minecraft:bucket' for i in ids):
                 ing['i:minecraft:bucket'] -= x['n']  # a filled bucket gives the bucket back
+        if tool and self.mode == 'game' and ing.get('i:minecraft:bucket', 0) < 0:
+            return 'uses a tool'  # the mapper skips tool crafts whose other ingredients leave something behind
         self.conv.append(('i:' + out['ids'][0], out['n'], dict(ing), r['id']))
         return None
 

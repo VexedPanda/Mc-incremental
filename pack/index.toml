@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "e521ae2c0da3dd75fbd9df65827025cd4eae4b460af6804c44f48077ddf17103"
+hash = "baa95660663941ad01a112b313a5bf38eb400d5b7ce3a372f3bc653685994dc2"
 
 [[files]]
 file = "config/ProjectE/mapping.toml"
@@ -17,12 +17,16 @@ file = "config/gtceu.yaml"
 hash = "3316b8ddb7b3c8ce0602eefb369445ebaca2879d24520547013c09d9d43af140"
 
 [[files]]
+file = "config/mcincremental_prestige-common.toml"
+hash = "e18e17644de227ae5e87bc7712f87e39895c674020e718bb94bfdcd8d04c9338"
+
+[[files]]
 file = "kubejs/client_scripts/hide_free_resources.js"
 hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
 
 [[files]]
 file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
-hash = "780206c4bd46ec06828903dc2aceae3593a70ffef73ef6131e2065d6b7d20bce"
+hash = "66bb8a9b74b043bdd37b74c7d9428447cf535786a9ed4245e2e3b24f63b125b1"
 
 [[files]]
 file = "kubejs/server_scripts/no_free_resources.js"
@@ -30,7 +34,7 @@ hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "2073df12df63b817252ff0915e3ca20fab6eb35737085f87289b3034cd130685"
+hash = "859eaacb47789687ae995fec2eb529ab9b8e5d3773b9de42e93db6653f38a55d"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
@@ -63,7 +67,7 @@ metafile = true
 
 [[files]]
 file = "mods/mcincremental-prestige.pw.toml"
-hash = "adbe99a5c1c297fafe2fff2d86c2ad31d95b6adbf94a6be6416a1c5d1883252d"
+hash = "2f577685f6286c69834184fd1ab3e2cf415c3859db8bf3a99d7e1be330ec496f"
 metafile = true
 
 [[files]]
