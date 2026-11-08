@@ -67,10 +67,12 @@ const SMOKE_ZERO_EMC_ITEMS = [
 // Fluid Drilling Rig, and #72 retired natural gas's hand-set value):
 const SMOKE_ZERO_EMC_FLUIDS = ['minecraft:empty', 'minecraft:water', 'gtceu:bromine', 'gtceu:mc_guffium_239',
   'gtceu:uu_matter', 'gtceu:raw_oil', 'gtceu:light_oil', 'gtceu:natural_gas', 'gtceu:potion']
-// #59: ProjectE tag defaults the Pack overrides (GT-mined metals and gems by rarity; nether star and blaze rod at
-// their ingredient cost): only these tags may be pinned in the EMC data file.
-const SMOKE_OVERRIDDEN_TAGS = ['c:nether_stars', 'c:rods/blaze', 'c:ingots/tin', 'c:ingots/lead', 'c:ingots/silver',
-  'c:ingots/nickel', 'c:ingots/osmium', 'c:ingots/platinum', 'c:ingots/bronze', 'c:gems/ruby', 'c:gems/sapphire']
+// #59: ProjectE tag defaults the Pack overrides (nether star and blaze rod at their ingredient cost): only these tags
+// may be pinned in the EMC data file. #81: ProjectE's defaults for GT metals and gems are gone (the Pack replaces its
+// metals.json), so their tags aren't pinned either.
+const SMOKE_OVERRIDDEN_TAGS = ['c:nether_stars', 'c:rods/blaze']
+// #81: metals whose ingots ProjectE's own metals.json priced at multiples of iron, which the Pack replaces
+const SMOKE_PE_METALS = ['tin', 'lead', 'silver', 'nickel', 'osmium', 'platinum', 'bronze']
 // How long to wait for ProjectE's EMC map after /reload before failing.
 const SMOKE_EMC_WAIT_SECONDS = 60
 
@@ -489,6 +491,10 @@ const SMOKE_TEST_ASSERTIONS = [
       // Every material with a GT ingot and a GT dust (c:ingots/<m>, c:dusts/<m>). #72: dust and ingot are no longer
       // pinned equal; recipes set them, so an ingot an EBF makes is worth its dust plus the EBF's time and EU, and
       // the dust is at most the ingot macerated. A dust 100+ EMC (the exploit threshold) above its ingot would gain.
+      // #81: only a pinned dust: an unpinned one is at most the ingot macerated, so a dust above its ingot is the
+      // macerator's time and EU, not a gain (an ingot cast from a cheaper fluid)
+      const pinned = {}
+      JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => { if (e.id) pinned[String(e.id)] = true })
       let checked = 0
       const bad = []
       smokeRegistries.ITEM.getTags().forEach(pair => {
@@ -500,10 +506,46 @@ const SMOKE_TEST_ASSERTIONS = [
         checked++
         const i = smokeEmc(ingot)
         const d = smokeEmc(dust)
-        if (!(i > 0) || !(d > 0) || d - i >= 100) bad.push(match[1] + ' ingot ' + i + ' dust ' + d)
+        if (!(i > 0) || !(d > 0) || (pinned[dust] && d - i >= 100)) bad.push(match[1] + ' ingot ' + i + ' dust ' + d)
       })
       if (checked < SMOKE_MIN_METALS_CHECKED) throw 'only ' + checked + ' metals checked'
       if (bad.length > 0) throw bad.length + ' metals: ' + bad.slice(0, 40).join(', ')
+      return true
+    }
+  },
+  {
+    name: '#81 GT metal ingots, plates and blocks derive from their dusts: none is pinned but late-tier floors, and ProjectE\'s metal defaults are gone',
+    check: server => {
+      const floors = Object.keys(JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb)
+      const bad = []
+      JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
+        const m = /^gtceu:(?:hot_)?(.+)_(ingot|plate|block)$/.exec(String(e.id))
+        // late-tier floors list their molten fluid; raw ore blocks are checked below; below-1 pins are rounding
+        if (m && !m[1].startsWith('raw_') && floors.indexOf('gtceu:' + m[1]) < 0 && e.emc > 2) bad.push(e.id)
+      })
+      if (bad.length > 0) throw 'pinned: ' + bad.join(', ')
+      // with ProjectE's c:ingots/lead default (2 iron) the lead ingot would be 512, below its dust
+      SMOKE_PE_METALS.forEach(m => {
+        const i = smokeEmc('gtceu:' + m + '_ingot')
+        const d = smokeEmc('gtceu:' + m + '_dust')
+        if (!(d > 0) || !(i >= d)) throw m + ' ingot ' + i + ' below its dust ' + d
+      })
+      return true
+    }
+  },
+  {
+    name: '#81 every GT raw ore block is worth 9 of its raw ore',
+    check: server => {
+      const bad = []
+      let checked = 0
+      JsonIO.read(SMOKE_EMC_FILE).entries.forEach(e => {
+        const m = /^gtceu:raw_(.+)_block$/.exec(String(e.id))
+        if (!m || !Item.exists('gtceu:raw_' + m[1])) return
+        checked++
+        if (smokeEmc(e.id) != 9 * smokeEmc('gtceu:raw_' + m[1])) bad.push(e.id + ' ' + smokeEmc(e.id))
+      })
+      if (checked < 100) throw 'only ' + checked + ' raw ore blocks checked'
+      if (bad.length > 0) throw bad.length + ' raw ore blocks: ' + bad.slice(0, 20).join(', ')
       return true
     }
   },
@@ -516,7 +558,7 @@ const SMOKE_TEST_ASSERTIONS = [
     }
   },
   {
-    name: '#59 free fluids are priced per tier, anchored at lava (64): air and oxygen 64 (LV), nether air 128 (MV), nitrogen above 1',
+    name: '#59 free fluids are priced per tier, anchored at lava (64): air and oxygen 64 (LV), nether air 128 (MV); #81 nitrogen listed above lava',
     check: server => {
       const v = JsonIO.read(SMOKE_FLUID_EMC_FILE).emc_per_1000_mb
       const lava = v['minecraft:lava']
@@ -524,9 +566,10 @@ const SMOKE_TEST_ASSERTIONS = [
       Object.keys(expected).forEach(f => {
         if (v[f] != expected[f]) throw f + ' is ' + v[f] + ', expected ' + expected[f]
       })
-      // nitrogen derives from air (#72: no longer listed), at its runtime value
+      // #81: nitrogen is listed at what separating air costs (its cheapest route, a gaining glyceryl trinitrate
+      // electrolysis, drove it to 0-2 and moved it on every re-run), and the runtime value follows the list
       const nitrogen = Number(smokeFluidEmc.valuePerBucket(smokeRegistries.FLUID.get(smokeRL.parse('gtceu:nitrogen'))))
-      if (!(nitrogen > 1)) throw 'nitrogen is ' + nitrogen
+      if (!(v['gtceu:nitrogen'] > lava) || nitrogen != v['gtceu:nitrogen']) throw 'nitrogen is ' + nitrogen + ', listed ' + v['gtceu:nitrogen']
       return true
     }
   },

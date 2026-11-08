@@ -1,23 +1,23 @@
 # Prestiges per tier (#59), from dump dump.txt.xz
 
 EMC per Run area when fully mined and banked (ores | other blocks | total):
-  overworld    65,967,899 |    1,419,457 |   67,387,356
-  the_end      19,557,881 |      710,895 |   20,268,776
-  the_nether   31,452,119 |    3,575,617 |   35,027,736
+  overworld    65,947,823 |    1,419,675 |   67,367,498
+  the_end      19,395,335 |      710,895 |   20,106,230
+  the_nether   31,423,277 |    3,575,666 |   34,998,943
 
 | Tier | Kit cost | Net EMC/Run (dimension) | Kit Runs | Discovery Runs | Prestiges |
 |---|---:|---|---:|---:|---:|
-| LV | 267,749 | 6,738,736 (overworld) | 0.0 | 6.3 | **6.3** |
-| MV | 216,493 | 10,037,131 (overworld) | 0.0 | 8.2 | **8.2** |
-| HV | 990,526 | 33,125,895 (overworld) | 0.0 | 6.7 | **6.8** |
-| EV | 1,377,021 | 66,109,845 (overworld) | 0.0 | 4.5 | **4.5** |
-| IV | 57,733,725 | 66,109,845 (overworld) | 0.9 | 4.4 | **5.3** |
-| LUV | 273,363,583 | 66,109,845 (overworld) | 4.1 | 2.1 | **6.3** |
-| ZPM | 591,113,366 | 66,109,845 (overworld) | 8.9 | 0.0 | **8.9** |
-| UV | 681,382,121 | 66,109,845 (overworld) | 10.3 | 0.0 | **10.3** |
+| LV | 267,654 | 6,736,750 (overworld) | 0.0 | 6.3 | **6.3** |
+| MV | 216,313 | 10,034,141 (overworld) | 0.0 | 8.2 | **8.2** |
+| HV | 991,280 | 33,115,879 (overworld) | 0.0 | 6.7 | **6.8** |
+| EV | 1,381,872 | 66,089,790 (overworld) | 0.0 | 4.5 | **4.5** |
+| IV | 57,769,358 | 66,089,790 (overworld) | 0.9 | 4.4 | **5.3** |
+| LUV | 272,825,923 | 66,089,790 (overworld) | 4.1 | 2.1 | **6.3** |
+| ZPM | 591,541,425 | 66,089,790 (overworld) | 9.0 | 0.0 | **9.0** |
+| UV | 680,786,274 | 66,089,790 (overworld) | 10.3 | 0.0 | **10.3** |
 
 Invariants (kit cost rises with tier; 5-10 Prestiges per tier):
-- MV kit (216,493) does not cost more than the tier below (267,749)
+- MV kit (216,313) does not cost more than the tier below (267,654)
 - EV takes 4.5 Prestiges, outside 5-10
 - UV takes 10.3 Prestiges, outside 5-10
 

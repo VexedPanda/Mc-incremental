@@ -79,6 +79,12 @@
   "gtceu:steam": 1,
   "minecraft:milk": 16
  },
+ "fluids_at_recipe_cost": {
+  "why": "Fluids listed at the cost of one named recipe (#81), because their cheapest route in the game is a gaining one that drives them to nothing: nitrogen, which glyceryl trinitrate electrolysis gives off with hydrogen and oxygen worth more than the trinitrate (#63 group 4), came out at 0 to 2 EMC per bucket and moved on every re-run. Listed at the cheaper of the recipes named, which make it from air (a free fluid): the inputs (listed, else the value the game derives), the machine time and EU, less the listed fluids and the items it also gives; an unlisted byproduct (carbon dioxide, helium, argon) counts nothing, so the listed fluid carries the whole cost.",
+  "fluids": {
+   "gtceu:nitrogen": ["gtceu:centrifuge/air_separation", "gtceu:distillation_tower/distill_liquid_air"]
+  }
+ },
  "pin_at_derived_value": {
   "why": "Items the game can't derive although this model can, pinned at the value the model derives: the facade cover, which GT crafts with a special recipe class that ProjectE skips.",
   "items": [
@@ -106,7 +112,7 @@
   }
  },
  "tags": {
-  "why": "ProjectE's tag defaults that would still value the tag node above the item that now has a new value (#59): c:nether_stars (owner decision 5) and c:rods/blaze, pinned at the item's value. (generate.py also pins the metal and gem tags whose ProjectE defaults it overrides.)",
+  "why": "ProjectE's tag defaults that would still value the tag node above the item that now has a new value (#59): c:nether_stars (owner decision 5) and c:rods/blaze, pinned at the item's value. (ProjectE's GT metal and gem tag defaults are gone: the Pack replaces its metals.json, #81.)",
   "tags": {
    "c:nether_stars": 24772,
    "c:rods/blaze": 576

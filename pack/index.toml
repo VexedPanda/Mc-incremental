@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "5c6243ba2aa4059850bfa30f043bf19b596b70cf148e889a8364f0057ec05461"
+hash = "a323a107af29b3e8be257451e386bd05110666a09676211cb76d312950087a0c"
 
 [[files]]
 file = "config/ProjectE/mapping.toml"
@@ -26,7 +26,11 @@ hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
 
 [[files]]
 file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
-hash = "7f5d1aa9e004d75817e156aec644ec6158730b8ce6aea9ac0625ed223c595e10"
+hash = "de13ec3a57987243022320a69edeb336d7dc9b0df15cc70f59d708a45a98c8e7"
+
+[[files]]
+file = "kubejs/data/projecte/pe_custom_conversions/metals.json"
+hash = "08a756e13546b0ce3db3b648a0e45032f4c57db12b6b6998b4cda533cef2206e"
 
 [[files]]
 file = "kubejs/server_scripts/no_free_resources.js"
@@ -34,7 +38,7 @@ hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "0869d802d03a36088775b84baf2c5a9aa6bb8f797c95426a8fea639851a2d7ff"
+hash = "7c33a05a40e7a0bbbf3e0954ba6ab4489e9e291e7c3fdff72bb06e1bbba55834"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"

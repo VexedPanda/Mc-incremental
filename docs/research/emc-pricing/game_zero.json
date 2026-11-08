@@ -588,5 +588,10 @@
   "gtceu:sulfuric_gas",
   "gtceu:titanium_tetrachloride",
   "gtceu:xenon"
- ]
+ ],
+ "materials_comment": "Rarity-priced materials a dump showed the game making for less through another form (#81), left to recipes, at the unit value first found.",
+ "materials": {
+  "enriched_naquadah": 4294,
+  "uranium_238": 12283
+ }
 }

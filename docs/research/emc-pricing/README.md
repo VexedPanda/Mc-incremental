@@ -1,4 +1,4 @@
-# EMC pricing (#55, re-based in #59, #68 and #72)
+# EMC pricing (#55, re-based in #59, #68, #72 and #81)
 
 Generates the Pack's EMC values, `pack/config/ProjectE/custom_emc.json` and
 `pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json`, so that every obtainable item and fluid but water has
@@ -9,12 +9,15 @@ method and its decisions are in `docs/pocs/poc-1.md` ("How EMC values are made")
 **The rule (owner decision on #72): pin only what no recipe can make from cheaper things, and let recipes set
 everything else.** Pinned: raw materials (ore products, mob drops and other natural items no recipe creates) at their
 rarity price, the late-tier floors, ProjectE's vanilla defaults (and the overrides where a recipe undercuts one: blaze
-rod, nether star), the explicit fluid values (water, lava, steam, milk, the free fluids per tier) and the 0-EMC
-Transmutation Tablet; plus the plumbing ProjectE needs to see anything at all (ore blocks and processing forms at
+rod, nether star), the explicit fluid values (water, lava, steam, milk, the free fluids per tier, nitrogen at its cost
+from air) and the 0-EMC Transmutation Tablet; plus the plumbing ProjectE needs to see anything at all (ore blocks and processing forms at
 their yield, filled buckets, what the game leaves at 0 from valued inputs, values below 1 EMC). ProjectE takes the
 cheapest route by itself, so nothing is capped: #63's R1 ceilings, `game_caps.json` and #41's hand-set GT fuels are
 gone, and so are the hand pins a recipe derives (steel, wrought iron, GT cobblestone forms, dark concrete, magnesite
-and magnesia).
+and magnesia). A raw material is pinned on its dust or gem only: its ingot, plate and block derive from it (#81), and
+ProjectE's own metal defaults (tin, lead, silver, ... at multiples of iron) are gone, as the Pack replaces ProjectE's
+`metals.json` with its vanilla entries (`pack/kubejs/data/projecte/pe_custom_conversions/metals.json`, which
+`emcmodel.py` reads too).
 
 The balancing metric (owner decision, #59) is **Prestiges per tier: about 5-10 per tier**, counting the Runs spent
 discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump; its output is committed as
@@ -39,7 +42,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
 | `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the mod's EU price in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
 | `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the mod's time rate in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
-| `game_zero.json` | Generated: items and fluids a dump showed at 0 although a recipe makes them from inputs the game valued (a recipe ProjectE can't map, such as a smithing upgrade or an output with data components; a share split that gives a byproduct nothing; a tiny dust floored to 0), pinned at the model's value; kept so re-runs are stable. |
+| `game_zero.json` | Generated: items and fluids a dump showed at 0 although a recipe makes them from inputs the game valued (a recipe ProjectE can't map, such as a smithing upgrade or an output with data components; a share split that gives a byproduct nothing; a tiny dust floored to 0), pinned at the model's value; and (`materials`, #81) rarity-priced materials a dump showed the game making for less through another form (U-238), left to recipes; kept so re-runs are stable. |
 | `projecte_defaults/` | ProjectE PE1.1.0's own default values (`data/projecte/pe_custom_conversions`, MIT). |
 
 ## Reproduce

@@ -1,0 +1,14 @@
+{
+ "replace": true,
+ "comment": "Mc-incremental (#81): replaces ProjectE's metals.json, keeping only its vanilla entries. ProjectE's defaults for other mods' metals (tin, lead, silver, nickel, osmium, platinum, bronze, uranium) and gems (ruby, sapphire, peridot) would fix GT's ingots and gems at multiples of iron; the Pack prices GT materials by rarity and recipes instead (docs/research/emc-pricing), so their ingots derive from their dusts by recipe.",
+ "values": {
+  "before": [
+   {"type": "projecte:item", "emc_value": 256, "tag": "c:ingots/iron"},
+   {"type": "projecte:item", "emc_value": 32, "tag": "c:gems/amethyst"}
+  ],
+  "conversion": [
+   {"ingredients": [{"type": "projecte:item", "amount": 8, "tag": "c:ingots/iron"}], "output": {"type": "projecte:item", "tag": "c:ingots/gold"}, "propagateTags": true},
+   {"count": 2, "ingredients": [{"type": "projecte:item", "tag": "c:ingots/iron"}], "output": {"type": "projecte:item", "tag": "c:ingots/copper"}, "propagateTags": true}
+  ]
+ }
+}

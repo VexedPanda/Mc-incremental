@@ -18,6 +18,8 @@ Two modes:
 import json, math, os, re, zipfile
 from collections import defaultdict
 
+PACK_CONVERSIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'pack', 'kubejs', 'data',
+                                'projecte', 'pe_custom_conversions')
 TOOL_TAG_PREFIX = 'gtceu:crafting_tools/'
 BASIC_FORM = re.compile(r'(_ingot|_gem|_dust)$|^minecraft:(iron|gold|copper|netherite)_ingot$'
                         r'|^minecraft:(diamond|emerald|lapis_lazuli|quartz|amethyst_shard|coal|charcoal|redstone)$')
@@ -191,12 +193,22 @@ class Model:
     def _load_pe_defaults(self, src):
         """ProjectE's pe_custom_conversions: from its jar, or a directory of the extracted JSON files."""
         if os.path.isdir(src):
-            files = [json.load(open(os.path.join(src, n))) for n in sorted(os.listdir(src)) if n.endswith('.json')]
+            files = {n: json.load(open(os.path.join(src, n))) for n in sorted(os.listdir(src)) if n.endswith('.json')}
         else:
             with zipfile.ZipFile(src) as z:
                 names = sorted(n for n in z.namelist() if n.startswith('data/projecte/pe_custom_conversions/'))
-                files = [json.loads(z.read(n)) for n in names if n.endswith('.json')]
-        for d in files:
+                files = {os.path.basename(n): json.loads(z.read(n)) for n in names if n.endswith('.json')}
+        # the Pack's own pe_custom_conversions datapack files (#81): one with "replace" replaces ProjectE's file of the
+        # same name, as ProjectE merges them (metals.json keeps only ProjectE's vanilla metals)
+        if os.path.isdir(PACK_CONVERSIONS):
+            for n in sorted(os.listdir(PACK_CONVERSIONS)):
+                if n.endswith('.json'):
+                    d = json.load(open(os.path.join(PACK_CONVERSIONS, n)))
+                    if d.get('replace') or n not in files:
+                        files[n] = d
+                    else:
+                        raise SystemExit('merging a non-replacing pe_custom_conversions file is not modelled: %s' % n)
+        for _, d in sorted(files.items()):
             for e in d.get('values', {}).get('before', []):
                 for m in self.members(e):
                     self.fixed['i:' + m] = e['emc_value']
