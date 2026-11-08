@@ -4,7 +4,7 @@ Energy counted (#64): EMC per EU by tier {'ULV': 0.006338, 'LV': 0.006338, 'MV':
 
 Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV': 8.0, 'HV': 16.0, 'EV': 32.0, 'IV': 64.0, 'LuV': 128.0, 'ZPM': 256.0, 'UV': 512.0}; a recipe gaining no more than its time is paying for it, so the rows below gain more than that
 
-## Exploits (gaining recipes pricing should fix): 236
+## Exploits (gaining recipes pricing should fix): 168
 
 | Gain/run | Inputs | Outputs | Ratio | EMC/s | Tier | Recipe |
 |---:|---:|---:|---:|---:|---|---|
@@ -15,26 +15,17 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 87,230 | 32,974 | 120,204 | 3.65 | 145.4 | HV | gtceu:autoclave/raw_crystal_chip_from_part_bacterial_sludge |
 | 80,996 | 39,208 | 120,204 | 3.07 | 135.0 | HV | gtceu:autoclave/raw_crystal_chip_from_part_mutagen |
 | 75,536 | 21,289 | 96,825 | 4.55 | 755.4 | EV | gtceu:distillation_tower/distill_liquid_nether_air |
-| 75,112 | 150,446 | 225,558 | 1.50 | 6,106.7 | LV | gtceu:lathe/lathe_rtm_alloy_to_rod |
-| 65,801 | 131,839 | 197,640 | 1.50 | 5,023.0 | LV | gtceu:lathe/lathe_ruridit_to_rod |
 | 61,826 | 21,610 | 83,436 | 3.86 | 7,728.2 | LV | gtceu:large_chemical_reactor/desulfurize_light_fuel |
 | 61,826 | 21,610 | 83,436 | 3.86 | 7,728.2 | LV | gtceu:chemical_reactor/desulfurize_light_fuel |
 | 49,136 | 72,484 | 121,620 | 1.68 | 1,965.4 | HV | gtceu:large_chemical_reactor/prussian_blue |
 | 49,136 | 72,484 | 121,620 | 1.68 | 1,965.4 | HV | gtceu:chemical_reactor/prussian_blue |
-| 32,684 | 65,542 | 98,226 | 1.50 | 3,369.4 | LV | gtceu:lathe/lathe_tungsten_carbide_to_rod |
-| 31,986 | 64,188 | 96,174 | 1.50 | 2,687.9 | LV | gtceu:lathe/lathe_tungsten_steel_to_rod |
 | 31,343 | 7,216 | 38,559 | 5.34 | 5,223.8 | MV | gtceu:distillation_tower/distill_lightly_hydro_cracked_light_fuel |
 | 21,712 | 6,633 | 28,345 | 4.27 | 1,357.0 | LV | gtceu:large_chemical_reactor/phosphoric_acid_from_apatite |
 | 21,712 | 6,633 | 28,345 | 4.27 | 1,357.0 | LV | gtceu:chemical_reactor/phosphoric_acid_from_apatite |
-| 18,859 | 37,895 | 56,754 | 1.50 | 1,924.4 | LV | gtceu:lathe/lathe_hssg_to_rod |
 | 17,064 | 33,044 | 50,108 | 1.52 | 568.8 | LuV | gtceu:large_chemical_reactor/naquadah_separation |
-| 14,616 | 29,394 | 44,010 | 1.50 | 1,642.3 | LV | gtceu:lathe/lathe_hastelloy_x_to_rod |
-| 12,792 | 25,818 | 38,610 | 1.50 | 991.6 | LV | gtceu:lathe/lathe_hsss_to_rod |
 | 10,446 | 11,446 | 21,892 | 1.91 | 2,089.1 | EV | gtceu:large_chemical_reactor/diethylenetriaminepentaacetic_acid |
-| 8,156 | 16,414 | 24,570 | 1.50 | 1,456.5 | LV | gtceu:lathe/lathe_damascus_steel_to_rod |
 | 8,087 | 9,424 | 17,511 | 1.86 | 404.4 | EV | gtceu:centrifuge/impure_naquadria_solution_separation |
 | 8,087 | 9,424 | 17,511 | 1.86 | 404.4 | EV | gtceu:centrifuge/impure_enriched_naquadah_solution_separation |
-| 7,065 | 14,319 | 21,384 | 1.49 | 672.8 | LV | gtceu:lathe/lathe_rhodium_plated_palladium_to_rod |
 | 6,439 | 1,321 | 7,760 | 5.88 | 1,073.2 | LV | gtceu:large_chemical_reactor/isoprene_from_ethylene |
 | 6,439 | 1,321 | 7,760 | 5.88 | 1,073.2 | LV | gtceu:chemical_reactor/isoprene_from_ethylene |
 | 5,317 | 547 | 5,864 | 10.72 | 241.7 | MV | gtceu:electrolyzer/decomposition_electrolyzing_biotite |
@@ -44,18 +35,13 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 4,469 | 375 | 4,844 | 12.93 | 2,234.7 | HV | gtceu:distillation_tower/distill_wood_tar |
 | 4,424 | 127 | 4,551 | 35.89 | 737.4 | LV | gtceu:centrifuge/decomposition_centrifuging__andesite |
 | 4,362 | 2,314 | 6,676 | 2.89 | 122.2 | LV | gtceu:centrifuge/decomposition_centrifuging__lead_zinc_solution |
-| 4,133 | 8,395 | 12,528 | 1.49 | 582.1 | LV | gtceu:lathe/lathe_niobium_titanium_to_rod |
-| 4,071 | 8,241 | 12,312 | 1.49 | 754.0 | LV | gtceu:lathe/lathe_niobium_nitride_to_rod |
 | 4,047 | 233 | 4,280 | 18.41 | 187.4 | LV | gtceu:centrifuge/decomposition_centrifuging__basalt |
 | 3,813 | 1,137 | 4,950 | 4.35 | 59.8 | LV | gtceu:centrifuge/decomposition_centrifuging__redstone |
 | 3,739 | 491 | 4,230 | 8.61 | 830.9 | LV | gtceu:electrolyzer/decomposition_electrolyzing_potash |
 | 3,506 | 1,582 | 5,088 | 3.22 | 438.2 | LV | gtceu:large_chemical_reactor/allyl_chloride |
 | 3,506 | 1,582 | 5,088 | 3.22 | 438.2 | LV | gtceu:chemical_reactor/allyl_chloride |
 | 3,501 | 632 | 4,133 | 6.54 | 583.5 | MV | gtceu:distillation_tower/distill_lightly_steam_cracked_naphtha |
-| 3,295 | 6,689 | 9,984 | 1.49 | 599.1 | LV | gtceu:lathe/lathe_vanadium_gallium_to_rod |
-| 3,288 | 6,702 | 9,990 | 1.49 | 469.7 | LV | gtceu:lathe/lathe_hastelloy_c_276_to_rod |
 | 3,028 | 95 | 3,122 | 32.99 | 252.3 | LV | gtceu:centrifuge/ash_separation |
-| 2,875 | 5,957 | 8,832 | 1.48 | 250.0 | LV | gtceu:lathe/lathe_blue_alloy_to_rod |
 | 2,813 | 5,516 | 8,329 | 1.51 | 117.2 | HV | gtceu:large_chemical_reactor/tetrafluoroethylene_from_chloroform |
 | 2,813 | 5,516 | 8,329 | 1.51 | 117.2 | HV | gtceu:chemical_reactor/tetrafluoroethylene_from_chloroform |
 | 2,726 | 3,111 | 5,837 | 1.88 | 454.4 | LV | gtceu:large_chemical_reactor/phenol_from_dichlorobenzene |
@@ -63,21 +49,14 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 2,558 | 271 | 2,829 | 10.43 | 196.8 | MV | gtceu:electrolyzer/decomposition_electrolyzing_potassium_feldspar |
 | 2,550 | 3,596 | 6,146 | 1.71 | 54.4 | LV | gtceu:centrifuge/decomposition_centrifuging__platinum_sludge_residue |
 | 2,396 | 316 | 2,712 | 8.59 | 263.3 | MV | gtceu:electrolyzer/decomposition_electrolyzing_clay |
-| 2,198 | 4,738 | 6,936 | 1.46 | 116.3 | LV | gtceu:lathe/lathe_battery_alloy_to_rod |
 | 2,071 | 230 | 2,301 | 9.99 | 414.1 | MV | gtceu:centrifuge/bauxite_sludge_centrifuge |
 | 2,048 | 4,114 | 6,162 | 1.50 | 682.6 | LV | gtceu:lathe/lathe_olivine_to_rod |
-| 2,017 | 4,127 | 6,144 | 1.49 | 387.8 | LV | gtceu:lathe/lathe_chromium_to_rod |
-| 2,015 | 4,129 | 6,144 | 1.49 | 366.3 | LV | gtceu:lathe/lathe_manganese_to_rod |
-| 1,991 | 4,153 | 6,144 | 1.48 | 209.6 | LV | gtceu:lathe/lathe_molybdenum_to_rod |
-| 1,930 | 4,214 | 6,144 | 1.46 | 99.0 | LV | gtceu:lathe/lathe_platinum_to_rod |
 | 1,783 | 7,053 | 8,836 | 1.25 | 89.2 | IV | gtceu:large_chemical_reactor/rarest_metal_mixture_separation |
-| 1,741 | 3,857 | 5,598 | 1.45 | 84.1 | LV | gtceu:lathe/lathe_lead_to_rod |
 | 1,731 | 446 | 2,177 | 4.89 | 865.7 | LV | gtceu:electrolyzer/decomposition_electrolyzing_lithium_chloride |
 | 1,587 | 9,677 | 11,264 | 1.16 | 3,174.1 | HV | gtceu:large_chemical_reactor/gasoline |
 | 1,587 | 9,677 | 11,264 | 1.16 | 3,174.1 | HV | gtceu:chemical_reactor/gasoline |
 | 1,343 | 1,585 | 2,928 | 1.85 | 223.8 | MV | gtceu:electric_blast_furnace/tetrahedrite_metallurgy |
 | 1,307 | 767 | 2,075 | 2.70 | 217.9 | MV | gtceu:distillation_tower/distill_severely_steam_cracked_naphtha |
-| 1,259 | 2,629 | 3,888 | 1.48 | 206.4 | LV | gtceu:lathe/lathe_hsla_steel_to_rod |
 | 1,210 | 974 | 2,184 | 2.24 | 201.6 | MV | gtceu:electric_blast_furnace/soda_ash_from_calcite |
 | 1,161 | 3,394 | 4,556 | 1.34 | 232.2 | HV | gtceu:centrifuge/acidic_naquadria_solution_separation |
 | 1,161 | 3,394 | 4,556 | 1.34 | 232.2 | HV | gtceu:centrifuge/acidic_enriched_naquadah_separation |
@@ -88,48 +67,26 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 1,018 | 1,698 | 2,716 | 1.60 | 407.4 | LV | gtceu:large_chemical_reactor/pgs_from_chalcopyrite |
 | 1,018 | 1,698 | 2,716 | 1.60 | 407.4 | LV | gtceu:chemical_reactor/pgs_from_chalcopyrite |
 | 1,009 | 17 | 1,026 | 61.22 | 2,018.5 | LV | gtceu:packer/unpackage_dark_ash_tiny_dust |
-| 1,009 | 2,447 | 3,456 | 1.41 | 42.4 | LV | gtceu:lathe/lathe_uranium_238_to_rod |
-| 985 | 2,087 | 3,072 | 1.47 | 151.5 | LV | gtceu:lathe/lathe_zinc_to_rod |
 | 969 | 83 | 1,052 | 12.72 | 484.4 | HV | gtceu:distillation_tower/distill_charcoal_byproducts |
-| 957 | 2,028 | 2,985 | 1.47 | 156.9 | LV | gtceu:lathe/lathe_ultimet_to_rod |
-| 937 | 2,135 | 3,072 | 1.44 | 65.1 | LV | gtceu:lathe/lathe_neodymium_to_rod |
-| 937 | 2,135 | 3,072 | 1.44 | 65.1 | LV | gtceu:lathe/lathe_magnetic_neodymium_to_rod |
-| 928 | 2,204 | 3,132 | 1.42 | 48.3 | LV | gtceu:lathe/lathe_iridium_to_rod |
-| 906 | 2,166 | 3,072 | 1.42 | 46.2 | LV | gtceu:lathe/lathe_gold_to_rod |
 | 903 | 452 | 1,355 | 3.00 | 24.5 | MV | gtceu:electrolyzer/decomposition_electrolyzing_mercury_barium_calcium_cuprate |
 | 859 | 86 | 945 | 10.94 | 214.7 | MV | gtceu:distillery/distill_charcoal_byproducts_to_dimethylbenzene |
 | 840 | 1,311 | 2,151 | 1.64 | 140.0 | MV | gtceu:electric_blast_furnace/chalcopyrite_metallurgy |
 | 819 | 7,695 | 8,514 | 1.11 | 102.4 | MV | gtceu:electrolyzer/depleted_uranium_hexafluoride_separation |
 | 792 | 59 | 851 | 14.44 | 198.1 | MV | gtceu:centrifuge/lava_separation |
-| 761 | 1,622 | 2,383 | 1.47 | 138.3 | LV | gtceu:lathe/lathe_vanadium_steel_to_rod |
 | 753 | 2,375 | 3,128 | 1.32 | 71.7 | EV | gtceu:chemical_bath/tungstic_acid_from_tungstate |
 | 741 | 4,191 | 4,932 | 1.18 | 41.1 | HV | gtceu:centrifuge/rare_earth_sludge_dust_washing_from_sludge_mixture |
-| 735 | 1,552 | 2,287 | 1.47 | 167.2 | LV | gtceu:lathe/lathe_kanthal_to_rod |
-| 731 | 1,807 | 2,538 | 1.40 | 38.3 | LV | gtceu:lathe/lathe_osmiridium_to_rod |
-| 730 | 1,766 | 2,496 | 1.41 | 43.2 | LV | gtceu:lathe/lathe_rose_gold_to_rod |
-| 718 | 2,390 | 3,108 | 1.30 | 13.6 | LV | gtceu:lathe/lathe_enriched_naquadah_to_rod |
-| 707 | 2,365 | 3,072 | 1.30 | 13.4 | LV | gtceu:lathe/lathe_naquadah_to_rod |
 | 703 | 1,409 | 2,112 | 1.50 | 14.4 | MV | gtceu:centrifuge/glowstone_separation |
 | 670 | 148 | 818 | 5.53 | 159.6 | MV | gtceu:electrolyzer/decomposition_electrolyzing_glycerol |
-| 652 | 1,397 | 2,049 | 1.47 | 130.4 | LV | gtceu:lathe/lathe_molybdenum_disilicide_to_rod |
 | 618 | 411 | 1,029 | 2.50 | 176.6 | EV | gtceu:electromagnetic_separator/sift_light_rare_earth_sludge |
-| 597 | 1,360 | 1,957 | 1.44 | 64.8 | LV | gtceu:lathe/lathe_bismuth_bronze_to_rod |
 | 585 | 392 | 976 | 2.49 | 146.1 | MV | gtceu:distillation_tower/distill_coal_tar |
-| 582 | 1,254 | 1,836 | 1.46 | 118.9 | LV | gtceu:lathe/lathe_incoloy_ma_956_to_rod |
-| 580 | 1,262 | 1,842 | 1.46 | 103.6 | LV | gtceu:lathe/lathe_nichrome_to_rod |
 | 579 | 1,269 | 1,849 | 1.46 | 19.3 | MV | gtceu:distillery/naquadria_waste_separation_to_naquadria_solution |
 | 579 | 1,269 | 1,849 | 1.46 | 19.3 | MV | gtceu:distillery/enriched_naquadah_waste_separation_to_enriched_naquadah_solution |
 | 553 | 5,411 | 5,964 | 1.10 | 24.6 | EV | gtceu:large_chemical_reactor/inert_metal_mixture_separation |
 | 553 | 5,411 | 5,964 | 1.10 | 24.6 | EV | gtceu:chemical_reactor/inert_metal_mixture_separation |
-| 549 | 1,371 | 1,920 | 1.40 | 36.4 | LV | gtceu:lathe/lathe_electrum_to_rod |
-| 535 | 1,170 | 1,705 | 1.46 | 97.2 | LV | gtceu:lathe/lathe_stainless_steel_to_rod |
-| 502 | 1,442 | 1,944 | 1.35 | 20.6 | LV | gtceu:lathe/lathe_plutonium_241_to_rod |
 | 492 | 2,316 | 2,808 | 1.21 | 45.5 | LV | gtceu:centrifuge/decomposition_centrifuging__gallium_arsenide |
 | 487 | 879 | 1,366 | 1.55 | 20.3 | MV | gtceu:large_chemical_reactor/polydimethylsiloxane_from_elements |
 | 487 | 879 | 1,366 | 1.55 | 20.3 | MV | gtceu:chemical_reactor/polydimethylsiloxane_from_elements |
 | 484 | 167 | 651 | 3.90 | 80.6 | MV | gtceu:electrolyzer/decomposition_electrolyzing_red_granite |
-| 476 | 1,060 | 1,536 | 1.45 | 80.8 | LV | gtceu:lathe/lathe_cobalt_to_rod |
-| 448 | 1,088 | 1,536 | 1.41 | 42.3 | LV | gtceu:lathe/lathe_palladium_to_rod |
 | 446 | 632 | 1,078 | 1.71 | 37.2 | LV | gtceu:distillery/distill_lightly_steam_cracked_naphtha_to_light_fuel |
 | 434 | 798 | 1,232 | 1.54 | 72.3 | MV | gtceu:electric_blast_furnace/pyrite_metallurgy |
 | 428 | 1,216 | 1,644 | 1.35 | 28.6 | HV | gtceu:distillation_tower/naquadria_waste_separation |
@@ -150,29 +107,19 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 318 | 46 | 364 | 7.83 | 90.7 | MV | gtceu:electrolyzer/decomposition_electrolyzing_calcium_hydroxide |
 | 315 | 1,197 | 1,512 | 1.26 | 35.0 | LV | gtceu:large_chemical_reactor/glyceryl_trinitrate |
 | 315 | 1,197 | 1,512 | 1.26 | 35.0 | LV | gtceu:chemical_reactor/glyceryl_trinitrate |
-| 304 | 668 | 972 | 1.46 | 92.2 | LV | gtceu:lathe/lathe_nickel_zinc_ferrite_to_rod |
 | 298 | 206 | 504 | 2.45 | 745.2 | ULV | gtceu:macerator/macerate_reinforced_epoxy_resin_plate |
 | 296 | 208 | 504 | 2.42 | 739.7 | LV | gtceu:extractor/extract_reinforced_epoxy_resin_plate |
-| 285 | 916 | 1,201 | 1.31 | 15.0 | LV | gtceu:lathe/lathe_osmium_to_rod |
 | 276 | 859 | 1,135 | 1.32 | 17.3 | MV | gtceu:pyrolyse_oven/log_to_wood_tar_nitrogen |
 | 276 | 18 | 294 | 16.51 | 276.2 | LV | gtceu:electrolyzer/decomposition_electrolyzing_methane |
-| 269 | 646 | 915 | 1.42 | 46.4 | LV | gtceu:lathe/lathe_cobalt_brass_to_rod |
 | 268 | 116 | 384 | 3.30 | 66.9 | MV | gtceu:wiremill/string_from_polycaprolactam |
-| 266 | 646 | 912 | 1.41 | 42.2 | LV | gtceu:lathe/lathe_brass_to_rod |
 | 262 | 90 | 352 | 3.89 | 217.9 | LV | gtceu:distillery/distill_severely_hydro_cracked_gas_to_hydrogen |
 | 235 | 900 | 1,135 | 1.26 | 7.4 | MV | gtceu:pyrolyse_oven/log_to_wood_tar |
-| 235 | 647 | 882 | 1.36 | 24.0 | LV | gtceu:lathe/lathe_black_bronze_to_rod |
 | 233 | 25 | 258 | 10.15 | 77.5 | LV | gtceu:centrifuge/quartz_sand_separation |
-| 231 | 597 | 828 | 1.39 | 30.8 | LV | gtceu:lathe/lathe_red_steel_to_rod |
 | 226 | 1,269 | 1,496 | 1.18 | 7.5 | MV | gtceu:distillery/naquadria_waste_separation_to_enriched_naquadah_solution |
 | 226 | 1,269 | 1,496 | 1.18 | 7.5 | MV | gtceu:distillery/enriched_naquadah_waste_separation_to_naquadria_solution |
-| 224 | 532 | 756 | 1.42 | 48.8 | LV | gtceu:lathe/lathe_watertight_steel_to_rod |
-| 223 | 611 | 834 | 1.37 | 24.5 | LV | gtceu:lathe/lathe_potin_to_rod |
-| 220 | 1,376 | 1,596 | 1.16 | 5.5 | HV | gtceu:large_chemical_reactor/collagen_from_bone_meal |
-| 220 | 1,376 | 1,596 | 1.16 | 5.5 | HV | gtceu:chemical_reactor/collagen_from_bone_meal |
-| 200 | 527 | 727 | 1.38 | 29.0 | LV | gtceu:lathe/lathe_blue_steel_to_rod |
+| 224 | 1,372 | 1,596 | 1.16 | 5.6 | HV | gtceu:large_chemical_reactor/collagen_from_bone_meal |
+| 224 | 1,372 | 1,596 | 1.16 | 5.6 | HV | gtceu:chemical_reactor/collagen_from_bone_meal |
 | 200 | 427 | 627 | 1.47 | 49.9 | MV | gtceu:electrolyzer/decomposition_electrolyzing_epichlorohydrin |
-| 191 | 577 | 768 | 1.33 | 17.9 | LV | gtceu:lathe/lathe_silver_to_rod |
 | 191 | 807 | 998 | 1.24 | 6.7 | MV | gtceu:electrolyzer/decomposition_electrolyzing_yttrium_barium_cuprate |
 | 185 | 405 | 590 | 1.46 | 38.6 | MV | gtceu:electrolyzer/decomposition_electrolyzing_dichloroethane |
 | 181 | 1,269 | 1,450 | 1.14 | 6.0 | MV | gtceu:distillery/naquadria_waste_separation_to_sulfuric_acid |
@@ -180,33 +127,20 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 169 | 291 | 460 | 1.58 | 105.3 | LV | gtceu:electrolyzer/decomposition_electrolyzing_ethane |
 | 168 | 126 | 294 | 2.34 | 84.1 | MV | gtceu:electrolyzer/decomposition_electrolyzing_formic_acid |
 | 166 | 586 | 752 | 1.28 | 37.7 | ULV | gtceu:macerator/macerate_blaze_rod |
-| 165 | 429 | 594 | 1.38 | 30.0 | LV | gtceu:lathe/lathe_maraging_steel_300_to_rod |
-| 157 | 431 | 588 | 1.37 | 24.6 | LV | gtceu:lathe/lathe_black_steel_to_rod |
-| 157 | 494 | 651 | 1.32 | 16.0 | LV | gtceu:lathe/lathe_sterling_silver_to_rod |
 | 156 | 450 | 606 | 1.35 | 57.8 | MV | gtceu:electrolyzer/decomposition_electrolyzing_ammonium_formate |
-| 152 | 334 | 486 | 1.46 | 95.2 | LV | gtceu:lathe/lathe_polytetrafluoroethylene_to_rod |
 | 146 | 303 | 449 | 1.48 | 325.1 | LV | gtceu:distillery/distill_severely_hydro_cracked_light_fuel_to_methane |
 | 146 | 303 | 449 | 1.48 | 325.1 | LV | gtceu:distillery/distill_severely_hydro_cracked_light_fuel_to_ethane |
 | 146 | 26 | 172 | 6.65 | 52.2 | LV | gtceu:electrolyzer/decomposition_electrolyzing_quicklime |
-| 144 | 432 | 576 | 1.33 | 18.0 | LV | gtceu:lathe/lathe_red_alloy_to_rod |
 | 143 | 346 | 489 | 1.41 | 26.0 | MV | gtceu:electrolyzer/decomposition_electrolyzing_chloroform |
 | 137 | 21 | 158 | 7.68 | 54.8 | LV | gtceu:centrifuge/red_sand_separation |
-| 136 | 375 | 511 | 1.36 | 24.3 | LV | gtceu:lathe/lathe_invar_to_rod |
 | 131 | 222 | 353 | 1.59 | 10.9 | LV | gtceu:centrifuge/decomposition_centrifuging__marble |
-| 124 | 356 | 480 | 1.35 | 20.6 | LV | gtceu:lathe/lathe_cupronickel_to_rod |
 | 119 | 219 | 338 | 1.54 | 23.7 | MV | gtceu:electrolyzer/decomposition_electrolyzing_calcite |
 | 115 | 391 | 506 | 1.29 | 14.4 | LV | gtceu:distillery/distill_coal_tar_to_phenol |
 | 111 | 78 | 190 | 2.42 | 111.4 | HV | gtceu:distillation_tower/distill_heavy_oil |
-| 110 | 322 | 432 | 1.34 | 19.7 | LV | gtceu:lathe/lathe_steel_to_rod |
-| 110 | 322 | 432 | 1.34 | 19.7 | LV | gtceu:lathe/lathe_magnetic_steel_to_rod |
 | 105 | 27 | 132 | 4.89 | 104.9 | MV | gtceu:distillation_tower/distill_oil |
 | 105 | 26 | 131 | 4.96 | 34.9 | LV | gtceu:electrolyzer/decomposition_electrolyzing_silicon_dioxide |
 | 98 | 262 | 360 | 1.37 | 9.8 | ULV | gtceu:large_chemical_reactor/salt |
 | 98 | 262 | 360 | 1.37 | 9.8 | ULV | gtceu:chemical_reactor/salt |
-| 96 | 241 | 337 | 1.40 | 37.0 | LV | gtceu:lathe/lathe_aluminium_to_rod |
-| 94 | 290 | 384 | 1.33 | 16.8 | LV | gtceu:lathe/lathe_wrought_iron_to_rod |
-| 94 | 290 | 384 | 1.33 | 16.8 | LV | gtceu:lathe/lathe_magnetic_iron_to_rod |
-| 94 | 290 | 384 | 1.33 | 16.8 | LV | gtceu:lathe/lathe_iron_to_rod |
 | 94 | 586 | 680 | 1.16 | 9.0 | LV | gtceu:centrifuge/decomposition_centrifuging__phosphorus_pentoxide |
 | 89 | 643 | 732 | 1.14 | 5.9 | HV | gtceu:brewery/bacteria |
 | 89 | 84 | 173 | 2.06 | 44.5 | HV | gtceu:distillation_tower/distill_wood_vinegar |
@@ -215,10 +149,8 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 87 | 103 | 189 | 1.84 | 21.7 | MV | gtceu:distillation_tower/distill_coal_gas |
 | 84 | 109 | 193 | 1.77 | 46.6 | LV | gtceu:electrolyzer/decomposition_electrolyzing_hydrochloric_acid |
 | 83 | 509 | 592 | 1.16 | 9.8 | MV | gtceu:electrolyzer/decomposition_electrolyzing_mirabilite |
-| 81 | 208 | 289 | 1.39 | 32.4 | LV | gtceu:lathe/lathe_magnalium_to_rod |
 | 81 | 176 | 257 | 1.46 | 33.6 | MV | gtceu:electrolyzer/decomposition_electrolyzing_hypochlorous_acid |
 | 79 | 564 | 643 | 1.14 | 10.4 | LV | gtceu:electrolyzer/decomposition_electrolyzing_iron_iii_chloride |
-| 76 | 308 | 384 | 1.24 | 8.7 | LV | gtceu:lathe/lathe_tin_alloy_to_rod |
 | 68 | 244 | 312 | 1.28 | 84.7 | LV | gtceu:electrolyzer/decomposition_electrolyzing_ammonia |
 | 53 | 93 | 146 | 1.57 | 35.5 | LV | gtceu:large_chemical_reactor/styrene_from_ethylbenzene |
 | 53 | 93 | 146 | 1.57 | 35.5 | LV | gtceu:chemical_reactor/styrene_from_ethylbenzene |
@@ -245,9 +177,9 @@ Time counted (#64): EMC per machine-second by tier {'ULV': 2.0, 'LV': 4.0, 'MV':
 | 15 | 12 | 27 | 2.30 | 30.5 | LV | gtceu:packer/package_redrock_tiny_dust |
 | 12 | 12 | 24 | 2.04 | 24.5 | LV | gtceu:packer/package_mirabilite_tiny_dust |
 
-Of those, gaining 100+ EMC per run: 193
+Of those, gaining 100+ EMC per run: 131
 
-## Recipes making a floored late-tier material (intended, owner decision 3): 41
+## Recipes making a floored late-tier material (intended, owner decision 3): 27
 
 | Gain/run | Inputs | Outputs | Ratio | EMC/s | Tier | Recipe |
 |---:|---:|---:|---:|---:|---|---|
@@ -264,26 +196,13 @@ Of those, gaining 100+ EMC per run: 193
 | 187,202 | 18,904 | 206,106 | 10.90 | 124,801.1 | ULV | gtceu:chemical_reactor/indium_phosphide_separation |
 | 142,455 | 57,270 | 199,725 | 3.49 | 4,522.4 | LV | gtceu:centrifuge/decomposition_centrifuging__rhodium_plated_palladium |
 | 128,795 | 2,661 | 131,456 | 49.40 | 12,266.2 | EV | gtceu:electrolyzer/tungstic_acid_electrolysis |
-| 98,266 | 196,673 | 294,939 | 1.50 | 9,540.4 | LV | gtceu:lathe/lathe_rhodium_to_rod |
-| 98,265 | 196,672 | 294,937 | 1.50 | 9,729.2 | LV | gtceu:lathe/lathe_ruthenium_to_rod |
-| 98,255 | 196,657 | 294,912 | 1.50 | 12,130.3 | LV | gtceu:lathe/lathe_hsse_to_rod |
 | 90,365 | 40,707 | 131,072 | 3.22 | 4,518.3 | IV | gtceu:mixer/naquadah_alloy |
 | 73,140 | 57,933 | 131,072 | 2.26 | 727.8 | LuV | gtceu:alloy_blast_smelter/naquadah_alloy_gas |
-| 65,426 | 131,182 | 196,608 | 1.50 | 3,575.2 | LV | gtceu:lathe/lathe_tungsten_to_rod |
 | 64,316 | 66,756 | 131,072 | 1.96 | 428.8 | LuV | gtceu:alloy_blast_smelter/naquadah_alloy |
 | 50,287 | 2,696 | 52,983 | 19.66 | 20,115.0 | EV | gtceu:large_chemical_reactor/indium_concentrate_separation |
 | 50,287 | 2,696 | 52,983 | 19.66 | 20,115.0 | EV | gtceu:chemical_reactor/indium_concentrate_separation |
 | 29,910 | 2,858 | 32,768 | 11.47 | 9,347.0 | ZPM | gtceu:fusion_reactor/plutonium_241_and_hydrogen_gas_to_americium_plasma |
 | 20,368 | 27,890 | 48,258 | 1.73 | 543.1 | LuV | gtceu:electric_blast_furnace/trinium_sulfide_separation |
-| 16,325 | 32,862 | 49,187 | 1.50 | 1,081.1 | LV | gtceu:lathe/lathe_europium_to_rod |
-| 16,252 | 32,919 | 49,171 | 1.49 | 663.4 | LV | gtceu:lathe/lathe_americium_to_rod |
-| 16,233 | 32,940 | 49,173 | 1.49 | 577.7 | LV | gtceu:lathe/lathe_darmstadtium_to_rod |
-| 16,225 | 32,950 | 49,175 | 1.49 | 546.3 | LV | gtceu:lathe/lathe_tritanium_to_rod |
-| 16,223 | 32,952 | 49,175 | 1.49 | 540.8 | LV | gtceu:lathe/lathe_duranium_to_rod |
-| 16,189 | 32,963 | 49,152 | 1.49 | 501.2 | LV | gtceu:lathe/lathe_trinium_to_rod |
-| 16,148 | 33,004 | 49,152 | 1.49 | 413.0 | LV | gtceu:lathe/lathe_naquadah_alloy_to_rod |
-| 16,069 | 33,083 | 49,152 | 1.49 | 307.8 | LV | gtceu:lathe/lathe_naquadria_to_rod |
-| 15,839 | 33,374 | 49,213 | 1.47 | 158.4 | LV | gtceu:lathe/lathe_neutronium_to_rod |
 | 14,900 | 18,248 | 33,148 | 1.82 | 496.7 | ZPM | gtceu:electric_blast_furnace/naquadria_sulfate_separation |
 | 3,105 | 536 | 3,641 | 6.80 | 1,940.8 | LuV | gtceu:fusion_reactor/gallium_and_radon_to_duranium_plasma |
 | 2,826 | 815 | 3,641 | 4.47 | 883.2 | LuV | gtceu:fusion_reactor/neodymium_and_hydrogen_to_europium_plasma |
@@ -291,7 +210,6 @@ Of those, gaining 100+ EMC per run: 193
 | 1,879 | 13,139 | 15,018 | 1.14 | 82.1 | LV | gtceu:centrifuge/decomposition_centrifuging__hsla_steel |
 | 1,787 | 1,797 | 3,584 | 1.99 | 44.7 | HV | gtceu:electric_blast_furnace/titanium_from_tetrachloride |
 | 1,776 | 310 | 2,086 | 6.73 | 634.3 | LV | gtceu:electrolyzer/decomposition_electrolyzing_titanium_carbide |
-| 995 | 2,077 | 3,072 | 1.48 | 207.3 | LV | gtceu:lathe/lathe_titanium_to_rod |
 
 ## Recipes with no consumed input (free resources, ADR-0005): 17
 
@@ -320,8 +238,8 @@ Of those, gaining 100+ EMC per run: 193
 | Gain/run | Inputs | Outputs | Ratio | EMC/s | Tier | Recipe |
 |---:|---:|---:|---:|---:|---|---|
 | 9 | 36 | 45 | 1.26 | 21.0 | LV | gtceu:distillery/distill_severely_hydro_cracked_gas_to_methane |
+| 9 | 7 | 16 | 2.37 | 18.5 | LV | gtceu:packer/package_concrete_small_dust |
 | 9 | 7 | 16 | 2.37 | 18.5 | LV | gtceu:packer/pack_mercury_barium_calcium_cuprate_wires_4_single |
-| 8 | 7 | 15 | 2.22 | 16.5 | LV | gtceu:packer/package_concrete_small_dust |
 | 7 | 2 | 9 | 5.71 | 37.1 | ULV | gtceu:alloy_smelter/alloy_smelt_polyethylene_to_nugget |
 | 7 | 2 | 9 | 5.23 | 29.1 | ULV | gtceu:alloy_smelter/alloy_smelt_rubber_to_nugget |
 | 7 | 2 | 9 | 5.23 | 29.1 | ULV | gtceu:alloy_smelter/alloy_smelt_raw_rubber_to_nugget |
@@ -357,13 +275,13 @@ Of those, gaining 100+ EMC per run: 193
 | 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_marble_tiny_dust |
 | 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_granite_tiny_dust |
 | 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_diorite_tiny_dust |
+| 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_concrete_tiny_dust |
 | 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_clay_tiny_dust |
 | 4 | 12 | 16 | 1.36 | 8.5 | LV | gtceu:packer/package_andesite_tiny_dust |
 | 4 | 5 | 9 | 1.89 | 8.5 | LV | gtceu:packer/unpackage_quicklime_tiny_dust |
 | 4 | 5 | 9 | 1.89 | 8.5 | LV | gtceu:packer/unpackage_quartzite_tiny_dust |
 | 4 | 5 | 9 | 1.89 | 8.5 | LV | gtceu:packer/unpackage_deepslate_tiny_dust |
 | 4 | 21 | 25 | 1.17 | 7.9 | LV | gtceu:distillery/distill_lightly_hydro_cracked_gas_to_methane |
-| 3 | 12 | 15 | 1.28 | 6.5 | LV | gtceu:packer/package_concrete_tiny_dust |
 | 3 | 6 | 9 | 1.56 | 6.5 | LV | gtceu:packer/unpackage_silicon_tiny_dust |
 | 3 | 6 | 9 | 1.56 | 6.5 | LV | gtceu:packer/unpackage_polyphenylene_sulfide_tiny_dust |
 | 3 | 6 | 9 | 1.56 | 6.5 | LV | gtceu:packer/unpackage_charcoal_tiny_dust |

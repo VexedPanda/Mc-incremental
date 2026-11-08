@@ -1,8 +1,8 @@
 name = "Mc-incremental Prestige"
-filename = "mcincremental_prestige-0.4.0.jar"
+filename = "mcincremental_prestige-0.4.1.jar"
 side = "both"
 
 [download]
-url = "https://github.com/VexedPanda/mc-incremental-prestige/releases/download/v0.4.0/mcincremental_prestige-0.4.0.jar"
+url = "https://github.com/VexedPanda/mc-incremental-prestige/releases/download/v0.4.1/mcincremental_prestige-0.4.1.jar"
 hash-format = "sha256"
-hash = "ee9154e9d17039b59ab407ee236899eeb3288d1819f7ca23bd84d4387f6ee52c"
+hash = "bf84ab9eaf9145f8df9beb56fa9209d95a7956384f08c4bc21dfd9f9356f98af"

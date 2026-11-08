@@ -2,7 +2,7 @@
 
 Generates the Pack's EMC values, `pack/config/ProjectE/custom_emc.json` and
 `pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json`, so that every obtainable item and fluid but water has
-EMC, against the Prestige mod v0.4.0's GT recipe mapper (it splits each recipe's cost across its outputs, and counts
+EMC, against the Prestige mod v0.4.1's GT recipe mapper (it splits each recipe's cost across its outputs, and counts
 each recipe's EU and machine time at the rates in `pack/config/mcincremental_prestige-common.toml`, #68). The method
 and its decisions are in `docs/pocs/poc-1.md` ("How EMC values are made").
 
@@ -25,7 +25,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `dump.js` | KubeJS dump (items, fluids, tags, recipes with their duration and voltage tier) for a smoke-test server. |
 | `dump.txt.xz` | The dump the committed values were generated from (Pack with the values it generated running). |
 | `dump_eu.js` | KubeJS dump of every GT recipe's EU (input and output EU/t, amperage, duration, fusion start energy) for the energy-in-EMC research (#64, `../energy-in-emc.md`). |
-| `eu.txt.xz` | Its output, from a smoke-test server running the v0.4.0 Pack (#68; take it with the dump, below). |
+| `eu.txt.xz` | Its output, from a smoke-test server running the v0.4.1 Pack (#68; take it with the dump, below). |
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
 | `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the Pack's EU price in `emcmodel.py` and `audit.py` (`0`: off). |
 | `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the Pack's time rate in `emcmodel.py` and `audit.py` (`0`: off). |
@@ -45,7 +45,9 @@ python3 audit.py > audit.txt
 **Time and EU (#68).** `emcmodel.py` and `audit.py` read the rates from the Pack's
 `pack/config/mcincremental_prestige-common.toml` (`[emc]` `timeRate` and `euPrice`), so every committed output counts
 them as the game does; `EMC_TIME_RATE` and `EMC_EU_PRICE` (a number, or JSON per tier; `0` turns it off) override them
-for sweeps. The model maps crafting recipes that use a GT tool, as v0.4.0's mapper does once a rate is set.
+for sweeps. The model maps crafting recipes that use a GT tool, as v0.4.0's mapper does once a rate is set, but not v0.4.1's fix
+(#69: a machine route that also makes byproducts, such as a lathe, sets the price of what a tool craft makes), so
+`audit.py --model` still lists about 70 lathe loops the game no longer has; the in-game `audit.txt` is the reference.
 
 **R1, pins as ceilings (advice on #63, not decided).** `generate.py`'s `PIN_CEILINGS` (off) lowers a rarity-priced
 material unit or a hand-set GT item to what a GT recipe makes it for, counting its machine time and EU; ProjectE's
