@@ -1,9 +1,11 @@
-# EMC pricing (#55, re-based in #59, #68, #72 and #81)
+# EMC pricing (#55, re-based in #59, #68, #72, #81 and #85)
 
 Generates the Pack's EMC values, `pack/config/ProjectE/custom_emc.json` and
 `pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json`, so that every obtainable item and fluid but water has
-EMC, against the Prestige mod v0.5.0's GT recipe mapper (it splits each recipe's cost across its outputs, counts each
-recipe's EU and machine time at rates built into the mod, #71, and derives and publishes every unlisted fluid). The
+EMC, against the Prestige mod v0.6.0's GT recipe mapper (it splits each recipe's cost across its outputs, counts each
+recipe's EU and machine time at rates built into the mod, #71, and derives and publishes every unlisted fluid; since
+v0.6.0 it re-checks the split in later passes, so a cheaper route sets a big output's price and gaining recipes no
+longer inflate it, #83). The
 method and its decisions are in `docs/pocs/poc-1.md` ("How EMC values are made").
 
 **The rule (owner decision on #72): pin only what no recipe can make from cheaper things, and let recipes set
@@ -38,7 +40,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `dump.js` | KubeJS dump (items, fluids, tags, recipes with their duration and voltage tier) for a smoke-test server. |
 | `dump.txt.xz` | The dump the committed values were generated from (Pack with the values it generated running). |
 | `dump_eu.js` | KubeJS dump of every GT recipe's EU (input and output EU/t, amperage, duration, fusion start energy) for the energy-in-EMC research (#64, `../energy-in-emc.md`). |
-| `eu.txt.xz` | Its output, from a smoke-test server running the v0.5.0 Pack (#72; take it with the dump, below). |
+| `eu.txt.xz` | Its output, from a smoke-test server running the v0.6.0 Pack (#85; take it with the dump, below). |
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
 | `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the mod's EU price in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
 | `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the mod's time rate in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |

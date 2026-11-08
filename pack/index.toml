@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "a323a107af29b3e8be257451e386bd05110666a09676211cb76d312950087a0c"
+hash = "920571658dd51ebfcd1d2eb8f1fe9aa66dc981ebac18955238c77c68d5baba83"
 
 [[files]]
 file = "config/ProjectE/mapping.toml"
@@ -38,7 +38,7 @@ hash = "61f1333b39b3988241513cad064788da8e4cd5c296263fa0c735a705a858a66f"
 
 [[files]]
 file = "kubejs/server_scripts/smoke_test.js"
-hash = "7c33a05a40e7a0bbbf3e0954ba6ab4489e9e291e7c3fdff72bb06e1bbba55834"
+hash = "d505c252478936c201296ee47d251f7fd5fda89edd550d958dcf315d41055b51"
 
 [[files]]
 file = "kubejs/startup_scripts/free_resource_items.js"
@@ -71,7 +71,7 @@ metafile = true
 
 [[files]]
 file = "mods/mcincremental-prestige.pw.toml"
-hash = "b95e36350e2a40142c6e0b067a78136c10e4350c92aef9d360a3bb1d72be30b0"
+hash = "08bd79fa0f2edde889343ff1adce55c12c372513cfd0a115067f8b2a2996598c"
 metafile = true
 
 [[files]]
