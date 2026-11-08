@@ -1,4 +1,4 @@
-"""Generate the Pack's EMC values (VexedPanda/Mc-incremental#55, re-based in #59, #68 and #72):
+"""Generate the Pack's EMC values (VexedPanda/Mc-incremental#55, re-based in #59, #68, #72 and #81):
 pack/config/ProjectE/custom_emc.json and pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json.
 
 Usage:
@@ -12,17 +12,20 @@ The rule (owner decision on #72): pin only what no recipe can make from cheaper 
 else; ProjectE takes the cheapest route by itself, so nothing is capped. emcmodel.py replays ProjectE and the GT recipe
 mapper's first-output conversions offline; the game, read back from a dump, corrects it where they differ.
  1. Fixed values: ProjectE's defaults and hand_values.json (natural items no recipe makes, the overrides of ProjectE
-    defaults a recipe undercuts, the 0-EMC Transmutation Tablet), except ProjectE's defaults for GT items (its metal
-    and gem tags), which GT-mined materials don't take (#59). Listed fluids: the hand-set ones (water, lava, steam,
-    milk), the free fluids (from nothing or water alone: gas collectors, the air scrubber, water electrolysis), per
-    tier, anchored at lava's 64 (LAVA_ANCHOR), and the floored materials' molten fluids. Every other fluid is left to
-    the Prestige mod's GT recipe mapper, which derives it and publishes the value.
+    defaults a recipe undercuts, the 0-EMC Transmutation Tablet). ProjectE's defaults for GT items (its metal and gem
+    tags) are gone: the Pack replaces its metals.json with the vanilla entries (#81), and emcmodel.py reads that too.
+    Listed fluids: the hand-set ones (water, lava, steam, milk), the free fluids (from nothing or water alone: gas
+    collectors, the air scrubber, water electrolysis), per tier, anchored at lava's 64 (LAVA_ANCHOR), the fluids
+    hand_values.json lists at a recipe's cost (nitrogen from air, #81) and the floored materials' molten fluids.
+    Every other fluid is left to the Prestige mod's GT recipe mapper, which derives it and publishes the value.
  2. Material units (#59): every raw material's dust or gem value comes from rarity (rarity.json) or ProjectE's
     defaults: vanilla materials keep ProjectE's value; every other material takes its rarity price, raised to what
     smelting or decomposing it gives and to its late-tier floor (hand_values.json). A material a recipe makes for less
     (from non-ore inputs, or composed from other units; alloys from their mixer recipe) isn't pinned (PINNED_UNITS):
-    the game derives it, and this model's estimate of it only values the ores that yield it. Each pinned unit is
-    pinned on the dust, gem and ingot and their small forms.
+    the game derives it, and this model's estimate of it only values the ores that yield it; so is a rarity-priced
+    material a dump shows the game making for less (game_route_units(), #81). Each pinned unit is pinned on its dust
+    or gem and their small and tiny forms; ingots, nuggets, plates and blocks derive from the dust by recipe (#81).
+    A raw ore block is worth 9 raw ores (#81).
  3. Rocks are worth their expected yield (rock dust at the rock's own value plus the chanced byproducts: end stone ->
     tungstate, netherrack -> gold), and every ore-processing form (ore blocks, raw ores, crushed, purified and refined
     ores, impure and pure dusts) is worth what its best route yields, so mining and banking equals processing.
@@ -36,7 +39,7 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from emcmodel import Model, load_dump  # noqa: E402
+from emcmodel import Model, load_dump, load_eu, eu_prices, recipe_energy, recipe_time, time_rates  # noqa: E402
 from extract_yields import unit as item_unit  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
@@ -118,6 +121,7 @@ class Generator:
         gz = json.load(open(zf)) if os.path.exists(zf) else {}
         self.game_zero = set(gz.get('items', []))  # game_roots() adds this dump's
         self.game_zero_fluids = set(gz.get('fluids', []))
+        self.route_units = dict(gz.get('materials', {}))  # game_route_units() adds this dump's
         self.listed = dict(self.hand['fluids'])
         # items and fluids ('i:'/'f:' nodes) the model can't derive but the game can (the Prestige mod's GT mapper
         # splits a recipe's cost by shares and maps crafting with GT tools; the model gives a recipe's cost to its
@@ -132,12 +136,11 @@ class Generator:
     def models(self):
         self.game = Model(self.dump, self.listed, 'game', self.jar)
         self.cost = Model(self.dump, self.listed, 'cost', self.jar)
-        # ProjectE's defaults for GT items (its metal and gem tags) are dropped: GT-mined materials are priced by
-        # rarity and recipes (#59); override_pins() pins what they get instead.
-        self.overridden = {k for k in self.game.fixed if k.startswith('i:gtceu:') and re.search(r'_(ingot|gem)$', k)}
-        for m in (self.game, self.cost):
-            for k in self.overridden:
-                m.fixed.pop(k, None)
+        # ProjectE's defaults for GT items (its metal and gem tags) are gone: the Pack's own metals.json replaces
+        # ProjectE's (#81), and emcmodel.py reads it, so GT materials are priced by rarity and recipes only.
+        leftover = sorted(k for k in self.game.fixed if k.startswith('i:gtceu:') and re.search(r'_(ingot|gem)$', k))
+        if leftover:
+            self.log.append('WARNING: ProjectE defaults still fix GT items: %s' % ' '.join(leftover))
         self.cost_groups = defaultdict(list)
         for out, _, ing, src in self.cost.conv:
             if src == 'group':
@@ -163,23 +166,6 @@ class Generator:
             return False
         self.pins[item] = (int(value), reason)
         return True
-
-    def form_value(self, val, node):
-        """A metal's dust or ingot value without the machine time and EU (#68) of turning another form of the same
-        metal into it (its molten fluid solidified, its ingot macerated, its tiny dusts packed): dust = ingot = fluid
-        are the Pack's invariants, and carrying a form change's time into the pin would ratchet the metal up on every
-        re-run (the next dump's ingot sets its fluid, which sets the ingot plus time)."""
-        v = val.get(node)
-        c = self.game.best(val, node) if v else None
-        if not c:
-            return v
-        m = node[2:].split(':', 1)[1]
-        m = re.sub(r'^(tiny_|small_)', '', re.sub(r'_(ingot|dust|nugget)$', '', m))
-        own = lambda k: k == 'f:gtceu:' + m or re.match(r'^i:gtceu:(tiny_|small_)?%s_(ingot|dust|nugget|block)$' % re.escape(m), k)
-        mats = [k for k in c[2] if not k.startswith(('s:', 'e:'))]
-        if not mats or not all(own(k) for k in mats):
-            return v
-        return sum(c[2][k] * val[k] for k in mats) / c[1]
 
     # ---- steps ----
     def smelt_floor(self, val, item):
@@ -231,9 +217,49 @@ class Generator:
         self.units = units
         self.recipe_consistency()
         self.alloy_units(val)
+        self.game_route_units()
         for v, w in self.units.values():
             why[w] += 1
         self.log.append('material units: %s' % dict(why))
+
+    def game_route_units(self):
+        """A material still priced by rarity that the dumped game makes for less (#81) isn't pinned either: its unit
+        becomes what the game makes it for (U-238, which the fusion reactor and depleted uranium hexafluoride make
+        below its rarity price). The model can't see those routes, as they run through pinned ores; the game, read back
+        from a dump, can. Only a dump in which the material's dust is still pinned shows one: its ingot, block (per
+        unit) or molten fluid (per 144 mB) below the dust, at 1 EMC or more (each is the dust plus a conversion when made
+        from the dust). Once unpinned, the game's own dust can fall further through a byproduct share or a tiny dust it
+        floors to 0, so a material found once is kept (game_zero.json 'materials'), and only the materials found so are
+        unpinned: a re-run from a dump in which they are unpinned gives the same pins."""
+        moved = []
+        for m, (v, w) in sorted(self.units.items()):
+            if w not in ('rarity', 'rarity cap') or self.floors.get(m):
+                continue
+            dust = max([self.items.get(i) or 0 for i in unit_items(m)])
+            vs = [self.items.get('gtceu:%s_ingot' % m) or 0,
+                  (self.items.get('gtceu:%s_block' % m) or 0) / self.block_size(m)]
+            f = self.fluids.get('gtceu:' + m)
+            if f and f[0] == 'gtceu:' + m:
+                vs.append((f[1] or 0) * 144 / 1000)
+            vs = [x for x in vs if x >= 1]
+            if m not in self.route_units and dust >= v * 0.99 and vs and min(vs) < v * 0.99:
+                self.route_units[m] = max(1, math.floor(min(vs)))
+            if m in self.route_units:
+                self.units[m] = (self.route_units[m], 'recipe cost')
+                moved.append('%s %d' % (m, self.units[m][0]))
+        self.log.append('rarity-priced materials the game makes for less, left to recipes: %s' % ', '.join(moved))
+
+    def block_size(self, m):
+        """Units in material m's block: what its compressor recipe packs into it (9, or 4 for a quartz-like gem)."""
+        if not hasattr(self, '_block_sizes'):
+            self._block_sizes = {}
+            for r in self.recipes:
+                if r['type'] == 'gtceu:compressor' and len(r['i']) == 1 and len(r['o']) == 1 and len(r['o'][0]['ids']) == 1:
+                    u = mat_unit(r['i'][0]['ids'][0]) if len(r['i'][0]['ids']) == 1 else None
+                    b = re.match(r'^gtceu:(.+)_block$', r['o'][0]['ids'][0])
+                    if u and b and u[0] == b.group(1) and u[1] == 1:
+                        self._block_sizes[u[0]] = r['i'][0]['n'] / r['o'][0]['n']
+        return self._block_sizes.get(m, 9)
 
     def alloy_units(self, val, rounds=8):
         """Alloys (and other mixed materials) are worth what the mixer makes them from (#59, "metals and dusts are
@@ -420,36 +446,33 @@ class Generator:
         return routes[max(sorted(routes), key=worth)]
 
     def unit_pins(self):
-        """Pin each material's dust and gem at its unit value, and its ingot (dust = ingot: smelting one into the
-        other neither gains nor loses), overriding ProjectE's tag defaults for GT-mined metals."""
+        """Pin each raw material's dust and gem (and its small and tiny dusts) at its unit value. Its ingot, nugget,
+        plate and block aren't pinned (#81): recipes make them from the dust (smelting, the blast furnace, a bender),
+        so they derive from it."""
         n, derived = 0, []
         for m, (v, w) in sorted(self.units.items()):
             if w not in PINNED_UNITS:
                 derived.append(m)
                 continue
             if m in PE_KEPT and w == 'ProjectE default':
-                # vanilla metals: GT's dust, plate and nugget follow the ingot
+                # vanilla materials: GT's dusts follow the vanilla item
                 if m not in ('iron', 'gold', 'copper'):
                     for form, k in (('gtceu:%s_dust' % m, 1), ('gtceu:small_%s_dust' % m, 1 / 4),
                                     ('gtceu:tiny_%s_dust' % m, 1 / 9)):
                         if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), 'form of %s' % PE_KEPT[m]):
                             n += 1
                     continue
-                for form, k in (('gtceu:%s_dust' % m, 1), ('gtceu:%s_plate' % m, 1), ('minecraft:%s_nugget' % m, 1 / 9),
-                                ('gtceu:%s_nugget' % m, 1 / 9)):
-                    if form in self.items and self.pin(form, math.floor(v * k), 'form of %s (ProjectE default)' % PE_KEPT[m]):
-                        n += 1
+                if 'gtceu:%s_dust' % m in self.items and self.pin('gtceu:%s_dust' % m, v, 'form of %s (ProjectE default)' % PE_KEPT[m]):
+                    n += 1
                 continue
-            for form in ('gtceu:%s_dust' % m, 'gtceu:%s_gem' % m, 'gtceu:%s_ingot' % m):
+            for form in ('gtceu:%s_dust' % m, 'gtceu:%s_gem' % m):
                 if form in self.items and self.pin(form, v, '%s: %s' % (w, m)):
                     n += 1
-            # the smaller and bigger forms follow (a nugget or tiny dust made from a cheap fluid would otherwise
-            # turn back into a full-price ingot)
-            for form, k in (('gtceu:%s_nugget' % m, 1 / 9), ('gtceu:tiny_%s_dust' % m, 1 / 9),
-                            ('gtceu:small_%s_dust' % m, 1 / 4), ('gtceu:hot_%s_ingot' % m, 1), ('gtceu:%s_plate' % m, 1)):
+            # the small and tiny dusts follow (one made from a cheap fluid would otherwise pack into a full-price dust)
+            for form, k in (('gtceu:tiny_%s_dust' % m, 1 / 9), ('gtceu:small_%s_dust' % m, 1 / 4)):
                 if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), '%s form of %s' % (w, m)):
                     n += 1
-        self.log.append('material dusts, gems and ingots pinned at their unit value: %d' % n)
+        self.log.append('material dusts and gems pinned at their unit value: %d' % n)
         self.log.append('materials a recipe makes for less, left to recipes: %s' % ' '.join(derived))
 
     def rock_pins(self, val):
@@ -555,6 +578,20 @@ class Generator:
                 n += 1
         self.log.append('ore-processing forms pinned at their best route: %d' % n)
 
+    RAW_BLOCK = re.compile(r'^(gtceu|minecraft):raw_(.+)_block$')
+
+    def raw_block_pins(self):
+        """A raw ore block is worth the 9 raw ores it is compressed from and the forge hammer breaks it back into
+        (#81), so neither gains."""
+        n = 0
+        for item in sorted(self.items):
+            m = self.RAW_BLOCK.match(item)
+            raw = m and '%s:raw_%s' % (m.group(1), m.group(2))
+            v = raw and (self.pins.get(raw, (None,))[0] or self.hand['items'].get(raw))
+            if v and self.pin(item, 9 * v, 'raw ore block: 9 x %s' % raw):
+                n += 1
+        self.log.append('raw ore blocks pinned at 9 raw ores: %d' % n)
+
     FLOOR_FORMS = {'dust': 1, 'ingot': 1, 'gem': 1, 'hot_ingot': 1, 'plate': 1, 'nugget': 1 / 9, 'tiny_dust': 1 / 9,
                    'small_dust': 1 / 4, 'block': 9}
 
@@ -573,30 +610,6 @@ class Generator:
                                                    'late-tier floor: %s' % m):
                     n.append(form)
         self.log.append('late-tier floors pinned: %d' % len(n))
-
-    def override_pins(self, val):
-        """GT items ProjectE's own defaults pin (its metal tags: tin, lead, silver, nickel, osmium, platinum, bronze
-        ingots; ruby and sapphire gems) are priced like every other GT material (#59): the model drops ProjectE's
-        value, and the file pins what the model gives them instead."""
-        n = 0
-        for k in sorted(self.overridden):
-            item = k[2:]
-            if item in self.pins:
-                continue
-            dust = re.sub(r'_(ingot|gem)$', '_dust', k)
-            # the cheaper of its dust and ingot: either is the other converted, and the conversion's machine time
-            # (#68) must not carry into the next re-run
-            v = min((x for x in (self.form_value(val, dust), self.form_value(val, k)) if x), default=None)
-            if v and self.pin(item, max(1, math.floor(v)), 'overrides ProjectE\'s default: derived value'):
-                n += 1
-        # ProjectE's tag node keeps its default too (a tag ingredient would value the item at it): pin the tag
-        self.tag_pins = {}
-        for t, ids in self.tags.items():
-            if t.startswith(('c:ingots/', 'c:gems/')) and ids and all('i:' + i in self.overridden for i in ids):
-                v = self.pins.get(ids[0], (None,))[0]
-                if v:
-                    self.tag_pins[t] = v
-        self.log.append('ProjectE defaults overridden at their derived value: %d (tags %s)' % (n, ' '.join(sorted(self.tag_pins))))
 
     def game_roots(self):
         """Items and fluids the dumped game left at 0 although a recipe makes them from inputs it valued: the game can't
@@ -758,6 +771,38 @@ class Generator:
             n.append('%s %d' % (f, v))
         self.log.append('free fluids (from nothing or water alone), per tier: %s' % ', '.join(n))
 
+    def recipe_cost_fluids(self):
+        """Fluids hand_values.json lists at a recipe's cost (fluids_at_recipe_cost: nitrogen from air, #81), the
+        cheapest of the recipes named: the consumed fluids at their listed value (else what the game derives for them,
+        from the dump) plus the machine time and EU, less the other listed fluids and the items it also gives, per
+        1000 mB of the fluid. Runs after free_fluids(), which lists the free inputs."""
+        src = lambda i: self.fluids.get(i, (i,))[0]
+        fluid = lambda i: self.listed.get(src(i), self.fluids.get(src(i), (None, 0))[1] or 0)
+        rates, prices, eu = time_rates(), eu_prices(), load_eu()
+        by_id = {r['id']: r for r in self.recipes}
+        n = []
+        for f, rids in sorted(self.hand.get('fluids_at_recipe_cost', {}).get('fluids', {}).items()):
+            costs = []
+            for rid in rids:
+                r = by_id[rid]
+                assert not [x for x in r['i'] if x['ch'] > 0], 'item inputs are not costed: %s' % rid
+                cost = sum(fluid(x['ids'][0]) * x['n'] / 1000 for x in r['fi'] if x['ch'] > 0)
+                cost += sum((c or (0, 0, 0))[2] for c in (recipe_time(r, rates), recipe_energy(r, eu, prices)))
+                amount = 0
+                for x in r['fo']:
+                    k = x['n'] * x['ch'] / x['mx'] / 1000
+                    if src(x['ids'][0]) == f:
+                        amount += k
+                    else:
+                        cost -= self.listed.get(src(x['ids'][0]), 0) * k
+                cost -= sum((self.items.get(x['ids'][0]) or 0) * x['n'] * x['ch'] / x['mx'] for x in r['o'])
+                costs.append((cost / amount, rid))
+            cost, rid = min(costs)
+            self.listed[f] = max(1, math.floor(cost))
+            self.fluid_reasons[f] = 'recipe cost of %s' % rid
+            n.append('%s %d (%s)' % (f, self.listed[f], ', '.join('%s %.0f' % (r, c) for c, r in costs)))
+        self.log.append('fluids listed at a recipe\'s cost: %s' % '; '.join(n))
+
     def unobtainable_materials(self, val):
         """A material dust still at 0 after everything above has no recipe that makes it from anything valued (GT
         registers materials this Pack never generates, such as damascus steel). Its dust gets its rarity price, or the
@@ -859,7 +904,7 @@ class Generator:
         self.frontier()
         self.prune()
         self.processing_pins(self.solve())
-        self.override_pins(self.solve())
+        self.raw_block_pins()
         self.cycle_pins(self.solve())
         self.game_zero_pins(self.solve())
         self.sub_unit()
@@ -868,6 +913,7 @@ class Generator:
         """One pass: the listed fluids are the hand-set ones, the free fluids and the floored molten fluids; every
         other fluid is left to the Prestige mod's GT recipe mapper, which derives it from its recipes (#72)."""
         self.free_fluids()
+        self.recipe_cost_fluids()
         self.floor_fluids()
         self.models()
         self.game_roots()
@@ -879,21 +925,23 @@ class Generator:
         return self.solve()
 
 CUSTOM_EMC_COMMENT = (
-    "Mc-incremental EMC values (#41, #47, #55, #59, #68, #72). GENERATED by docs/research/emc-pricing/generate.py from "
-    "hand_values.json, rarity.json and ore_yields.json there: do not edit by hand, edit those and re-run it. "
+    "Mc-incremental EMC values (#41, #47, #55, #59, #68, #72, #81). GENERATED by docs/research/emc-pricing/generate.py "
+    "from hand_values.json, rarity.json and ore_yields.json there: do not edit by hand, edit those and re-run it. "
     "ProjectE applies this file after its datapack defaults, so these values win. It pins only what no recipe can make "
-    "from cheaper things (#72): hand values, every raw material's unit (rarity or ProjectE's defaults), the late-tier "
-    "floors, rocks and every ore-processing form at their expected yield, what the game can't derive (pinned at a "
-    "recipe's ingredient cost), filled buckets (empty bucket + fluid), and the ProjectE tag defaults the Pack overrides. "
-    "ProjectE and the Prestige mod's GT recipe mapper derive everything else. The Transmutation Tablet is 0: the "
-    "Prestige mod hands it out. See docs/pocs/poc-1.md.")
+    "from cheaper things (#72): hand values, every raw material's unit on its dust or gem (rarity or ProjectE's "
+    "defaults; ingots, plates and blocks derive from it, #81), the late-tier floors, rocks and every ore-processing form "
+    "at their expected yield (a raw ore block at 9 raw ores), what the game can't derive (pinned at a recipe's "
+    "ingredient cost), filled buckets (empty bucket + fluid), and the ProjectE tag defaults the Pack overrides (nether "
+    "star, blaze rod). ProjectE and the Prestige mod's GT recipe mapper derive everything else. The Transmutation "
+    "Tablet is 0: the Prestige mod hands it out. See docs/pocs/poc-1.md.")
 FLUIDS_COMMENT = (
     "EMC per 1000 mB of the fluids the Pack lists, for the Prestige mod (ProjectE can't hold fluid values) and its GT "
     "recipe mapper. GENERATED by docs/research/emc-pricing/generate.py: edit hand_values.json there and re-run it. Water "
     "is the one free fluid. Lava and milk are ProjectE's bucket values minus the empty bucket, steam is nominal; fluids "
-    "GT makes from nothing or water alone are priced per tier, anchored at lava (LV 64, MV 128, HV 256); a floored "
-    "material's molten fluid is its floor per 144 mB. Every other fluid is unlisted: the GT recipe mapper derives it "
-    "from its recipes (#72). A filled bucket is worth the empty bucket plus its fluid (custom_emc.json).")
+    "GT makes from nothing or water alone are priced per tier, anchored at lava (LV 64, MV 128, HV 256); nitrogen is "
+    "its cost from air (#81); a floored material's molten fluid is its floor per 144 mB. Every other fluid is "
+    "unlisted: the GT recipe mapper derives it from its recipes (#72). A filled bucket is worth the empty bucket plus "
+    "its fluid (custom_emc.json).")
 
 
 def write(g):
@@ -902,8 +950,6 @@ def write(g):
     lines = ['  {"id": %s, "emc": %d}' % (json.dumps(k), v) for k, v in sorted(entries.items())]
     # Tags ProjectE's own defaults pin that must follow an item's new value (owner decision 5: c:nether_stars).
     tags = dict(g.hand.get('tags', {}).get('tags', {}))
-    # each overridden tag follows its item's final pin
-    tags.update({k: g.pins.get(g.tags[k][0], (v,))[0] for k, v in g.tag_pins.items()})
     lines += ['  {"tag": %s, "emc": %d}' % (json.dumps(k), v) for k, v in sorted(tags.items())]
     with open(CUSTOM_EMC, 'w') as f:
         f.write('{\n "comment": %s,\n "entries": [\n%s\n ]\n}\n' % (json.dumps(CUSTOM_EMC_COMMENT), ',\n'.join(lines)))
@@ -916,7 +962,10 @@ def write(g):
                               'them from inputs the game valued (the game can\'t map that recipe, its share split gives '
                               'them nothing, or it floors a tiny dust), pinned at their model value. Kept so re-runs '
                               'are stable.',
-                   'items': zero, 'fluids': sorted(f for f in g.game_zero_fluids if f in g.listed)}, f, indent=1)
+                   'items': zero, 'fluids': sorted(f for f in g.game_zero_fluids if f in g.listed),
+                   'materials_comment': 'Rarity-priced materials a dump showed the game making for less through '
+                                        'another form (#81), left to recipes, at the unit value first found.',
+                   'materials': dict(sorted(g.route_units.items()))}, f, indent=1)
         f.write('\n')
     print('wrote %d item values to %s and %d fluid values to %s' % (len(lines), CUSTOM_EMC, len(fl), FLUIDS))
 
