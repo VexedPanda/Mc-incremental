@@ -27,7 +27,7 @@ const smokeItemInfo = Java.loadClass('moze_intel.projecte.api.ItemInfo')
 const smokeRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
 const smokeRL = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const smokeFluidEmc = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.FluidEmc')
-// The Prestige mod's GT recipe EMC mapper: its built-in per-tier time rate and EU price (v0.5.0, #71)
+// The Prestige mod's GT recipe EMC mapper: its built-in per-tier time rate and EU price (since v0.5.0, #71)
 const smokeGtMapper = Java.loadClass('io.github.vexedpanda.mcincremental.prestige.emc.gt.GtRecipeEmcMapper')
 // GT voltage tiers, ULV to MAX
 const SMOKE_GT_TIERS = 15
