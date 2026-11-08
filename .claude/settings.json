@@ -1,3 +1,10 @@
 {
-  "advisorModel": "fable"
+  "advisorModel": "fable",
+  "permissions": {
+    "allow": [
+      "Bash(gh api *)",
+      "Bash(gh issue *)",
+      "Bash(gh pr *)"
+    ]
+  }
 }
