@@ -71,7 +71,7 @@ metafile = true
 
 [[files]]
 file = "mods/mcincremental-prestige.pw.toml"
-hash = "08bd79fa0f2edde889343ff1adce55c12c372513cfd0a115067f8b2a2996598c"
+hash = "66bffbe36e04642d61e49a4e829811d51799e8fd3b2c19ff4ee88dc07a98c5dc"
 metafile = true
 
 [[files]]
