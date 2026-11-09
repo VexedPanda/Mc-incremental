@@ -530,9 +530,11 @@
   "gtceu:rose_gold_crowbar",
   "gtceu:rubber_nugget",
   "gtceu:rubber_plunger",
+  "gtceu:silicon_dioxide_dust",
   "gtceu:silicone_rubber_plunger",
   "gtceu:small_carbon_dust",
   "gtceu:small_redrock_dust",
+  "gtceu:small_saltpeter_dust",
   "gtceu:small_sodium_sulfide_dust",
   "gtceu:sodium_nitrite_dust",
   "gtceu:stainless_steel_crowbar",
@@ -550,8 +552,10 @@
   "gtceu:tiny_osmium_dust",
   "gtceu:tiny_potassium_dichromate_dust",
   "gtceu:tiny_rubber_dust",
+  "gtceu:tiny_saltpeter_dust",
   "gtceu:tiny_silicon_dioxide_dust",
   "gtceu:tiny_silicon_dust",
+  "gtceu:tiny_sodium_dust",
   "gtceu:tiny_sodium_sulfide_dust",
   "gtceu:titanium_crowbar",
   "gtceu:tungsten_carbide_crowbar",
@@ -593,5 +597,13 @@
  "materials": {
   "enriched_naquadah": 4294,
   "uranium_238": 12283
+ },
+ "ceilings_comment": "Rarity-priced materials a GT recipe makes for less (#63 R1, recipe_ceilings()), pinned at that recipe's cost as first found.",
+ "ceilings": {
+  "asbestos": 31,
+  "gypsum": 58,
+  "lithium": 286,
+  "olivine": 88,
+  "rutile": 174
  }
 }

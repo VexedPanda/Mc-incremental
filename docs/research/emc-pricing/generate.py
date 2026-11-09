@@ -1,4 +1,4 @@
-"""Generate the Pack's EMC values (VexedPanda/Mc-incremental#55, re-based in #59, #68, #72 and #81):
+"""Generate the Pack's EMC values (VexedPanda/Mc-incremental#55, re-based in #59, #68, #72, #81 and #63):
 pack/config/ProjectE/custom_emc.json and pack/kubejs/data/mcincremental_prestige/fluid_emc/fluids.json.
 
 Usage:
@@ -23,7 +23,9 @@ mapper's first-output conversions offline; the game, read back from a dump, corr
     smelting or decomposing it gives and to its late-tier floor (hand_values.json). A material a recipe makes for less
     (from non-ore inputs, or composed from other units; alloys from their mixer recipe) isn't pinned (PINNED_UNITS):
     the game derives it, and this model's estimate of it only values the ores that yield it; so is a rarity-priced
-    material a dump shows the game making for less (game_route_units(), #81). Each pinned unit is pinned on its dust
+    material a dump shows the game making for less (game_route_units(), #81). Once the units, floors and rocks are
+    pinned, a rarity-priced material that a GT recipe makes for less, as its first output, is pinned at that recipe's
+    cost instead (recipe_ceilings(), #63's R1: no route lowers a pin). Each pinned unit is pinned on its dust
     or gem and their small and tiny forms; ingots, nuggets, plates and blocks derive from the dust by recipe (#81).
     A raw ore block is worth 9 raw ores (#81).
  3. Rocks are worth their expected yield (rock dust at the rock's own value plus the chanced byproducts: end stone ->
@@ -76,7 +78,7 @@ LAVA_ANCHOR = 64
 # default. A unit a recipe makes for less ('recipe cost', 'composition cost', 'alloy': lead from galena, sodium from
 # salt, an alloy from its mixer recipe) isn't pinned: the game takes the cheapest route itself. Its unit is still
 # this model's estimate of that route, for the ores and rocks that yield it.
-PINNED_UNITS = ('rarity', 'rarity cap', 'smelting floor', 'decomposition floor', 'late-tier floor', 'ProjectE default')
+PINNED_UNITS = ('rarity', 'rarity cap', 'recipe ceiling', 'smelting floor', 'decomposition floor', 'late-tier floor', 'ProjectE default')
 VANILLA_NUGGETS_UNITS = {'minecraft:gold_nugget': ('gold', 1 / 9), 'minecraft:iron_nugget': ('iron', 1 / 9)}
 WATER_FORMS = {'gtceu:distilled_water': 1, 'gtceu:ice': 1}
 NOMINAL = 1  # EMC per 1000 mB of a fluid made from water and air alone
@@ -122,6 +124,7 @@ class Generator:
         self.game_zero = set(gz.get('items', []))  # game_roots() adds this dump's
         self.game_zero_fluids = set(gz.get('fluids', []))
         self.route_units = dict(gz.get('materials', {}))  # game_route_units() adds this dump's
+        self.ceilings = dict(gz.get('ceilings', {}))  # recipe_ceilings() adds this dump's
         self.listed = dict(self.hand['fluids'])
         # items and fluids ('i:'/'f:' nodes) the model can't derive but the game can (the Prestige mod's GT mapper
         # splits a recipe's cost by shares and maps crafting with GT tools; the model gives a recipe's cost to its
@@ -454,26 +457,137 @@ class Generator:
             if w not in PINNED_UNITS:
                 derived.append(m)
                 continue
-            if m in PE_KEPT and w == 'ProjectE default':
-                # vanilla materials: GT's dusts follow the vanilla item
-                if m not in ('iron', 'gold', 'copper'):
-                    for form, k in (('gtceu:%s_dust' % m, 1), ('gtceu:small_%s_dust' % m, 1 / 4),
-                                    ('gtceu:tiny_%s_dust' % m, 1 / 9)):
-                        if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), 'form of %s' % PE_KEPT[m]):
-                            n += 1
-                    continue
-                if 'gtceu:%s_dust' % m in self.items and self.pin('gtceu:%s_dust' % m, v, 'form of %s (ProjectE default)' % PE_KEPT[m]):
-                    n += 1
-                continue
-            for form in ('gtceu:%s_dust' % m, 'gtceu:%s_gem' % m):
-                if form in self.items and self.pin(form, v, '%s: %s' % (w, m)):
-                    n += 1
-            # the small and tiny dusts follow (one made from a cheap fluid would otherwise pack into a full-price dust)
-            for form, k in (('gtceu:tiny_%s_dust' % m, 1 / 9), ('gtceu:small_%s_dust' % m, 1 / 4)):
-                if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), '%s form of %s' % (w, m)):
-                    n += 1
+            n += self.pin_unit(m, v, w)
         self.log.append('material dusts and gems pinned at their unit value: %d' % n)
         self.log.append('materials a recipe makes for less, left to recipes: %s' % ' '.join(derived))
+
+    def pin_unit(self, m, v, w):
+        """Pin material m's dust and gem (and its small and tiny dusts) at unit value v; returns how many."""
+        n = 0
+        if m in PE_KEPT and w == 'ProjectE default':
+            # vanilla materials: GT's dusts follow the vanilla item
+            if m not in ('iron', 'gold', 'copper'):
+                for form, k in (('gtceu:%s_dust' % m, 1), ('gtceu:small_%s_dust' % m, 1 / 4),
+                                ('gtceu:tiny_%s_dust' % m, 1 / 9)):
+                    if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), 'form of %s' % PE_KEPT[m]):
+                        n += 1
+                return n
+            if 'gtceu:%s_dust' % m in self.items and self.pin('gtceu:%s_dust' % m, v, 'form of %s (ProjectE default)' % PE_KEPT[m]):
+                n += 1
+            return n
+        for form in ('gtceu:%s_dust' % m, 'gtceu:%s_gem' % m):
+            if form in self.items and self.pin(form, v, '%s: %s' % (w, m)):
+                n += 1
+        # the small and tiny dusts follow (one made from a cheap fluid would otherwise pack into a full-price dust)
+        for form, k in (('gtceu:tiny_%s_dust' % m, 1 / 9), ('gtceu:small_%s_dust' % m, 1 / 4)):
+            if form in self.items and v * k >= 2 and self.pin(form, math.floor(v * k), '%s form of %s' % (w, m)):
+                n += 1
+        return n
+
+    def recipe_ceilings(self, rounds=10, dep=1000):
+        """R1 (#63): a rarity-priced material that a GT recipe makes for less than its pin, as the recipe's guaranteed
+        first output, is lowered to that recipe's cost: its inputs plus its machine time and EU (at the rates built
+        into the Prestige mod), minus its byproducts (every other output, chanced ones at their expected amount), per
+        unit; when the byproducts are worth more than all that (andesite into asbestos and saltpeter), its inputs
+        alone. material_units() can't see these routes, as it costs them before the units have values (gypsum from
+        apatite, itself rarity-priced), and the Prestige mod's GT mapper never lowers a pin. Inputs and byproducts are
+        valued as the game will have them: the pins made so far, else the dump's value (the model, which gives a
+        recipe's whole cost to its first output, prices the split outputs of the chemistry chains far from the game),
+        else this model's. A route through the material's own products doesn't count (salt from sodium and chlorine,
+        which come from salt): re-solved with the material's pins raised (in both this model and its cost model, which
+        splits recipes by equal shares), one of its inputs costs more, so it is skipped; so is a route from the
+        material's ores and their processing forms, priced at its yield. An input neither model values (decalcified
+        bauxite sludge) is taken at the dump's value. A byproduct whose value moves with the material counts 0. Repeated
+        until nothing moves, as a lowered material can make another's route cheaper. The game prices some of these
+        recipes' byproducts at what is left once the lowered material is paid (phosphoric acid beside gypsum), so a
+        ceiling found once is kept (game_zero.json 'ceilings'): recomputed from each new dump it would creep towards
+        the model's value, a few percent per run, and never settle. Floored materials and ProjectE's
+        defaults are exempt; the lowered unit stays pinned ('recipe ceiling'), and the rocks and ores that yield it
+        follow (rock_pins(), ore_pins() and processing_pins() run after this)."""
+        eu_price, eu, rates = self.game.eu_price, self.game.eu, self.game.time_rate
+        dumped = {'i:' + k: v for k, v in self.items.items() if v}
+        dumped.update({'f:' + src: v for src, v, _ in self.fluids.values() if v})
+        by_out = defaultdict(list)
+        for r in self.recipes:
+            if not r.get('gt') or (r.get('cat') or '').endswith('_recycling'):
+                continue
+            sides = self.game.gt_sides(r)
+            if isinstance(sides, str) or not sides[1] or not sides[0]:
+                continue
+            inp, out = sides
+            prim = next(iter(out))
+            u = mat_unit(prim[2:]) if prim.startswith('i:') else None
+            if not u or u[1] != 1 or prim[2:] not in unit_items(u[0]):
+                continue
+            chanced = [('i:' + x['ids'][0], x['n'] * 1000 * x['ch'] / x['mx']) for x in r['o']
+                       if 0 < x['ch'] < x['mx'] and len(x['ids']) == 1]
+            extra = sum(c[2] for c in (recipe_energy(r, eu, eu_price), recipe_time(r, rates)) if c)
+            by_out[u[0]].append((r['id'], inp, [(k, a) for k, a in out.items() if k != prim] + chanced, out[prim], extra))
+
+        def route(game, inp, byp, n, extra, moves=lambda k: False):
+            try:
+                cost = extra + sum(game[k] * a / 1000 for k, a in inp.items())
+            except KeyError:
+                return None
+            net = cost - sum(game.get(k, 0) * a / 1000 for k, a in byp if not moves(k))
+            return (net if net >= 1 else cost) / (n / 1000)
+
+        # ore blocks and processing forms: pinned at their yield later (ore_pins(), processing_pins()), from the units
+        ores = {i for i in self.items if i in self.ores or self.PROCESSING.match(i) or re.match(r'^gtceu:raw_.+$', i)}
+        moved, was, skipped = {}, {}, {}
+        kept = set(self.ceilings)
+        for m, c in sorted(self.ceilings.items()):
+            v, w = self.units.get(m, (None, None))
+            if w in ('rarity', 'rarity cap') and not self.floors.get(m) and c < v:
+                for k in [k for k in self.pins if mat_unit(k) and mat_unit(k)[0] == m]:
+                    del self.pins[k]
+                self.units[m] = (c, 'recipe ceiling')
+                self.pin_unit(m, c, 'recipe ceiling')
+                was[m], moved[m] = v, '%s %d -> %d (kept)' % (m, v, c)
+        for _ in range(rounds):
+            val = self.solve()
+            game = dict(val)
+            game.update(dumped)
+            game.update({'i:' + k: v for k, (v, _) in self.pins.items()})
+            changed = False
+            for m, (v, w) in sorted(self.units.items()):
+                if w not in ('rarity', 'rarity cap', 'recipe ceiling') or self.floors.get(m) or m not in by_out or m in kept:
+                    continue
+                cands = sorted((c, rid, inp, byp, n, extra) for rid, inp, byp, n, extra in by_out[m]
+                               for c in [route(game, inp, byp, n, extra)] if c is not None and c < v * 0.99 - 1)
+                if not cands:
+                    continue
+                pinned = {k: p for k, p in self.pins.items() if mat_unit(k) and mat_unit(k)[0] == m}
+                for k, (p, why) in pinned.items():
+                    self.pins[k] = (p * dep, why)
+                hi, cost_hi = self.solve(), self.cost.solve(self.fixed())
+                self.pins.update(pinned)
+                cost_val = self.cost.solve(self.fixed())
+                moves = lambda k: any(k in v0 and abs(v1.get(k, 0) - v0[k]) > 1e-6 * max(1, v0[k])
+                                      for v0, v1 in ((val, hi), (cost_val, cost_hi)))
+                for c, rid, inp, byp, n, extra in cands:
+                    bad = [k for k in inp if k[:2] not in ('e:', 's:') and (moves(k) or k[2:] in ores)]
+                    if bad:  # the route runs through m's own products (or can't be tested)
+                        skipped.setdefault(m, '%s (%s: %s)' % (m, rid, ' '.join(bad)))
+                        continue
+                    c = route(game, inp, byp, n, extra, moves)
+                    if c is None or c >= v * 0.99 - 1:
+                        continue
+                    for k in pinned:
+                        del self.pins[k]
+                    self.units[m] = (max(1, math.floor(c)), 'recipe ceiling')
+                    self.pin_unit(m, *self.units[m])
+                    was.setdefault(m, v)
+                    moved[m] = '%s %d -> %d (%s)' % (m, was[m], self.units[m][0], rid)
+                    changed = True
+                    break
+            if not changed:
+                break
+        self.ceilings.update({m: self.units[m][0] for m in moved})
+        self.log.append('rarity-priced materials a GT recipe makes for less, lowered to its cost (R1): %s' % (
+            '; '.join(moved[m] for m in sorted(moved)) or 'none'))
+        self.log.append('cheaper routes through the material\'s own products, skipped: %s' % (
+            '; '.join(skipped[m] for m in sorted(skipped) if m not in moved) or 'none'))
 
     def rock_pins(self, val):
         """Rock dusts are worth their rock (ProjectE's value for the block); a rock whose crushing has valuable
@@ -896,6 +1010,8 @@ class Generator:
         self.unit_pins()
         self.floor_pins(self.solve())  # before anything is pinned at an ingredient cost, so those follow the floors
         self.rock_pins(self.solve())
+        self.recipe_ceilings()  # once the units, floors and rocks are pinned; before the ores that yield the units
+        self.rock_pins(self.solve())  # again: a rock's byproducts may have been lowered
         self.ore_pins(self.solve())
         self.frontier()
         self.unobtainable_materials(self.solve())
@@ -929,7 +1045,7 @@ CUSTOM_EMC_COMMENT = (
     "from hand_values.json, rarity.json and ore_yields.json there: do not edit by hand, edit those and re-run it. "
     "ProjectE applies this file after its datapack defaults, so these values win. It pins only what no recipe can make "
     "from cheaper things (#72): hand values, every raw material's unit on its dust or gem (rarity or ProjectE's "
-    "defaults; ingots, plates and blocks derive from it, #81), the late-tier floors, rocks and every ore-processing form "
+    "defaults, or a GT recipe's cost when one makes it for less, #63; ingots, plates and blocks derive from it, #81), the late-tier floors, rocks and every ore-processing form "
     "at their expected yield (a raw ore block at 9 raw ores), what the game can't derive (pinned at a recipe's "
     "ingredient cost), filled buckets (empty bucket + fluid), and the ProjectE tag defaults the Pack overrides (nether "
     "star, blaze rod). ProjectE and the Prestige mod's GT recipe mapper derive everything else. The Transmutation "
@@ -965,7 +1081,10 @@ def write(g):
                    'items': zero, 'fluids': sorted(f for f in g.game_zero_fluids if f in g.listed),
                    'materials_comment': 'Rarity-priced materials a dump showed the game making for less through '
                                         'another form (#81), left to recipes, at the unit value first found.',
-                   'materials': dict(sorted(g.route_units.items()))}, f, indent=1)
+                   'materials': dict(sorted(g.route_units.items())),
+                   'ceilings_comment': 'Rarity-priced materials a GT recipe makes for less (#63 R1, recipe_ceilings()), '
+                                       'pinned at that recipe\'s cost as first found.',
+                   'ceilings': dict(sorted(g.ceilings.items()))}, f, indent=1)
         f.write('\n')
     print('wrote %d item values to %s and %d fluid values to %s' % (len(lines), CUSTOM_EMC, len(fl), FLUIDS))
 
