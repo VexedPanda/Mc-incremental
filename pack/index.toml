@@ -2,7 +2,7 @@ hash-format = "sha256"
 
 [[files]]
 file = "config/ProjectE/custom_emc.json"
-hash = "f03878761e38d644d5aff2ee8f72fffbfc9f04e5873f41399d3dbb72bf5a2b93"
+hash = "bebbd026b1bf54fd57dfa4abbcf30649a06e47fb100b43045ffe08ff73bff200"
 
 [[files]]
 file = "config/ProjectE/mapping.toml"
@@ -26,7 +26,7 @@ hash = "30f63c616328836a8ea0b42e715b60a9ab8f7833732195dad091b5298500ec72"
 
 [[files]]
 file = "kubejs/data/mcincremental_prestige/fluid_emc/fluids.json"
-hash = "3b1b4159074109ba99211df3155f30d5223e2735c3eeb6623d5b93eef5d30b52"
+hash = "f4db7b04fcdd840eac07552ea3bb2daaf28a1294fe7d58f2e67da373d1389de2"
 
 [[files]]
 file = "kubejs/data/projecte/pe_custom_conversions/metals.json"

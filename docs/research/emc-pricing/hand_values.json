@@ -80,8 +80,11 @@
   "minecraft:milk": 16
  },
  "fluids_at_recipe_cost": {
-  "why": "Fluids listed at the cost of one named recipe (#81), because their cheapest route in the game is a gaining one that drives them to nothing: nitrogen, which glyceryl trinitrate electrolysis gives off with hydrogen and oxygen worth more than the trinitrate (#63 group 4), came out at 0 to 2 EMC per bucket and moved on every re-run. Listed at the cheaper of the recipes named, which make it from air (a free fluid): the inputs (listed, else the value the game derives), the machine time and EU, less the listed fluids and the items it also gives; an unlisted byproduct (carbon dioxide, helium, argon) counts nothing, so the listed fluid carries the whole cost.",
+  "why": "Fluids listed at the cost of the named recipes (#81, #63), the gases made from air (a free fluid). Nitrogen's cheapest route in the game is a gaining one that drives it to nothing: glyceryl trinitrate electrolysis gives it off with hydrogen and oxygen worth more than the trinitrate (#63 group 4), so it came out at 0 to 2 EMC per bucket and moved on every re-run. Carbon dioxide, helium and argon come from the same liquid air distillation: while only nitrogen was listed it carried the whole cost, and once the Prestige mod lowered the largest outputs of gaining recipes (v0.8.0, #63 2a) nothing was left for them (helium 1, carbon dioxide 0). Each recipe's cost (its inputs, listed or else the value the game derives, its machine time and EU, less the other listed fluids and the items it also gives) is split by amount across the fluids listed here that it makes, so each pays its share of the time and EU; a fluid takes the cheapest of its recipes.",
   "fluids": {
+   "gtceu:argon": ["gtceu:distillation_tower/distill_liquid_air"],
+   "gtceu:carbon_dioxide": ["gtceu:distillation_tower/distill_liquid_air"],
+   "gtceu:helium": ["gtceu:distillation_tower/distill_liquid_air"],
    "gtceu:nitrogen": ["gtceu:centrifuge/air_separation", "gtceu:distillation_tower/distill_liquid_air"]
   }
  },

@@ -1,24 +1,24 @@
 # Prestiges per tier (#59), from dump dump.txt.xz
 
 EMC per Run area when fully mined and banked (ores | other blocks | total):
-  overworld    64,273,950 |    1,417,749 |   65,691,700
-  the_end      18,748,229 |      710,895 |   19,459,124
-  the_nether   31,423,277 |    3,575,477 |   34,998,754
+  overworld    64,237,843 |    1,417,946 |   65,655,789
+  the_end      18,744,420 |      710,895 |   19,455,316
+  the_nether   31,423,661 |    3,575,477 |   34,999,138
 
 | Tier | Kit cost | Net EMC/Run (dimension) | Kit Runs | Discovery Runs | Prestiges |
 |---|---:|---|---:|---:|---:|
-| LV | 265,895 | 6,569,170 (overworld) | 0.0 | 6.3 | **6.3** |
-| MV | 214,237 | 9,782,867 (overworld) | 0.0 | 8.2 | **8.2** |
-| HV | 981,751 | 32,278,750 (overworld) | 0.0 | 6.7 | **6.8** |
-| EV | 1,329,577 | 64,415,725 (overworld) | 0.0 | 4.5 | **4.5** |
-| IV | 57,509,922 | 64,415,725 (overworld) | 0.9 | 4.4 | **5.3** |
-| LUV | 271,985,796 | 64,415,725 (overworld) | 4.2 | 2.1 | **6.3** |
-| ZPM | 583,835,839 | 64,415,725 (overworld) | 9.1 | 0.0 | **9.1** |
-| UV | 669,047,722 | 64,415,725 (overworld) | 10.4 | 0.0 | **10.4** |
+| LV | 265,998 | 6,565,579 (overworld) | 0.0 | 6.3 | **6.3** |
+| MV | 214,313 | 9,777,471 (overworld) | 0.0 | 8.2 | **8.2** |
+| HV | 981,756 | 32,260,716 (overworld) | 0.0 | 6.7 | **6.8** |
+| EV | 1,326,544 | 64,379,638 (overworld) | 0.0 | 4.5 | **4.5** |
+| IV | 57,409,885 | 64,379,638 (overworld) | 0.9 | 4.4 | **5.3** |
+| LUV | 271,644,702 | 64,379,638 (overworld) | 4.2 | 2.1 | **6.3** |
+| ZPM | 580,859,702 | 64,379,638 (overworld) | 9.0 | 0.0 | **9.0** |
+| UV | 665,227,826 | 64,379,638 (overworld) | 10.3 | 0.0 | **10.3** |
 
 Invariants (kit cost rises with tier; 5-10 Prestiges per tier):
-- MV kit (214,237) does not cost more than the tier below (265,895)
+- MV kit (214,313) does not cost more than the tier below (265,998)
 - EV takes 4.5 Prestiges, outside 5-10
-- UV takes 10.4 Prestiges, outside 5-10
+- UV takes 10.3 Prestiges, outside 5-10
 
 Assumptions: ore fraction mined per tier {'lv': 0.1, 'mv': 0.15, 'hv': 0.5, 'ev': 1.0, 'iv': 1.0, 'luv': 1.0, 'zpm': 1.0, 'uv': 1.0}; rock fraction 0.1; dimensions from {'overworld': 'lv', 'the_nether': 'mv', 'the_end': 'ev'}; 2000 games, 3 candidates.

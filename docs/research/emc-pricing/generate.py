@@ -886,35 +886,39 @@ class Generator:
         self.log.append('free fluids (from nothing or water alone), per tier: %s' % ', '.join(n))
 
     def recipe_cost_fluids(self):
-        """Fluids hand_values.json lists at a recipe's cost (fluids_at_recipe_cost: nitrogen from air, #81), the
-        cheapest of the recipes named: the consumed fluids at their listed value (else what the game derives for them,
-        from the dump) plus the machine time and EU, less the other listed fluids and the items it also gives, per
-        1000 mB of the fluid. Runs after free_fluids(), which lists the free inputs."""
+        """Fluids hand_values.json lists at a recipe's cost (fluids_at_recipe_cost: the gases from air, #81, #63): each
+        recipe named makes some of them, and its cost (the consumed fluids at their listed value, else what the game
+        derives for them, from the dump, plus the machine time and EU, less the other listed fluids and the items it
+        also gives) is split across the ones it makes by amount, so each gets the same price per 1000 mB and none
+        carries the others for nothing. A fluid takes the cheapest of its recipes. Runs after free_fluids(), which lists
+        the free inputs."""
         src = lambda i: self.fluids.get(i, (i,))[0]
         fluid = lambda i: self.listed.get(src(i), self.fluids.get(src(i), (None, 0))[1] or 0)
         rates, prices, eu = time_rates(), eu_prices(), load_eu()
         by_id = {r['id']: r for r in self.recipes}
+        listed = self.hand.get('fluids_at_recipe_cost', {}).get('fluids', {})
+        per_bucket = {}
+        for rid in sorted({rid for rids in listed.values() for rid in rids}):
+            r = by_id[rid]
+            assert not [x for x in r['i'] if x['ch'] > 0], 'item inputs are not costed: %s' % rid
+            cost = sum(fluid(x['ids'][0]) * x['n'] / 1000 for x in r['fi'] if x['ch'] > 0)
+            cost += sum((c or (0, 0, 0))[2] for c in (recipe_time(r, rates), recipe_energy(r, eu, prices)))
+            amount = 0
+            for x in r['fo']:
+                k = x['n'] * x['ch'] / x['mx'] / 1000
+                f = src(x['ids'][0])
+                if f in listed and rid in listed[f]:
+                    amount += k
+                else:
+                    cost -= self.listed.get(f, 0) * k
+            cost -= sum((self.items.get(x['ids'][0]) or 0) * x['n'] * x['ch'] / x['mx'] for x in r['o'])
+            per_bucket[rid] = cost / amount
         n = []
-        for f, rids in sorted(self.hand.get('fluids_at_recipe_cost', {}).get('fluids', {}).items()):
-            costs = []
-            for rid in rids:
-                r = by_id[rid]
-                assert not [x for x in r['i'] if x['ch'] > 0], 'item inputs are not costed: %s' % rid
-                cost = sum(fluid(x['ids'][0]) * x['n'] / 1000 for x in r['fi'] if x['ch'] > 0)
-                cost += sum((c or (0, 0, 0))[2] for c in (recipe_time(r, rates), recipe_energy(r, eu, prices)))
-                amount = 0
-                for x in r['fo']:
-                    k = x['n'] * x['ch'] / x['mx'] / 1000
-                    if src(x['ids'][0]) == f:
-                        amount += k
-                    else:
-                        cost -= self.listed.get(src(x['ids'][0]), 0) * k
-                cost -= sum((self.items.get(x['ids'][0]) or 0) * x['n'] * x['ch'] / x['mx'] for x in r['o'])
-                costs.append((cost / amount, rid))
-            cost, rid = min(costs)
+        for f, rids in sorted(listed.items()):
+            cost, rid = min((per_bucket[rid], rid) for rid in rids)
             self.listed[f] = max(1, math.floor(cost))
             self.fluid_reasons[f] = 'recipe cost of %s' % rid
-            n.append('%s %d (%s)' % (f, self.listed[f], ', '.join('%s %.0f' % (r, c) for c, r in costs)))
+            n.append('%s %d (%s)' % (f, self.listed[f], ', '.join('%s %.0f' % (r, per_bucket[r]) for r in rids)))
         self.log.append('fluids listed at a recipe\'s cost: %s' % '; '.join(n))
 
     def unobtainable_materials(self, val):
