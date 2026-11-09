@@ -14,9 +14,14 @@ rarity price, the late-tier floors, ProjectE's vanilla defaults (and the overrid
 rod, nether star), the explicit fluid values (water, lava, steam, milk, the free fluids per tier, nitrogen at its cost
 from air) and the 0-EMC Transmutation Tablet; plus the plumbing ProjectE needs to see anything at all (ore blocks and processing forms at
 their yield, filled buckets, what the game leaves at 0 from valued inputs, values below 1 EMC). ProjectE takes the
-cheapest route by itself, so nothing is capped: #63's R1 ceilings, `game_caps.json` and #41's hand-set GT fuels are
-gone, and so are the hand pins a recipe derives (steel, wrought iron, GT cobblestone forms, dark concrete, magnesite
-and magnesia). A raw material is pinned on its dust or gem only: its ingot, plate and block derive from it (#81), and
+cheapest route by itself, so nothing else is capped: `game_caps.json` and #41's hand-set GT fuels are gone, and so are
+the hand pins a recipe derives (steel, wrought iron, GT cobblestone forms, dark concrete, magnesite and magnesia). A
+pin is the one value no route lowers (the GT recipe mapper never lowers one), so **#63's R1 holds for pins too**: a
+rarity-priced material that a GT recipe makes for less, as its guaranteed first output, is pinned at that recipe's cost
+instead (`generate.py`'s `recipe_ceilings()`): its inputs at the game's values plus the recipe's built-in time and EU,
+minus its byproducts, per unit, worked out once the units are pinned (gypsum from apatite, itself rarity-priced:
+8,192 → 58; rutile from bauxite sludge 2,048 → 174) and before the ores that yield it, so they follow. Routes through the material's own products don't count (salt from
+sodium and chlorine, which come from salt), nor do late-tier floors or ProjectE's defaults. A raw material is pinned on its dust or gem only: its ingot, plate and block derive from it (#81), and
 ProjectE's own metal defaults (tin, lead, silver, ... at multiples of iron) are gone, as the Pack replaces ProjectE's
 `metals.json` with its vanilla entries (`pack/kubejs/data/projecte/pe_custom_conversions/metals.json`, which
 `emcmodel.py` reads too).
@@ -44,7 +49,7 @@ discovering the tier's materials. `prestiges_per_tier.py` reports it from a dump
 | `eu_price.py` → `eu_price.txt` | EU price from generation cost (fuel plus generator EMC amortised over H hours), cheapest per tier, and the pump check (#64). |
 | `energy_sweep.py` → `energy_sweep.txt` | Audit and Prestiges per tier at several EU prices, with and without floors (#64). `EMC_EU_PRICE` (EMC per EU, or JSON per tier) overrides the mod's EU price in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
 | `time_sweep.py` → `time_sweep.txt` | Time in EMC (#64, `../time-in-emc.md`): per schedule of R (EMC per machine-second), the EU price per tier from the cheapest generator (`eu_price.py --rate`), the in-game loops left, the model's audit and Prestiges per tier with full, half and no floors, base earnings per hour, and pump checks. `EMC_TIME_RATE` (a number, or JSON per tier) overrides the mod's time rate in `emcmodel.py` and `audit.py` (`0`: off). Research output, not re-run since #68. |
-| `game_zero.json` | Generated: items and fluids a dump showed at 0 although a recipe makes them from inputs the game valued (a recipe ProjectE can't map, such as a smithing upgrade or an output with data components; a share split that gives a byproduct nothing; a tiny dust floored to 0), pinned at the model's value; and (`materials`, #81) rarity-priced materials a dump showed the game making for less through another form (U-238), left to recipes; kept so re-runs are stable. |
+| `game_zero.json` | Generated: items and fluids a dump showed at 0 although a recipe makes them from inputs the game valued (a recipe ProjectE can't map, such as a smithing upgrade or an output with data components; a share split that gives a byproduct nothing; a tiny dust floored to 0), pinned at the model's value; and (`materials`, #81) rarity-priced materials a dump showed the game making for less through another form (U-238), left to recipes; and (`ceilings`, #63) the R1 ceilings `recipe_ceilings()` found, kept at their first value (the game prices some of those recipes' byproducts at what is left once the ceiling is paid, so recomputing them from each new dump creeps); kept so re-runs are stable. |
 | `projecte_defaults/` | ProjectE PE1.1.0's own default values (`data/projecte/pe_custom_conversions`, MIT). |
 
 ## Reproduce
